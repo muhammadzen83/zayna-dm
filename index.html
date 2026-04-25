@@ -238,7 +238,7 @@
             #doseSlotFilters .fb,#gdsSlotFilters .fb{font-size:10px;padding:5px 9px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-        .data-table-wrap{padding:0 20px 16px;margin-top:4px;overflow-x:auto}
+        .data-table-wrap{padding:0 0 16px;margin-top:4px;overflow-x:auto}
         .data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--card)}
         .data-table thead th{background:var(--card2);color:var(--muted);font-weight:600;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0}
         .data-table thead th:first-child{text-align:left;padding-left:14px}
@@ -790,11 +790,12 @@ function renderDoseTable(){
     h+='</tbody></table>';
     wrap.innerHTML=h;
 }
+
 /* ====== FILTERS ====== */
-document.getElementById('gdsFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');gdsPeriod=btn.dataset.period;renderGdsChart();});
-document.getElementById('gdsSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin');});gdsSlot=btn.dataset.gs;if(gdsSlot!=='all')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderGdsChart();});
-document.getElementById('dosePeriodFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#dosePeriodFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');dosePeriod=btn.dataset.dp;renderDoseChart();});
-document.getElementById('doseSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#doseSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin','active-levemir');});doseSlot=btn.dataset.ds;if(doseSlot==='levemir')btn.classList.add('active','active-levemir');else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderDoseChart();});
+document.getElementById('gdsFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');gdsPeriod=btn.dataset.period;renderGdsChart();renderGdsTable();});
+document.getElementById('gdsSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin');});gdsSlot=btn.dataset.gs;if(gdsSlot!=='all')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderGdsChart();renderGdsTable();});
+document.getElementById('dosePeriodFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#dosePeriodFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');dosePeriod=btn.dataset.dp;renderDoseChart();renderDoseTable();});
+document.getElementById('doseSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#doseSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin','active-levemir');});doseSlot=btn.dataset.ds;if(doseSlot==='levemir')btn.classList.add('active','active-levemir');else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderDoseChart();renderDoseTable();});
 document.getElementById('historyFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#historyFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');historyPeriod=btn.dataset.hp;renderHistory();});
 
 /* ====== COUNTDOWN ====== */
