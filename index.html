@@ -238,6 +238,25 @@
             #doseSlotFilters .fb,#gdsSlotFilters .fb{font-size:10px;padding:5px 9px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+        .data-table-wrap{padding:0 20px 16px;overflow-x:auto}
+        .data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--card)}
+        .data-table thead th{background:var(--card2);color:var(--muted);font-weight:600;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0}
+        .data-table thead th:first-child{text-align:left;padding-left:14px}
+        .data-table tbody td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);color:var(--fg2);font-weight:500;vertical-align:middle}
+        .data-table tbody td:first-child{text-align:left;padding-left:14px;color:var(--muted);font-weight:600;font-size:10px;white-space:nowrap}
+        .data-table tbody tr:last-child td{border-bottom:none}
+        .data-table tbody tr{transition:background .15s}
+        .data-table tbody tr:hover{background:var(--card-hover)}
+        .data-table .cell-val{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
+        .data-table .cell-val.good{background:var(--accent-dim);color:var(--accent)}
+        .data-table .cell-val.warn{background:var(--warning-dim);color:var(--warning)}
+        .data-table .cell-val.danger{background:var(--danger-dim);color:var(--danger)}
+        .data-table .cell-val.empty{background:transparent;color:var(--muted);opacity:.25;font-weight:400}
+        .data-table .cell-val.insulin-c{background:var(--insulin-dim);color:var(--insulin)}
+        .data-table .cell-val.levemir-c{background:var(--levemir-dim);color:var(--levemir)}
+        .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
+        .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
+        .data-table .row-avg-cell{color:var(--muted);font-size:10px}
     </style>
 </head>
 <body>
@@ -348,6 +367,7 @@
                         <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--danger)"></div>Kritis</div>
                     </div>
                 </div>
+                <div class="data-table-wrap" id="gdsTableWrap"></div>
             </div>
         </div>
 
@@ -378,6 +398,7 @@
                         <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--levemir)"></div>Levemir</div>
                     </div>
                 </div>
+                <div class="data-table-wrap" id="doseTableWrap"></div>
             </div>
         </div>
 
@@ -439,11 +460,13 @@ function showPage(pageId){
         if(!gdsChartInit){initGdsChart();gdsChartInit=true;}
         else{state.gdsChart.resize();}
         renderGdsChart();
+        renderGdsTable();
     }
     if(pageId==='dosePage'){
         if(!doseChartInit){initDoseChart();doseChartInit=true;}
         else{state.doseChart.resize();}
         renderDoseChart();
+        renderDoseTable();
     }
     if(pageId==='historyPage')renderHistory();
     if(pageId==='dietPage')renderDiet();
@@ -649,6 +672,124 @@ function renderDietCompact(){
     el.innerHTML=html;
 }
 
+    /* ====== GDS TABLE ====== */
+function renderGdsTable(){
+    var wrap=document.getElementById('gdsTableWrap');if(!wrap)return;
+    var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null;}),gdsPeriod);
+    if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});
+    if(!entries.length){wrap.innerHTML='<div class="empty-box" style="padding:24px 20px"><i class="fa-solid fa-table"></i><p>Tidak ada data untuk ditampilkan</p></div>';return;}
+
+    var GDS_COLS=gdsSlot==='all'?['dini-hari','sarapan','siang','malam']:[gdsSlot];
+    var COL_LABELS={dini_hari:'Dini Hari',sarapan:'Sarapan',siang:'Siang',malam:'Malam'};
+    /* FIX: gunakan key tanpa strip */
+    var COL_LABELS2={'dini-hari':'Dini Hari',sarapan:'Sarapan',siang:'Siang',malam:'Malam'};
+
+    var grouped={};
+    entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={};grouped[d][e.slot]=e.gds;});
+
+    var dates=Object.keys(grouped).sort().reverse();
+    if(dates.length>14)dates=dates.slice(0,14);
+
+    var allVals=[];
+    dates.forEach(function(d){GDS_COLS.forEach(function(s){if(grouped[d][s]!=null)allVals.push(grouped[d][s]);});});
+    var stats=calcStats(allVals);
+
+    var h='<table class="data-table"><thead><tr><th>Tanggal</th>';
+    GDS_COLS.forEach(function(s){h+='<th>'+COL_LABELS2[s]+'</th>';});
+    if(gdsSlot==='all')h+='<th>Rata²</th>';
+    h+='</tr></thead><tbody>';
+
+    dates.forEach(function(d){
+        var dd=new Date(d+'T00:00:00');
+        var label=isNaN(dd.getTime())?d:dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+        h+='<tr><td>'+label+'</td>';
+        var rowVals=[];
+        GDS_COLS.forEach(function(s){
+            var v=grouped[d][s];
+            if(v==null){h+='<td><span class="cell-val empty">—</span></td>';}
+            else{rowVals.push(v);var cat=getCat(v);h+='<td><span class="cell-val '+cat.cls+'">'+v+'</span></td>';}
+        });
+        if(gdsSlot==='all'&&rowVals.length){
+            var avg=Math.round(rowVals.reduce(function(a,b){return a+b;},0)/rowVals.length);
+            var ac=getCat(avg);
+            h+='<td><span class="cell-val '+ac.cls+'">'+avg+'</span></td>';
+        }else if(gdsSlot==='all'){h+='<td><span class="cell-val empty">—</span></td>';}
+        h+='</tr>';
+    });
+
+    /* Baris rata-rata kolom */
+    h+='<tr style="background:var(--card2)"><td class="row-total" style="padding-left:14px">Rata²</td>';
+    GDS_COLS.forEach(function(s){
+        var colVals=[];dates.forEach(function(d){if(grouped[d][s]!=null)colVals.push(grouped[d][s]);});
+        if(colVals.length){var avg=Math.round(colVals.reduce(function(a,b){return a+b;},0)/colVals.length);var ac=getCat(avg);h+='<td><span class="cell-val '+ac.cls+'">'+avg+'</span></td>';}
+        else h+='<td><span class="cell-val empty">—</span></td>';
+    });
+    if(gdsSlot==='all'&&allVals.length){var ac=getCat(stats.avg);h+='<td><span class="cell-val '+ac.cls+'" style="font-size:13px">'+stats.avg+'</span></td>';}
+    else if(gdsSlot==='all')h+='<td><span class="cell-val empty">—</span></td>';
+    h+='</tr>';
+
+    h+='</tbody></table>';
+    wrap.innerHTML=h;
+}
+
+/* ====== DOSE TABLE ====== */
+function renderDoseTable(){
+    var wrap=document.getElementById('doseTableWrap');if(!wrap)return;
+    var entries=filterByPeriod(state.data,dosePeriod);
+    if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});
+    if(!entries.length){wrap.innerHTML='<div class="empty-box" style="padding:24px 20px"><i class="fa-solid fa-table"></i><p>Tidak ada data untuk ditampilkan</p></div>';return;}
+
+    var DOSE_COLS=doseSlot==='all'?['sarapan','siang','malam','levemir']:[doseSlot];
+    var COL_LABELS2={sarapan:'Sarapan',siang:'Siang',malam:'Malam',levemir:'Levemir'};
+    var COL_TYPE={sarapan:'rapid',siang:'rapid',malam:'rapid',levemir:'levemir'};
+
+    var grouped={};
+    entries.forEach(function(e){
+        var d=normalizeDate(e.date);
+        if(!grouped[d])grouped[d]={};
+        if(!grouped[d][e.slot])grouped[d][e.slot]={dose:0,count:0};
+        if(e.dose!=null){grouped[d][e.slot].dose+=e.dose;grouped[d][e.slot].count++;}
+    });
+
+    var dates=Object.keys(grouped).sort().reverse();
+    if(dates.length>14)dates=dates.slice(0,14);
+
+    var h='<table class="data-table"><thead><tr><th>Tanggal</th>';
+    DOSE_COLS.forEach(function(s){h+='<th>'+COL_LABELS2[s]+'</th>';});
+    h+='<th>Total</th></tr></thead><tbody>';
+
+    var grandTotal=0;
+    dates.forEach(function(d){
+        var dd=new Date(d+'T00:00:00');
+        var label=isNaN(dd.getTime())?d:dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+        h+='<tr><td>'+label+'</td>';
+        var rowTotal=0;
+        DOSE_COLS.forEach(function(s){
+            var info=grouped[d][s];
+            var v=info&&info.dose?info.dose:0;
+            rowTotal+=v;
+            var cls=v?'':'empty';
+            var colorCls=COL_TYPE[s]==='levemir'?'levemir-c':'insulin-c';
+            h+='<td><span class="cell-val '+(v?colorCls:cls)+'">'+(v?v+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';
+        });
+        grandTotal+=rowTotal;
+        h+='<td><span class="cell-val '+(rowTotal?'good':'empty')+'" style="font-size:13px">'+(rowTotal?rowTotal+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';
+        h+='</tr>';
+    });
+
+    /* Baris total kolom */
+    h+='<tr style="background:var(--card2)"><td class="row-total" style="padding-left:14px">Total</td>';
+    DOSE_COLS.forEach(function(s){
+        var colTotal=0;dates.forEach(function(d){var info=grouped[d][s];if(info&&info.dose)colTotal+=info.dose;});
+        var colorCls=COL_TYPE[s]==='levemir'?'levemir-c':'insulin-c';
+        h+='<td><span class="cell-val '+(colTotal?colorCls:'empty')+'">'+(colTotal?colTotal+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';
+    });
+    h+='<td><span class="cell-val good" style="font-size:13px">'+(grandTotal?grandTotal+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';
+    h+='</tr>';
+
+    h+='</tbody></table>';
+    wrap.innerHTML=h;
+}
 /* ====== FILTERS ====== */
 document.getElementById('gdsFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');gdsPeriod=btn.dataset.period;renderGdsChart();});
 document.getElementById('gdsSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin');});gdsSlot=btn.dataset.gs;if(gdsSlot!=='all')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderGdsChart();});
@@ -673,7 +814,7 @@ function updateCountdown(){
 
 /* ====== AUTO REFRESH ====== */
 let lastLength=0;
-setInterval(async()=>{const newData=await fetchData();if(newData.length!==lastLength){lastLength=newData.length;state.data=newData;if(state.currentPage==='gdsPage')renderGdsChart();else if(state.currentPage==='dosePage')renderDoseChart();else if(state.currentPage==='historyPage')renderHistory();else if(state.currentPage==='dietPage')renderDiet();else{updateProgress();renderDietCompact();}updateCountdown();}},5000);
+setInterval(async()=>{const newData=await fetchData();if(newData.length!==lastLength){lastLength=newData.length;state.data=newData;if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='historyPage')renderHistory();else if(state.currentPage==='dietPage')renderDiet();else{updateProgress();renderDietCompact();}updateCountdown();}},5000);
 
 /* ====== INIT ====== */
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
