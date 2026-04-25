@@ -200,6 +200,12 @@
         .hp-item-badge.gds-b{background:var(--accent-dim);color:var(--accent)}
         .hp-item-badge.ins-b{background:var(--insulin-dim);color:var(--insulin)}
         .hp-item-badge.lev-b{background:var(--levemir-dim);color:var(--levemir)}
+        .hp-item-dose{font-size:11px;color:var(--insulin);font-weight:600;margin-top:3px;display:flex;align-items:center;gap:4px}
+        .hp-item-dose i{font-size:9px}
+        .hp-item-dose.levemir-d{color:var(--levemir)}
+        .hp-item-gds{font-size:12px;font-weight:700;margin-top:2px}
+        .hp-item-gds.good{color:var(--accent)}.hp-item-gds.warn{color:var(--warning)}.hp-item-gds.danger{color:var(--danger)}
+        .hp-item-right{min-width:80px}
 
         .empty-box{text-align:center;padding:40px 20px;color:var(--muted)}
         .empty-box i{font-size:36px;opacity:.15;display:block;margin-bottom:12px}
@@ -579,11 +585,32 @@ function renderHistory(){
     Object.keys(grouped).sort().reverse().forEach(date=>{
         html+='<div class="hp-date-label"><i class="fa-regular fa-calendar" style="font-size:10px"></i>'+date+'</div>';
         grouped[date].forEach(e=>{
-            let icon='fa-droplet',iconClass='gds',value=e.gds?e.gds+' mg/dL':'—',badge='<span class="hp-item-badge gds-b">GDS</span>';
-            if(e.doseType==='rapid'){icon='fa-syringe';iconClass='insulin';value=e.dose?e.dose+' unit':'—';badge='<span class="hp-item-badge ins-b">Insulin</span>';}
-            if(e.doseType==='levemir'){icon='fa-syringe';iconClass='levemir';value=e.dose?e.dose+' unit':'—';badge='<span class="hp-item-badge lev-b">Levemir</span>';}
-            if(e.gds&&(e.gds>300||e.gds<70))iconClass='high';
-            html+='<div class="hp-item"><div class="hp-item-icon '+iconClass+'"><i class="fa-solid '+icon+'"></i></div><div class="hp-item-info"><div class="hp-item-title">'+e.slot+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+e.time+'</div></div><div class="hp-item-right"><div class="hp-item-val '+iconClass+'-v">'+value+'</div>'+badge+'</div></div>';
+            var cat=getCat(e.gds);
+            var icon='fa-droplet',iconClass='gds';
+            var valHtml='',badge='';
+
+            if(e.doseType==='rapid'){
+                /* ── Insulin: tampilkan GDS + Dosis ── */
+                icon='fa-syringe';
+                iconClass=(e.gds&&(e.gds>300||e.gds<70))?'high':'insulin';
+                var gdsCls=e.gds?cat.cls:'muted';
+                var gdsColor=e.gds?(cat.cls==='good'?'var(--accent)':cat.cls==='warn'?'var(--warning)':'var(--danger)'):'var(--muted)';
+                valHtml='<div class="hp-item-val '+(e.gds?gdsCls+'-v':'')+'" style="'+(e.gds?'color:'+gdsColor:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';
+                if(e.dose)valHtml+='<div class="hp-item-dose"><i class="fa-solid fa-syringe"></i>'+e.dose+' unit</div>';
+                badge='<span class="hp-item-badge ins-b">Insulin</span>';
+            }else if(e.doseType==='levemir'){
+                /* ── Levemir: hanya dosis ── */
+                icon='fa-syringe';iconClass='levemir';
+                valHtml='<div class="hp-item-val levemir-v">'+(e.dose?e.dose+' unit':'—')+'</div>';
+                badge='<span class="hp-item-badge lev-b">Levemir</span>';
+            }else{
+                /* ── GDS saja (dini-hari) ── */
+                iconClass=(e.gds&&(e.gds>300||e.gds<70))?'high':'gds';
+                valHtml='<div class="hp-item-val '+(e.gds?cat.cls+'-v':'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';
+                badge='<span class="hp-item-badge gds-b">GDS</span>';
+            }
+
+            html+='<div class="hp-item"><div class="hp-item-icon '+iconClass+'"><i class="fa-solid '+icon+'"></i></div><div class="hp-item-info"><div class="hp-item-title">'+e.slot+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+e.time+'</div></div><div class="hp-item-right">'+valHtml+badge+'</div></div>';
         });
     });
     list.innerHTML=html;
