@@ -301,7 +301,7 @@
                     <div class="p-slot" data-slot="sarapan"><div class="p-icon"><i class="fa-solid fa-mug-hot"></i></div><div class="p-time">06:00</div><div class="p-label">Sarapan</div></div>
                     <div class="p-slot" data-slot="siang"><div class="p-icon"><i class="fa-solid fa-sun"></i></div><div class="p-time">12:00</div><div class="p-label">Siang</div></div>
                     <div class="p-slot" data-slot="malam"><div class="p-icon"><i class="fa-solid fa-cloud-moon"></i></div><div class="p-time">18:00</div><div class="p-label">Malam</div></div>
-                    <div class="p-slot" data-slot="levemir"><div class="p-icon"><i class="fa-solid fa-syringe"></i></div><div class="p-time">20:30</div><div class="p-label">Levemir</div></div>
+                    <div class="p-slot" data-slot="levemir"><div class="p-icon"><i class="fa-solid fa-syringe"></i></div><div class="p-time">20:00</div><div class="p-label">Levemir</div></div>
                 </div>
             </div>
 
@@ -799,7 +799,7 @@ document.getElementById('doseSlotFilters').addEventListener('click',function(e){
 document.getElementById('historyFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#historyFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');historyPeriod=btn.dataset.hp;renderHistory();});
 
 /* ====== COUNTDOWN ====== */
-var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{hour:6,minute:0,slot:'sarapan',label:'GDS + Insulin'},{hour:9,minute:0,slot:'snack-pagi',label:'Snack Pagi',autoDone:true},{hour:12,minute:0,slot:'siang',label:'GDS + Insulin'},{hour:15,minute:0,slot:'snack-siang',label:'Snack Siang',autoDone:true},{hour:18,minute:0,slot:'malam',label:'GDS + Insulin'},{hour:20,minute:30,slot:'levemir',label:'Suntik Levemir'},{hour:21,minute:0,slot:'snack-malam',label:'Snack Malam',autoDone:true}];
+var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{hour:6,minute:0,slot:'sarapan',label:'GDS + Insulin'},{hour:9,minute:0,slot:'snack-pagi',label:'Snack Pagi',autoDone:true},{hour:12,minute:0,slot:'siang',label:'GDS + Insulin'},{hour:15,minute:0,slot:'snack-siang',label:'Snack Siang',autoDone:true},{hour:18,minute:0,slot:'malam',label:'GDS + Insulin'},{hour:20,minute:0,slot:'levemir',label:'Suntik Levemir'},{hour:21,minute:0,slot:'snack-malam',label:'Snack Malam',autoDone:true}];
 function updateCountdown(){
     var now=new Date(),nowT=now.getHours()*60+now.getMinutes(),today=getTodayKey();
     var todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});
