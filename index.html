@@ -257,6 +257,7 @@
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
         .data-table .row-avg-cell{color:var(--muted);font-size:10px}
+        .input-disabled-note{font-size:11px;color:var(--warning);font-weight:500;display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 12px;border-radius:var(--radius-xs);background:var(--warning-dim);border:1px solid var(--warning-border)}
     </style>
 </head>
 <body>
@@ -325,6 +326,7 @@
                     <button class="submit-btn" id="submitBtn" disabled><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
                 <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
             </div>
             <div class="result-card" id="resultCard"></div>
 
@@ -503,11 +505,38 @@ function updateProgress(){
     const statDoneEl=document.getElementById('statDone');
     if(statDoneEl)statDoneEl.textContent=doneCount;
     document.querySelectorAll('.p-slot').forEach(el=>{const slot=el.dataset.slot;if(done[slot])el.classList.add('done');else el.classList.remove('done');});
+    document.querySelectorAll('.slot-btn').forEach(function(b){if(done[b.dataset.slot])b.classList.add('done-slot');else b.classList.remove('done-slot');});
+    if(done['levemir'])levemirBtn.classList.add('done');else levemirBtn.classList.remove('done');
+    if(state.selectedSlot){
+        var isDup=done[state.selectedSlot];
+        gdsInput.disabled=isDup;submitBtn.disabled=isDup||!gdsInput.value.trim();
+        var note=document.getElementById('dupNote');
+        if(isDup){note.style.display='flex';var sObj=SLOTS.find(function(s){return s.slot===state.selectedSlot;});document.getElementById('dupNoteText').textContent=sObj.label+' sudah tercatat untuk hari ini.';}
+        else note.style.display='none';
+    }
 }
 
 /* ====== INPUT ====== */
 var gdsInput=document.getElementById('gdsInput'),submitBtn=document.getElementById('submitBtn'),levemirBtn=document.getElementById('levemirBtn'),resultCard=document.getElementById('resultCard'),inputRow=document.getElementById('inputRow');
-function selectSlot(slot){state.selectedSlot=slot;document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.toggle('active',b.dataset.slot===slot);});document.querySelectorAll('.p-slot').forEach(function(el){el.classList.toggle('active-slot',el.dataset.slot===slot);});if(slot==='levemir'){inputRow.style.display='none';levemirBtn.style.display='flex';}else{inputRow.style.display='flex';levemirBtn.style.display='none';gdsInput.focus();}updateSubmitBtn();resultCard.classList.remove('show');}
+function selectSlot(slot){
+    var today=getTodayKey();
+    var isDup=state.data.some(function(e){return normalizeDate(e.date)===today&&e.slot===slot;});
+    if(isDup&&slot!=='levemir'){
+        gdsInput.disabled=true;submitBtn.disabled=true;gdsInput.value='';
+        var note=document.getElementById('dupNote');note.style.display='flex';
+        var sObj=SLOTS.find(function(s){return s.slot===slot;});
+        document.getElementById('dupNoteText').textContent=sObj.label+' sudah tercatat untuk hari ini.';
+    }else{
+        document.getElementById('dupNote').style.display='none';
+        gdsInput.disabled=false;
+    }
+    state.selectedSlot=slot;
+    document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.toggle('active',b.dataset.slot===slot);});
+    document.querySelectorAll('.p-slot').forEach(function(el){el.classList.toggle('active-slot',el.dataset.slot===slot);});
+    if(slot==='levemir'){inputRow.style.display='none';levemirBtn.style.display='flex';}
+    else{inputRow.style.display='flex';levemirBtn.style.display='none';if(!isDup)gdsInput.focus();}
+    updateSubmitBtn();resultCard.classList.remove('show');
+}
 function updateSubmitBtn(){const slot=state.selectedSlot;submitBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);}
 gdsInput.addEventListener('input',updateSubmitBtn);
 gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!submitBtn.disabled)handleSubmit();});
@@ -519,6 +548,7 @@ document.querySelectorAll('.p-slot').forEach(function(el){el.addEventListener('c
 async function handleSubmit(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
+    if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}
     var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);
     var entry={date:getTodayKey(),time:getTimeStr(),slot:slot,gds:gdsVal,dose:null,doseType:null,category:cat.cls};
     if(s.type==='gds-insulin'){
@@ -539,6 +569,7 @@ async function handleSubmit(){
 
 async function handleLevemir(){
     var entry={date:getTodayKey(),time:getTimeStr(),slot:'levemir',gds:null,dose:LEVEMIR_DOSE,doseType:'levemir',category:'good'};
+    if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot==='levemir';})){showToast('Levemir sudah tercatat hari ini','error');return;}
     var ok=await submitData(entry);
     if(ok){showToast('Levemir 8 unit tercatat');state.data.unshift(entry);updateProgress();renderDietCompact();try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');Telegram.WebApp.close();}catch(e){}}else showToast('Gagal menyimpan','error');
 }
