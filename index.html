@@ -49,12 +49,19 @@
         .ambient::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
         .shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:100%;margin:0 auto;padding:0 0 32px}
         .hdr{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-        .brand{display:flex;align-items:center;gap:12px}
         .brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#00B88C);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bg);box-shadow:0 6px 24px rgba(0,229,160,.25);position:relative}
         .brand-icon::after{content:'';position:absolute;inset:-3px;border-radius:15px;background:linear-gradient(135deg,var(--accent),transparent);opacity:.2;z-index:-1}
-        .brand h1{font-size:16px;font-weight:700;line-height:1.15;letter-spacing:-.3px}
         .brand p{font-size:11px;color:var(--muted);font-weight:500;margin-top:1px}
-        .hdr-actions{display:flex;gap:6px}
+        .hdr-actions{display:flex;gap:5px;flex-shrink:1;min-width:0}
+        .brand{display:flex;align-items:center;gap:10px;min-width:0;flex-shrink:1}
+        .brand h1{font-size:16px;font-weight:700;line-height:1.15;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .info-bar{margin:0 16px 6px;padding:10px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;transition:all .25s;min-width:0;overflow:hidden}
+        .info-bar .nr-value{color:var(--fg2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+        .info-bar .nr-label{color:var(--muted);flex-shrink:0}
+        .info-bar .nr-countdown{margin-left:auto;color:var(--accent);font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px;flex-shrink:0}
+        .info-bar.bot span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+        .info-bar.bot i{flex-shrink:0}
+        .info-bar.reminder i{color:var(--accent);font-size:14px;flex-shrink:0}
         .hdr-btn{width:38px;height:38px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:14px}
         .hdr-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
         .hdr-btn.active{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 16px rgba(0,229,160,.1)}
@@ -64,17 +71,11 @@
         .page-title-bar .ptb-back{width:32px;height:32px;border-radius:var(--radius-xs);border:1px solid var(--border);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:12px}
         .page-title-bar .ptb-back:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
         .page-title-bar .ptb-text{font-size:15px;font-weight:700;color:var(--fg)}
-        .info-bar{margin:0 20px 6px;padding:10px 14px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;transition:all .25s}
         .info-bar.bot{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent)}
-        .info-bar.bot i{font-size:15px}
         .info-bar.reminder{background:var(--card);border:1px solid var(--border)}
-        .info-bar.reminder i{color:var(--accent);font-size:14px}
-        .info-bar .nr-label{color:var(--muted)}
-        .info-bar .nr-value{color:var(--fg2);font-weight:600}
-        .info-bar .nr-countdown{margin-left:auto;color:var(--accent);font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px}
         .progress-strip{padding:10px 20px 8px}
         .progress-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-        .p-slot{text-align:center;padding:10px 2px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+        .p-slot{text-align:center;padding:10px 2px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .25s;position:relative;overflow:hidden;min-width:0}
         .p-slot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .25s}
         .p-slot:hover{border-color:var(--border2);background:var(--card-hover)}
         .p-slot .p-icon{font-size:14px;color:var(--muted);margin-bottom:4px;transition:color .25s}
@@ -91,7 +92,8 @@
         .stat-card{padding:14px 12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:all .25s}
         .stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
         .stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-        .stat-info .stat-val{font-size:22px;font-weight:700;line-height:1.1}
+        .stat-info{min-width:0;overflow:hidden}
+        .stat-info .stat-val{font-size:22px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .stat-info .stat-label{font-size:10px;color:var(--muted);font-weight:500;margin-top:2px}
         .stat-card.neutral .stat-icon{background:var(--accent-dim);color:var(--accent)}
         .stat-card.neutral .stat-val{color:var(--fg)}
@@ -119,7 +121,9 @@
         .slot-btn.active i{color:var(--accent)}
         .slot-btn.done-slot{opacity:.3;pointer-events:none}
         .input-row{display:flex;gap:8px}
-        .gds-input{flex:1;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--fg);font-family:inherit;font-size:16px;font-weight:600;outline:none;transition:all .2s}
+        .gds-input{flex:1;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--fg);font-family:inherit;font-size:16px;font-weight:600;outline:none;transition:all .2s;min-width:0}
+        .diet-compact-info{flex:1;min-width:0;overflow:hidden}
+        .diet-compact-label{font-size:12px;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .gds-input::placeholder{color:var(--muted);font-weight:400;font-size:13px}
         .gds-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
         .gds-input:disabled{opacity:.25}
@@ -234,7 +238,7 @@
         .hp-item-icon.insulin{background:var(--insulin-dim);color:var(--insulin)}
         .hp-item-icon.levemir{background:var(--levemir-dim);color:var(--levemir)}
         .hp-item-icon.high{background:var(--danger-dim);color:var(--danger)}
-        .hp-item-info{flex:1;min-width:0}
+        .hp-item-info{flex:1;min-width:0;overflow:hidden}
         .hp-item-title{font-size:13px;font-weight:600;text-transform:capitalize;line-height:1.2}
         .hp-item-sub{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
         .hp-item-sub i{font-size:9px}
@@ -278,9 +282,44 @@
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
         @media(max-width:540px){
-            .shell{max-width:100%}.p-slot .p-label{display:none}.slot-btns{grid-template-columns:repeat(2,1fr)}
-            #gdsStats{grid-template-columns:repeat(2,1fr)}#doseStats{grid-template-columns:repeat(2,1fr)}
-            #doseSlotFilters .fb,#gdsSlotFilters .fb{font-size:10px;padding:5px 9px}
+            .shell{max-width:100%}
+            .slot-btns{grid-template-columns:repeat(2,1fr)}
+            /* Override padding agar tidak meluber di HP kecil */
+            .hdr{padding:14px 12px 10px;gap:8px}
+            .info-bar{margin:0 12px 6px;padding:8px 10px}
+            .progress-strip{padding:8px 12px 6px}
+            .stats-grid{padding:4px 12px 8px;gap:6px}
+            .sec-head{padding:12px 12px 6px}
+            .input-section{padding:0 12px 10px}
+            .filter-bar{padding:0 12px 8px}
+            .chart-section{padding:0 12px 10px}
+            .history-section{padding:0 12px 10px}
+            .ai-insights{padding:0 12px 10px}
+            .divider{margin:0 12px}
+            .result-card{margin:0 12px 10px}
+            
+            .hdr-btn{width:34px;height:34px;font-size:13px}
+            .brand-icon{width:38px;height:38px;font-size:16px}
+            .brand h1{font-size:14px}
+            .brand p{font-size:10px}
+            .p-slot .p-label{display:none}
+            
+            /* Pastikan grid mengecil sempurna */
+            #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
+            .dose-dual{grid-template-columns:1fr}
+            .scoreboard{padding:0 12px}
+        }
+        
+        /* Khusus HP sangat kecil (misal iPhone SE lama / HP entry level) */
+        @media(max-width:340px){
+            .hdr-actions{gap:3px}
+            .hdr-btn{width:30px;height:30px;font-size:11px;border-radius:8px}
+            .brand{gap:8px}
+            .brand h1{font-size:13px}
+            .p-slot .p-time{font-size:10px}
+            .p-slot .p-icon{font-size:12px}
+            .stat-info .stat-val{font-size:18px}
+            .fb{padding:5px 8px;font-size:10px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
         /* ========== RESPONSIVE TABLET & DESKTOP ========== */
@@ -309,17 +348,6 @@
             }
             .chart-wrap canvas {
                 max-height: 450px;
-            }
-        }
-        
-        /* Penyesuaian untuk layar HP kecil (di bawah 360px) */
-        @media (max-width: 360px) {
-            .info-bar, .divider, .stats-grid, .sec-head, .filter-bar, .input-section, .result-card, .ai-insights, .chart-section, .history-section {
-                margin-left: 12px !important;
-                margin-right: 12px !important;
-            }
-            .progress-strip {
-                padding: 10px 12px 8px;
             }
         }
     </style>
