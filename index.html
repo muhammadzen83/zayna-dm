@@ -39,65 +39,86 @@
         [data-theme="light"] .toast { box-shadow: 0 10px 32px rgba(0,0,0,.1); }
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+        
+        /* ═══════ AMBIENT BACKGROUND ═══════ */
         .ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
         .ambient-orb{position:absolute;border-radius:50%;filter:blur(140px);opacity:.10}
-        .ambient-orb.a{width:420px;height:420px;background:var(--accent);top:-160px;left:-120px;animation:orbA 20s ease-in-out infinite}
-        .ambient-orb.b{width:340px;height:340px;background:#0055FF;bottom:-100px;right:-80px;animation:orbB 24s ease-in-out infinite}
-        .ambient-orb.c{width:200px;height:200px;background:var(--ai);top:40%;left:50%;animation:orbC 18s ease-in-out infinite;opacity:.05}
-        @keyframes orbA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,40px) scale(1.15)}}
-        @keyframes orbB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,-30px) scale(1.1)}}
-        @keyframes orbC{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-30%,-60%) scale(1.2)}}
+        .ambient-orb.a{width:500px;height:500px;background:var(--accent);top:-200px;left:-150px;animation:orbA 22s ease-in-out infinite}
+        .ambient-orb.b{width:400px;height:400px;background:#0055FF;bottom:-120px;right:-100px;animation:orbB 26s ease-in-out infinite}
+        .ambient-orb.c{width:280px;height:280px;background:var(--ai);top:40%;left:50%;animation:orbC 20s ease-in-out infinite;opacity:.06}
+        @keyframes orbA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,50px) scale(1.2)}}
+        @keyframes orbB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-40px) scale(1.15)}}
+        @keyframes orbC{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-30%,-60%) scale(1.25)}}
         .ambient::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
+        
+        /* ═══════ SHELL ═══════ */
         .shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:100%;margin:0 auto;padding:0 0 32px}
+        
+        /* ═══════ HEADER ═══════ */
         .hdr{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-        .brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#00B88C);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bg);box-shadow:0 6px 24px rgba(0,229,160,.25);position:relative}
-        .brand-icon::after{content:'';position:absolute;inset:-3px;border-radius:15px;background:linear-gradient(135deg,var(--accent),transparent);opacity:.2;z-index:-1}
+        .brand-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#00B88C);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bg);box-shadow:0 8px 28px rgba(0,245,200,.3);position:relative;animation:brandPulse 3s ease-in-out infinite}
+        .brand-icon::after{content:'';position:absolute;inset:-4px;border-radius:18px;background:linear-gradient(135deg,var(--accent),transparent);opacity:.2;z-index:-1}
+        @keyframes brandPulse{0%,100%{box-shadow:0 8px 28px rgba(0,245,200,.3)}50%{box-shadow:0 8px 40px rgba(0,245,200,.45)}}
         .brand p{font-size:11px;color:var(--muted);font-weight:500;margin-top:1px}
         .hdr-actions{display:flex;gap:5px;flex-shrink:1;min-width:0}
         .brand{display:flex;align-items:center;gap:10px;min-width:0;flex-shrink:1}
         .brand h1{font-size:16px;font-weight:700;line-height:1.15;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .info-bar{margin:0 16px 6px;padding:10px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;transition:all .25s;min-width:0;overflow:hidden}
+        
+        /* ═══════ INFO BAR ═══════ */
+        .info-bar{margin:0 16px 6px;padding:10px 14px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;transition:all .25s;min-width:0;overflow:hidden;backdrop-filter:blur(12px)}
         .info-bar .nr-value{color:var(--fg2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
         .info-bar .nr-label{color:var(--muted);flex-shrink:0}
         .info-bar .nr-countdown{margin-left:auto;color:var(--accent);font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.5px;flex-shrink:0}
         .info-bar.bot span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
         .info-bar.bot i{flex-shrink:0}
         .info-bar.reminder i{color:var(--accent);font-size:14px;flex-shrink:0}
-        .hdr-btn{width:38px;height:38px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:14px}
-        .hdr-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
-        .hdr-btn.active{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 16px rgba(0,229,160,.1)}
-        .page{display:none}.page.active{display:block;animation:pageIn .3s ease-out}
-        @keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .info-bar.bot{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent)}
+        .info-bar.reminder{background:var(--card);border:1px solid var(--border)}
+        
+        /* ═══════ HEADER BUTTONS ═══════ */
+        .hdr-btn{width:38px;height:38px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;font-size:14px;backdrop-filter:blur(10px)}
+        .hdr-btn:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);transform:translateY(-1px)}
+        .hdr-btn.active{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 20px rgba(0,245,200,.12)}
+        
+        /* ═══════ PAGE ═══════ */
+        .page{display:none}.page.active{display:block;animation:pageIn .35s cubic-bezier(.4,0,.2,1)}
+        @keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
         .page-title-bar{padding:12px 20px 10px;display:flex;align-items:center;gap:10px}
         .page-title-bar .ptb-back{width:32px;height:32px;border-radius:var(--radius-xs);border:1px solid var(--border);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:12px}
         .page-title-bar .ptb-back:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
         .page-title-bar .ptb-text{font-size:15px;font-weight:700;color:var(--fg)}
-        .info-bar.bot{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent)}
-        .info-bar.reminder{background:var(--card);border:1px solid var(--border)}
+        
+        /* ═══════ PROGRESS SLOTS ═══════ */
         .progress-strip{padding:10px 20px 8px}
         .progress-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-        .p-slot{text-align:center;padding:10px 2px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .25s;position:relative;overflow:hidden;min-width:0}
-        .p-slot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .25s}
-        .p-slot:hover{border-color:var(--border2);background:var(--card-hover)}
-        .p-slot .p-icon{font-size:14px;color:var(--muted);margin-bottom:4px;transition:color .25s}
-        .p-slot .p-time{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px;transition:color .25s}
+        .p-slot{text-align:center;padding:12px 2px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;min-width:0;backdrop-filter:blur(10px)}
+        .p-slot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:all .3s}
+        .p-slot:hover{border-color:var(--border2);background:var(--card-hover);transform:translateY(-2px)}
+        .p-slot .p-icon{font-size:14px;color:var(--muted);margin-bottom:4px;transition:all .3s}
+        .p-slot .p-time{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px;transition:all .3s}
         .p-slot .p-label{font-size:9px;color:var(--muted);opacity:.6;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
         .p-slot.done{border-color:var(--accent-border);background:var(--accent-dim)}
         .p-slot.done::before{background:var(--accent)}
         .p-slot.done .p-icon,.p-slot.done .p-time{color:var(--accent)}
-        .p-slot.done::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;top:4px;right:4px;font-size:7px;color:var(--accent);background:var(--bg);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1}
-        .p-slot.active-slot{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 24px rgba(0,229,160,.08)}
-        .p-slot.active-slot::before{background:var(--accent)}
+        .p-slot.done::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;top:5px;right:5px;font-size:7px;color:var(--accent);background:var(--bg);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1}
+        .p-slot.active-slot{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 28px rgba(0,245,200,.1);animation:slotPulse 2s ease-in-out infinite}
+        .p-slot.active-slot::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
         .p-slot.active-slot .p-icon,.p-slot.active-slot .p-time{color:var(--accent)}
+        @keyframes slotPulse{0%,100%{box-shadow:0 0 28px rgba(0,245,200,.1)}50%{box-shadow:0 0 40px rgba(0,245,200,.2)}}
+        
+        /* ═══════ STAT CARDS ═══════ */
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;padding:6px 20px 12px}
-        .stat-card{padding:14px 12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:all .25s}
-        .stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
-        .stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+        .stat-card{padding:14px 12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:all .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(10px);position:relative;overflow:hidden}
+        .stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;background:var(--accent);opacity:.03;transform:translate(20px,-20px)}
+        .stat-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+        .stat-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;position:relative}
         .stat-info{min-width:0;overflow:hidden}
         .stat-info .stat-val{font-size:22px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .stat-info .stat-label{font-size:10px;color:var(--muted);font-weight:500;margin-top:2px}
-        .stat-card.neutral .stat-icon{background:var(--accent-dim);color:var(--accent)}
+        .stat-card.neutral .stat-icon{background:linear-gradient(135deg,var(--accent-dim),rgba(0,245,200,.15));color:var(--accent)}
         .stat-card.neutral .stat-val{color:var(--fg)}
+        
+        /* ═══════ SECTION HEADERS ═══════ */
         .sec-head{padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between}
         .sec-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--fg)}
         .sec-title i{width:26px;height:26px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:11px}
@@ -108,42 +129,51 @@
         .sec-title .ic-ai{background:var(--ai-dim);color:var(--ai)}
         .sec-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;display:flex;align-items:center;gap:4px;transition:opacity .2s}
         .sec-link:hover{opacity:.7}
+        
+        /* ═══════ FILTER BAR ═══════ */
         .filter-bar{display:flex;gap:5px;flex-wrap:wrap;padding:0 20px 10px}
-        .fb{padding:6px 12px;border-radius:var(--radius-xs);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
-        .fb:hover{border-color:var(--border2);color:var(--fg2)}
+        .fb{padding:6px 12px;border-radius:var(--radius-xs);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:5px;backdrop-filter:blur(6px)}
+        .fb:hover{border-color:var(--border2);color:var(--fg2);background:var(--card)}
         .fb.active{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
         .fb.type-btn.active-insulin{background:var(--insulin-dim);border-color:var(--insulin-border);color:var(--insulin)}
         .fb.type-btn.active-levemir{background:var(--levemir-dim);border-color:var(--levemir-border);color:var(--levemir)}
+        
+        /* ═══════ INPUT SECTION ═══════ */
         .input-section{padding:0 20px 14px}
         .slot-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
-        .slot-btn{padding:10px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:500}
-        .slot-btn i{font-size:15px;transition:color .2s}
-        .slot-btn:hover,.slot-btn.active{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+        .slot-btn{padding:10px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;font-family:inherit;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:500;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+        .slot-btn::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:all .3s}
+        .slot-btn i{font-size:15px;transition:all .3s}
+        .slot-btn:hover,.slot-btn.active{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);transform:translateY(-1px)}
         .slot-btn.active i{color:var(--accent)}
+        .slot-btn.active::before{background:var(--accent)}
         .slot-btn.done-slot{opacity:.3;pointer-events:none}
         .input-row{display:flex;gap:8px}
-        .gds-input{flex:1;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--fg);font-family:inherit;font-size:16px;font-weight:600;outline:none;transition:all .2s;min-width:0}
-        .diet-compact-info{flex:1;min-width:0;overflow:hidden}
-        .diet-compact-label{font-size:12px;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .gds-input{flex:1;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--fg);font-family:inherit;font-size:16px;font-weight:600;outline:none;transition:all .3s;min-width:0;backdrop-filter:blur(10px)}
         .gds-input::placeholder{color:var(--muted);font-weight:400;font-size:13px}
-        .gds-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+        .gds-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim),0 8px 24px rgba(0,0,0,.1)}
         .gds-input:disabled{opacity:.25}
-        .submit-btn{width:52px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-shadow:0 4px 20px rgba(0,229,160,.2)}
-        .submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,229,160,.3)}
+        .submit-btn{width:52px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 20px rgba(0,245,200,.25);position:relative;overflow:hidden}
+        .submit-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);opacity:0;transition:opacity .3s}
+        .submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,245,200,.35)}
+        .submit-btn:hover::after{opacity:1}
         .submit-btn:active{transform:scale(.96)}
         .submit-btn:disabled{opacity:.25;cursor:not-allowed;transform:none;box-shadow:none}
-        .levemir-btn{width:100%;padding:16px;border-radius:var(--radius);border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;display:none;align-items:center;justify-content:center;gap:10px}
-        .levemir-btn:hover{background:rgba(0,229,160,.12);border-color:rgba(0,229,160,.3);transform:translateY(-1px)}
+        .levemir-btn{width:100%;padding:16px;border-radius:var(--radius);border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:none;align-items:center;justify-content:center;gap:10px;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+        .levemir-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+        .levemir-btn:hover{background:rgba(0,229,160,.12);border-color:rgba(0,229,160,.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,245,200,.1)}
         .levemir-btn:active{transform:scale(.98)}
         .levemir-btn.done{opacity:.3;pointer-events:none}
-        .result-card{margin:0 20px 14px;padding:0;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:none;overflow:hidden}
-        .result-card.show{display:block;animation:slideUp .35s ease-out}
-        @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        
+        /* ═══════ RESULT CARD ═══════ */
+        .result-card{margin:0 20px 14px;padding:0;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:none;overflow:hidden;backdrop-filter:blur(16px)}
+        .result-card.show{display:block;animation:slideUp .4s cubic-bezier(.4,0,.2,1)}
+        @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         .result-top{padding:16px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-        .result-top-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-        .result-top-icon.good{background:var(--accent-dim);color:var(--accent)}
-        .result-top-icon.warn{background:var(--warning-dim);color:var(--warning)}
-        .result-top-icon.danger{background:var(--danger-dim);color:var(--danger)}
+        .result-top-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+        .result-top-icon.good{background:var(--accent-dim);color:var(--accent);box-shadow:0 4px 16px rgba(0,245,200,.12)}
+        .result-top-icon.warn{background:var(--warning-dim);color:var(--warning);box-shadow:0 4px 16px rgba(255,181,71,.12)}
+        .result-top-icon.danger{background:var(--danger-dim);color:var(--danger);box-shadow:0 4px 16px rgba(255,107,107,.12)}
         .result-top-text{flex:1}
         .result-top-text .rt-label{font-size:11px;color:var(--muted);font-weight:500}
         .result-top-text .rt-value{font-size:20px;font-weight:700}
@@ -152,12 +182,12 @@
         .rt-tag.good{background:var(--accent-dim);color:var(--accent)}.rt-tag.warn{background:var(--warning-dim);color:var(--warning)}.rt-tag.danger{background:var(--danger-dim);color:var(--danger)}
         .result-body{padding:14px 16px}
         .dose-dual{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;margin-bottom:12px}
-        .dose-box{padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center;transition:all .2s;position:relative}
+        .dose-box{padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center;transition:all .3s;position:relative}
         .dose-box .dose-box-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
         .dose-box .dose-box-val{font-size:28px;font-weight:700;line-height:1.1}
         .dose-box .dose-box-unit{font-size:11px;font-weight:400;color:var(--muted);margin-left:2px}
         .dose-box .dose-box-sub{font-size:10px;color:var(--muted);margin-top:4px;font-weight:500}
-        .dose-box.standard{background:var(--accent-dim);border-color:var(--accent-border);box-shadow:0 0 20px rgba(0,229,160,.08)}
+        .dose-box.standard{background:var(--accent-dim);border-color:var(--accent-border);box-shadow:0 4px 24px rgba(0,245,200,.08)}
         .dose-box.standard .dose-box-label{color:var(--accent)}
         .dose-box.standard .dose-box-val{color:var(--accent)}
         .dose-box.ai-recommend{background:var(--ai-dim);border-color:var(--ai-border)}
@@ -166,10 +196,12 @@
         .dose-box .dose-pick-badge{position:absolute;top:6px;right:8px;font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px}
         .dose-box.standard .dose-pick-badge{background:var(--accent);color:var(--bg)}
         .dose-box.ai-recommend .dose-pick-badge{background:linear-gradient(135deg,var(--ai),var(--ai2));color:#fff}
+        
+        /* ═══════ AI PANEL ═══════ */
         .ai-panel{margin-top:0;padding:14px;border-radius:var(--radius-sm);background:var(--ai-dim);border:1px solid var(--ai-border);position:relative;overflow:hidden}
-        .ai-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ai),var(--ai2),var(--ai));opacity:.6}
+        .ai-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ai),var(--ai2),var(--ai));opacity:.7}
         .ai-panel-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-        .ai-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:linear-gradient(135deg,var(--ai),var(--ai2));color:#fff;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+        .ai-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:linear-gradient(135deg,var(--ai),var(--ai2));color:#fff;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 4px 12px rgba(168,85,247,.25)}
         .ai-badge i{font-size:8px}
         .ai-confidence{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600}
         .ai-confidence-bar{width:48px;height:5px;border-radius:3px;background:rgba(167,139,250,.15);overflow:hidden}
@@ -190,16 +222,19 @@
         .ai-diff-row i{font-size:10px}
         .ai-diff-row .ai-diff-val{margin-left:auto;font-size:16px;font-weight:700}
         .ai-no-data{font-size:10px;color:var(--muted);text-align:center;padding:8px 0;font-style:italic}
+        
+        /* ═══════ AI INSIGHTS ═══════ */
         .ai-insights{padding:0 20px 14px}
-        .ai-insight-card{padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);transition:all .25s;position:relative;overflow:hidden}
+        .ai-insight-card{padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;backdrop-filter:blur(12px)}
         .ai-insight-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--ai),var(--ai2));border-radius:0 2px 2px 0}
-        .ai-insight-card:hover{border-color:var(--ai-border);transform:translateY(-1px)}
+        .ai-insight-card:hover{border-color:var(--ai-border);transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,.08)}
         .ai-insight-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
         .ai-insight-head .ai-badge{font-size:8px;padding:2px 7px}
         .ai-insight-head span{font-size:12px;font-weight:700;color:var(--fg)}
         .ai-insight-items{display:flex;flex-direction:column;gap:6px}
-        .ai-insight-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.4;padding:8px 10px;border-radius:var(--radius-xs);background:var(--bg2);border:1px solid var(--border)}
-        .ai-insight-item .ai-ii-icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px}
+        .ai-insight-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.4;padding:10px 12px;border-radius:var(--radius-xs);background:var(--bg2);border:1px solid var(--border);transition:all .2s}
+        .ai-insight-item:hover{border-color:var(--border2);transform:translateX(3px)}
+        .ai-insight-item .ai-ii-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px}
         .ai-insight-item .ai-ii-icon.good{background:var(--accent-dim);color:var(--accent)}
         .ai-insight-item .ai-ii-icon.warn{background:var(--warning-dim);color:var(--warning)}
         .ai-insight-item .ai-ii-icon.danger{background:var(--danger-dim);color:var(--danger)}
@@ -212,29 +247,35 @@
         .result-note{margin-top:10px;font-size:11px;padding:10px 12px;border-radius:var(--radius-sm);display:none;align-items:center;gap:8px;font-weight:500}
         .result-note.warn-note{display:flex;background:var(--warning-dim);color:var(--warning);border:1px solid var(--warning-border)}
         .result-note.danger-note{display:flex;background:var(--danger-dim);color:var(--danger);border:1px solid var(--danger-border)}
+        
+        /* ═══════ CHART SECTION ═══════ */
         .chart-section{padding:0 20px 14px}
-        .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px 12px;position:relative}
+        .chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px 12px;position:relative;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,.1)}
         .chart-wrap canvas{width:100%!important;max-height:260px}
         .chart-legend{display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap}
         .chart-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:500}
-        .chart-legend-dot{width:8px;height:8px;border-radius:50%}
+        .chart-legend-dot{width:8px;height:8px;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+        
+        /* ═══════ SCOREBOARD ═══════ */
         .scoreboard{display:grid;gap:6px;margin-bottom:14px;padding:0 20px}
         #gdsStats{grid-template-columns:repeat(auto-fit, minmax(90px, 1fr))}
         #doseStats{grid-template-columns:repeat(auto-fit, minmax(90px, 1fr))}
-        .dose-stat{padding:12px 6px;border-radius:var(--radius-sm);text-align:center;background:var(--card);border:1px solid var(--border);transition:all .25s}
-        .dose-stat:hover{transform:translateY(-2px);border-color:var(--border2)}
+        .dose-stat{padding:12px 6px;border-radius:var(--radius-sm);text-align:center;background:var(--card);border:1px solid var(--border);transition:all .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(8px)}
+        .dose-stat:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 6px 20px rgba(0,0,0,.1)}
         .dose-stat .dv{font-size:20px;font-weight:700;margin-bottom:2px;line-height:1.1}
         .dose-stat .dl{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.3px}
         .dose-stat.total-stat{background:var(--accent-dim);border-color:var(--accent-border)}.dose-stat.total-stat .dv{color:var(--accent)}
         .dose-stat.insulin-stat{background:var(--insulin-dim);border-color:var(--insulin-border)}.dose-stat.insulin-stat .dv{color:var(--insulin)}
         .dose-stat.levemir-stat{background:var(--levemir-dim);border-color:var(--levemir-border)}.dose-stat.levemir-stat .dv{color:var(--levemir)}
+        
+        /* ═══════ HISTORY ═══════ */
         .history-section{padding:0 20px 14px}
         .hp-date-label{font-size:10px;font-weight:700;color:var(--muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:8px}
         .hp-date-label::after{content:'';flex:1;height:1px;background:var(--border)}
         .hp-date-label:first-child{margin-top:0}
-        .hp-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);margin-bottom:6px;transition:all .25s}
-        .hp-item:hover{transform:translateX(3px);border-color:var(--border2);background:var(--card-hover)}
-        .hp-item-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+        .hp-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);margin-bottom:6px;transition:all .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(10px)}
+        .hp-item:hover{transform:translateX(4px);border-color:var(--border2);background:var(--card-hover);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+        .hp-item-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
         .hp-item-icon.gds{background:var(--accent-dim);color:var(--accent)}
         .hp-item-icon.insulin{background:var(--insulin-dim);color:var(--insulin)}
         .hp-item-icon.levemir{background:var(--levemir-dim);color:var(--levemir)}
@@ -257,13 +298,18 @@
         .empty-box{text-align:center;padding:40px 20px;color:var(--muted)}
         .empty-box i{font-size:36px;opacity:.15;display:block;margin-bottom:12px}
         .empty-box p{font-size:13px;font-weight:500}
+        
+        /* ═══════ TOAST ═══════ */
         .toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-        .toast{padding:12px 18px;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border2);color:var(--fg);font-size:12px;font-family:inherit;font-weight:500;box-shadow:0 10px 32px rgba(0,0,0,.5);animation:toastIn .3s ease-out,toastOut .3s ease-in 2.5s forwards;display:flex;align-items:center;gap:10px;pointer-events:auto;max-width:90vw;backdrop-filter:blur(12px)}
+        .toast{padding:12px 18px;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border2);color:var(--fg);font-size:12px;font-family:inherit;font-weight:500;box-shadow:0 12px 40px rgba(0,0,0,.4);animation:toastIn .35s cubic-bezier(.4,0,.2,1),toastOut .35s ease-in 2.5s forwards;display:flex;align-items:center;gap:10px;pointer-events:auto;max-width:90vw;backdrop-filter:blur(16px)}
         .toast i{font-size:15px;flex-shrink:0}.toast.success i{color:var(--accent)}.toast.error i{color:var(--danger)}
-        @keyframes toastIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes toastOut{to{opacity:0;transform:translateY(-14px)}}
-        .divider{height:1px;background:var(--border);margin:0 20px}
+        @keyframes toastIn{from{opacity:0;transform:translateY(-16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes toastOut{to{opacity:0;transform:translateY(-16px) scale(.95)}}
+        
+        .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:0 20px}
         .input-disabled-note{font-size:11px;color:var(--warning);font-weight:500;display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 12px;border-radius:var(--radius-xs);background:var(--warning-dim);border:1px solid var(--warning-border)}
+        
+        /* ═══════ DATA TABLE ═══════ */
         .data-table-wrap{padding:0 0 16px;margin-top:4px;overflow-x:auto}
         .data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--card)}
         .data-table thead th{background:var(--card2);color:var(--muted);font-weight:600;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0}
@@ -282,10 +328,11 @@
         .data-table .cell-val.levemir-c{background:var(--levemir-dim);color:var(--levemir)}
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
+        
+        /* ═══════ RESPONSIVE ═══════ */
         @media(max-width:540px){
             .shell{max-width:100%}
             .slot-btns{grid-template-columns:repeat(2,1fr)}
-            /* Override padding agar tidak meluber di HP kecil */
             .hdr{padding:14px 12px 10px;gap:8px}
             .info-bar{margin:0 12px 6px;padding:8px 10px}
             .progress-strip{padding:8px 12px 6px}
@@ -298,20 +345,15 @@
             .ai-insights{padding:0 12px 10px}
             .divider{margin:0 12px}
             .result-card{margin:0 12px 10px}
-            
             .hdr-btn{width:34px;height:34px;font-size:13px}
             .brand-icon{width:38px;height:38px;font-size:16px}
             .brand h1{font-size:14px}
             .brand p{font-size:10px}
             .p-slot .p-label{display:none}
-            
-            /* Pastikan grid mengecil sempurna */
             #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
             .dose-dual{grid-template-columns:1fr}
             .scoreboard{padding:0 12px}
         }
-        
-        /* Khusus HP sangat kecil (misal iPhone SE lama / HP entry level) */
         @media(max-width:340px){
             .hdr-actions{gap:3px}
             .hdr-btn{width:30px;height:30px;font-size:11px;border-radius:8px}
@@ -323,33 +365,16 @@
             .fb{padding:5px 8px;font-size:10px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-        /* ========== RESPONSIVE TABLET & DESKTOP ========== */
         @media (min-width: 768px) {
-            .shell {
-                max-width: 720px; /* Batas maksimal agar teks tidak terlalu melar di desktop */
-                padding: 0 20px 32px;
-            }
-            .chart-wrap canvas {
-                max-height: 400px; /* Grafik lebih tinggi di layar besar */
-            }
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr); /* 4 kolom penuh di layar besar */
-            }
-            #gdsStats, #doseStats {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .p-slot .p-label {
-                display: block !important; /* Paksa tampilkan label jam di tablet */
-            }
+            .shell {max-width: 720px;padding: 0 20px 32px;}
+            .chart-wrap canvas {max-height: 400px;}
+            .stats-grid {grid-template-columns: repeat(4, 1fr);}
+            #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
+            .p-slot .p-label {display: block !important;}
         }
-        
         @media (min-width: 1024px) {
-            .shell {
-                max-width: 800px; /* Sedikit lebih lebar di desktop */
-            }
-            .chart-wrap canvas {
-                max-height: 450px;
-            }
+            .shell {max-width: 800px;}
+            .chart-wrap canvas {max-height: 450px;}
         }
     </style>
 </head>
@@ -404,7 +429,6 @@
                 <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
             </div>
             <div class="result-card" id="resultCard"></div>
-            
             <div class="divider"></div>
             <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-brain ic-ai"></i>AI Insights</div></div>
             <div class="ai-insights" id="aiInsights"></div>
@@ -425,37 +449,17 @@
                         <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--danger)"></div>Hipo/Hiper Berat</div>
                     </div>
                 </div>
-                
-                <!-- LEGENDA KATEGORI GDS -->
                 <div style="margin-top:8px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:var(--card);">
                     <table class="data-table" style="margin:0; border:none;">
-                        <thead>
-                            <tr>
-                                <th style="text-align:left; padding-left:14px; width: 45%;">Kategori</th>
-                                <th>Kadar Gula Darah (mg/dL)</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th style="text-align:left; padding-left:14px; width: 45%;">Kategori</th><th>Kadar Gula Darah (mg/dL)</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hipoglikemi</span></td>
-                                <td>&lt; 70</td>
-                            </tr>
-                            <tr>
-                                <td style="text-align:left; padding-left:14px;"><span class="cell-val good">Normal/Target</span></td>
-                                <td>70 – 180</td>
-                            </tr>
-                            <tr>
-                                <td style="text-align:left; padding-left:14px;"><span class="cell-val warn">Hiperglikemi</span></td>
-                                <td>&gt; 180</td>
-                            </tr>
-                            <tr>
-                                <td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hiperglikemi Berat</span></td>
-                                <td>&gt; 250 <span style="font-size:9px; color:var(--danger); font-weight:600;">(Risiko Ketoasidosis)</span></td>
-                            </tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hipoglikemi</span></td><td>&lt; 70</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val good">Normal/Target</span></td><td>70 – 180</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val warn">Hiperglikemi</span></td><td>&gt; 180</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hiperglikemi Berat</span></td><td>&gt; 250 <span style="font-size:9px; color:var(--danger); font-weight:600;">(Risiko Ketoasidosis)</span></td></tr>
                         </tbody>
                     </table>
                 </div>
-
                 <div class="data-table-wrap" id="gdsTableWrap"></div>
             </div>
         </div>
@@ -614,88 +618,39 @@ function aiSuggest(slot,standardDose,currentGds){
     var lastEval=evaluateLastDose(slot);
     var dosePairs=getDoseGdsPairs(slot,14);
     var dataPoints=gdsValues.length;
-
     var reasons=[];
     var aiAdjustment=0;
     var confidence='low';
-
     if(dataPoints>=3){
-        if(trend.direction==='improving'&&trend.strength>1.5){
-            aiAdjustment-=1;
-            reasons.push('<strong>Tren membaik</strong> — GDS turun ~'+Math.round(Math.abs(trend.slope))+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan kurangi -1 unit');
-        }else if(trend.direction==='worsening'&&trend.strength>1.5){
-            aiAdjustment+=1;
-            reasons.push('<strong>Tren memburuk</strong> — GDS naik ~'+Math.round(trend.slope)+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan tambah +1 unit');
-        }else if(trend.direction==='stable'){
-            reasons.push('<strong>Tren stabil</strong> — rata-rata '+trend.avg+' mg/dL dalam '+dataPoints+' hari, dosis standar sudah sesuai');
-        }else{
-            reasons.push('<strong>Tren '+trend.direction+'</strong> lemah, pengaruh minimal');
-        }
-        if(trend.isVolatile){
-            reasons.push('<strong>Fluktuasi tinggi</strong> (SD='+trend.stdDev+') — perubahan dibatasi untuk menghindari overshoot');
-        }
+        if(trend.direction==='improving'&&trend.strength>1.5){aiAdjustment-=1;reasons.push('<strong>Tren membaik</strong> — GDS turun ~'+Math.round(Math.abs(trend.slope))+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan kurangi -1 unit');}
+        else if(trend.direction==='worsening'&&trend.strength>1.5){aiAdjustment+=1;reasons.push('<strong>Tren memburuk</strong> — GDS naik ~'+Math.round(trend.slope)+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan tambah +1 unit');}
+        else if(trend.direction==='stable'){reasons.push('<strong>Tren stabil</strong> — rata-rata '+trend.avg+' mg/dL dalam '+dataPoints+' hari, dosis standar sudah sesuai');}
+        else{reasons.push('<strong>Tren '+trend.direction+'</strong> lemah, pengaruh minimal');}
+        if(trend.isVolatile){reasons.push('<strong>Fluktuasi tinggi</strong> (SD='+trend.stdDev+') — perubahan dibatasi untuk menghindari overshoot');}
     }
-
     if(lastEval.effective===true&&dosePairs.length>=2){
         var lastDose=dosePairs[dosePairs.length-1].dose;
-        if(lastDose<standardDose+aiAdjustment){
-            aiAdjustment-=1;
-            reasons.push('<strong>Dosis '+lastDose+'u terbukti efektif</strong> — pertimbangkan lebih rendah dari standar');
-        }else{
-            reasons.push(lastEval.reason+' — dosis standar sudah sesuai');
-        }
+        if(lastDose<standardDose+aiAdjustment){aiAdjustment-=1;reasons.push('<strong>Dosis '+lastDose+'u terbukti efektif</strong> — pertimbangkan lebih rendah dari standar');}
+        else{reasons.push(lastEval.reason+' — dosis standar sudah sesuai');}
     }else if(lastEval.effective===false&&dosePairs.length>=2){
         var lastDose2=dosePairs[dosePairs.length-1].dose;
-        if(lastDose2>=standardDose){
-            aiAdjustment+=1;
-            reasons.push('<strong>'+lastEval.reason+'</strong> — pertimbangkan naikkan dari standar');
-        }else{
-            reasons.push(lastEval.reason+' — dosis sudah lebih rendah dari standar');
-        }
-    }else if(lastEval.effective===null){
-        reasons.push(lastEval.reason);
-    }
-
-    if(trend.isVolatile&&dataPoints>=3){
-        var expectedChange=Math.abs(aiAdjustment);
-        if(expectedChange>2){
-            aiAdjustment=aiAdjustment>0?2:-2;
-            reasons.push('Perubahan dibatasi maks ±2 unit karena volatilitas tinggi');
-        }
-    }
-
+        if(lastDose2>=standardDose){aiAdjustment+=1;reasons.push('<strong>'+lastEval.reason+'</strong> — pertimbangkan naikkan dari standar');}
+        else{reasons.push(lastEval.reason+' — dosis sudah lebih rendah dari standar');}
+    }else if(lastEval.effective===null){reasons.push(lastEval.reason);}
+    if(trend.isVolatile&&dataPoints>=3){var expectedChange=Math.abs(aiAdjustment);if(expectedChange>2){aiAdjustment=aiAdjustment>0?2:-2;reasons.push('Perubahan dibatasi maks ±2 unit karena volatilitas tinggi');}}
     if(dataPoints>=5&&dosePairs.length>=3)confidence='high';
     else if(dataPoints>=3&&dosePairs.length>=2)confidence='medium';
     else confidence='low';
-
     var aiDose=standardDose+aiAdjustment;
     aiDose=Math.max(0,Math.min(20,aiDose));
-
-    return{
-        standardDose:standardDose,
-        aiAdjustment:aiAdjustment,
-        aiDose:aiDose,
-        trend:trend.direction,
-        trendSlope:trend.slope,
-        trendAvg:trend.avg,
-        isVolatile:trend.isVolatile||false,
-        stdDev:trend.stdDev,
-        confidence:confidence,
-        dataPoints:dataPoints,
-        dosePairs:dosePairs.length,
-        lastEval:lastEval,
-        reasons:reasons,
-        hasData:dataPoints>=2&&dosePairs.length>=1
-    };
+    return{standardDose:standardDose,aiAdjustment:aiAdjustment,aiDose:aiDose,trend:trend.direction,trendSlope:trend.slope,trendAvg:trend.avg,isVolatile:trend.isVolatile||false,stdDev:trend.stdDev,confidence:confidence,dataPoints:dataPoints,dosePairs:dosePairs.length,lastEval:lastEval,reasons:reasons,hasData:dataPoints>=2&&dosePairs.length>=1};
 }
 
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
     var insights=[];
     var insulinSlots=['sarapan','siang','malam'];
-    var ISF = 30;
-    var targetGds = 130;
-
+    var ISF=30,targetGds=130;
     insulinSlots.forEach(function(slot){
         var history=getSlotHistory(slot,7);
         if(history.length<2)return;
@@ -703,42 +658,24 @@ function renderAiInsights(){
         var trend=analyzeTrend(gdsVals);
         var lastGds=gdsVals[gdsVals.length-1];
         var slotLabel=SLOT_LABELS[slot]||slot;
-
         if(trend.direction==='worsening'&&trend.strength>1){
             var pairs=getDoseGdsPairs(slot,14);
             var lastDose=pairs.length?pairs[pairs.length-1].dose:calcStandardDose(lastGds,slot);
-            
-            var projectedGds = lastGds + trend.slope;
-            var gdsToDrop = projectedGds - targetGds;
-            
-            var requiredDose = lastDose;
-            if(gdsToDrop > 0) {
-                var doseIncrease = Math.ceil(gdsToDrop / ISF);
-                requiredDose = lastDose + doseIncrease;
-            }
-            
-            requiredDose = Math.min(20, Math.max(0, requiredDose));
-            
-            var doseDelta = requiredDose - lastDose;
-            var estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
-            
-            if(estimatedGds < 70) {
-                doseDelta = Math.floor((projectedGds - 80) / ISF);
-                requiredDose = lastDose + doseDelta;
-                estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
-            }
-            
-            requiredDose = Math.max(0, requiredDose);
-            estimatedGds = Math.max(0, estimatedGds);
-
+            var projectedGds=lastGds+trend.slope;
+            var gdsToDrop=projectedGds-targetGds;
+            var requiredDose=lastDose;
+            if(gdsToDrop>0){var doseIncrease=Math.ceil(gdsToDrop/ISF);requiredDose=lastDose+doseIncrease;}
+            requiredDose=Math.min(20,Math.max(0,requiredDose));
+            var doseDelta=requiredDose-lastDose;
+            var estimatedGds=Math.round(projectedGds-(doseDelta*ISF));
+            if(estimatedGds<70){doseDelta=Math.floor((projectedGds-80)/ISF);requiredDose=lastDose+doseDelta;estimatedGds=Math.round(projectedGds-(doseDelta*ISF));}
+            requiredDose=Math.max(0,requiredDose);estimatedGds=Math.max(0,estimatedGds);
             var text='GDS '+slotLabel+' naik rata-rata <strong>'+Math.round(trend.slope)+' mg/dL</strong>/hari ('+gdsVals.length+' hari, avg: '+trend.avg+'). ';
             text+='Rekomendasi dosis: <strong>'+requiredDose+' unit</strong>. ';
             text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target: 70–180 mg/dL).';
-
             insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+slotLabel,text:text,slot:slot});
         }
     });
-
     if(!insights.length){
         el.innerHTML='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Analisis</span></div><div class="ai-insight-empty"><i class="fa-solid fa-shield-check"></i>Tidak ada tren kenaikan GDS yang signifikan saat ini</div></div>';
         return;
@@ -788,44 +725,21 @@ async function handleSubmit(){
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}
     var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);
-
-    var standardDose=null;
-    var standardReason='';
-    if(s.type==='gds-insulin'){
-        standardDose=calcStandardDose(gdsVal,slot);
-        standardReason=getStandardReason(gdsVal);
-    }
-
+    var standardDose=null,standardReason='';
+    if(s.type==='gds-insulin'){standardDose=calcStandardDose(gdsVal,slot);standardReason=getStandardReason(gdsVal);}
     var ai=null;
-    if(s.type==='gds-insulin'){
-        ai=aiSuggest(slot,standardDose,gdsVal);
-    }
-
+    if(s.type==='gds-insulin')ai=aiSuggest(slot,standardDose,gdsVal);
     var finalDose=standardDose;
-
-    var entry={
-        date:getTodayKey(),
-        time:getTimeStr(),
-        slot:slot,
-        gds:gdsVal,
-        dose:finalDose,
-        doseType:s.type==='gds-insulin'?'rapid':null,
-        category:cat.cls,
-        aiGenerated:false,
-        standardDose:standardDose
-    };
-
+    var entry={date:getTodayKey(),time:getTimeStr(),slot:slot,gds:gdsVal,dose:finalDose,doseType:s.type==='gds-insulin'?'rapid':null,category:cat.cls,aiGenerated:false,standardDose:standardDose};
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
         if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
         else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
-
         var doseDualHtml='<div class="dose-dual">';
         doseDualHtml+='<div class="dose-box standard"><div class="dose-pick-badge">Tersimpan</div><div class="dose-box-label">Dosis Terinput</div><div class="dose-box-val">'+standardDose+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+standardReason+'</div></div>';
         doseDualHtml+='<div class="dose-box ai-recommend"><div class="dose-pick-badge">Saran</div><div class="dose-box-label">Saran AI</div><div class="dose-box-val">'+(ai&&ai.hasData?ai.aiDose:'—')+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+(ai&&ai.hasData?'Berdasarkan analisis history':'Belum cukup data')+'</div></div>';
         doseDualHtml+='</div>';
-
         var aiPanelHtml='';
         if(ai&&ai.hasData){
             var confPct=ai.confidence==='high'?85:ai.confidence==='medium'?55:25;
@@ -835,43 +749,23 @@ async function handleSubmit(){
             else if(ai.trend==='worsening'){trendIcon='fa-arrow-trend-up';trendCls='worsening';trendText='Tren memburuk';if(ai.trendSlope)trendText+=' (~'+Math.round(ai.trendSlope)+' mg/dL/hari)';}
             else if(ai.isVolatile){trendIcon='fa-wave-square';trendCls='volatile';trendText='Fluktuatif (SD='+ai.stdDev+')';}
             else{trendIcon='fa-minus';trendCls='stable';trendText='Stabil (avg: '+ai.trendAvg+')';}
-
-            var reasonsHtml='';
-            ai.reasons.forEach(function(r){reasonsHtml+='<div class="ai-reason"><i class="fa-solid fa-circle"></i><span>'+r+'</span></div>';});
-
-            var diffVal=ai.aiAdjustment;
-            var diffStr=diffVal>0?'+'+diffVal:diffVal===0?'0 (sesuai)':String(diffVal);
+            var reasonsHtml='';ai.reasons.forEach(function(r){reasonsHtml+='<div class="ai-reason"><i class="fa-solid fa-circle"></i><span>'+r+'</span></div>';});
+            var diffVal=ai.aiAdjustment;var diffStr=diffVal>0?'+'+diffVal:diffVal===0?'0 (sesuai)':String(diffVal);
             var diffIcon=diffVal>0?'fa-arrow-up':diffVal<0?'fa-arrow-down':'fa-equals';
-
-            aiPanelHtml='<div class="ai-panel">'+
-                '<div class="ai-panel-head">'+
-                    '<span class="ai-badge"><i class="fa-solid fa-brain"></i>AI Saran</span>'+
-                    '<div class="ai-confidence '+ai.confidence+'">'+
-                        '<span>'+confLabel+'</span>'+
-                        '<div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:'+confPct+'%"></div></div>'+
-                    '</div>'+
-                '</div>'+
-                '<div class="ai-trend-row"><div class="ai-trend-icon '+trendCls+'"><i class="fa-solid '+trendIcon+'"></i></div><span class="ai-trend-text">'+trendText+'</span></div>'+
-                '<div class="ai-reasons">'+reasonsHtml+'</div>'+
-                '<div class="ai-diff-row"><i class="fa-solid '+diffIcon+'"></i><span>Saran penyesuaian dari dosis standar</span><span class="ai-diff-val">'+diffStr+' unit</span></div>'+
-                '<div style="margin-top:8px;font-size:9px;color:var(--muted);opacity:.7;text-align:center">Berdasarkan '+ai.dataPoints+' GDS & '+ai.dosePairs+' data dosis — saran referensi, bukan dosis yang digunakan</div>'+
-            '</div>';
+            aiPanelHtml='<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI Saran</span><div class="ai-confidence '+ai.confidence+'"><span>'+confLabel+'</span><div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:'+confPct+'%"></div></div></div></div><div class="ai-trend-row"><div class="ai-trend-icon '+trendCls+'"><i class="fa-solid '+trendIcon+'"></i></div><span class="ai-trend-text">'+trendText+'</span></div><div class="ai-reasons">'+reasonsHtml+'</div><div class="ai-diff-row"><i class="fa-solid '+diffIcon+'"></i><span>Saran penyesuaian dari dosis standar</span><span class="ai-diff-val">'+diffStr+' unit</span></div><div style="margin-top:8px;font-size:9px;color:var(--muted);opacity:.7;text-align:center">Berdasarkan '+ai.dataPoints+' GDS & '+ai.dosePairs+' data dosis — saran referensi, bukan dosis yang digunakan</div></div>';
         }else{
             aiPanelHtml='<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span></div><div class="ai-no-data">Belum cukup data history untuk saran AI. Minimal 2 data GDS + 1 data dosis pada slot ini diperlukan.</div></div>';
         }
-
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseDualHtml+nh+aiPanelHtml+'</div>';
     }else{
         var catIcon2=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon2+'"></i></div><div class="result-top-text"><div class="rt-label">GDS Dini Hari</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body"></div>';
     }
-
     resultCard.classList.add('show');
     var ok=await submitData(entry);
     if(ok){
         showToast('Tersimpan: dosis standar '+finalDose+' unit');
-        state.data.unshift(entry);
-        updateProgress();renderAiInsights();
+        state.data.unshift(entry);updateProgress();renderAiInsights();
         gdsInput.value='';state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
@@ -887,12 +781,110 @@ async function handleLevemir(){
     if(ok){showToast('Levemir 8 unit tercatat');state.data.unshift(entry);updateProgress();try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');Telegram.WebApp.close();}catch(e){}}else showToast('Gagal menyimpan','error');
 }
 
-function initGdsChart(){var ctx=document.getElementById('gdsCanvas').getContext('2d');state.gdsChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.35,fill:false,borderColor:'#00E5A0',pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11}},beginAtZero:false}}}});}
-function renderGdsChart(){if(!state.gdsChart)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=7;state.gdsChart.update();var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}}
-function initDoseChart(){var ctx=document.getElementById('doseCanvas').getContext('2d');state.doseChart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'Insulin',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#4D94FF'},{label:'Levemir',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#FFB547'}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{display:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11},stepSize:1},beginAtZero:true}}}});}
-function renderDoseChart(){if(!state.doseChart)return;var entries=filterByPeriod(state.data,dosePeriod);if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={ins:0,lev:0};if(e.doseType==='rapid')grouped[d].ins+=e.dose;if(e.doseType==='levemir')grouped[d].lev+=e.dose;});var dates=Object.keys(grouped).sort();state.doseChart.data.labels=dates;state.doseChart.data.datasets[0].data=dates.map(function(d){return grouped[d].ins;});state.doseChart.data.datasets[1].data=dates.map(function(d){return grouped[d].lev;});if(doseSlot==='levemir'){state.doseChart.data.datasets[0].hidden=true;state.doseChart.data.datasets[1].hidden=false;}else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam'){state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=true;}else{state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=false;}state.doseChart.update();var statsEl=document.getElementById('doseStats');if(!statsEl)return;var insulinArr=[],levemirArr=[];entries.forEach(function(e){if(e.doseType==='rapid')insulinArr.push(e.dose||0);if(e.doseType==='levemir')levemirArr.push(e.dose||0);});var insStats=calcStats(insulinArr),levStats=calcStats(levemirArr);var insSum=insulinArr.reduce(function(a,b){return a+b;},0),levSum=levemirArr.reduce(function(a,b){return a+b;},0);var showIns=(doseSlot==='all'||doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam');var showLev=(doseSlot==='all'||doseSlot==='levemir');function sc(arr,st,sum,cls){if(!arr.length)return'<div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Tot</div></div>';return'<div class="dose-stat '+cls+'"><div class="dv">'+st.min+'</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.max+'</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">'+sum+'</div><div class="dl">Tot</div></div>';}var html='';if(showIns)html+=sc(insulinArr,insStats,insSum,'insulin-stat');if(showLev)html+=sc(levemirArr,levStats,levSum,'levemir-stat');if(!html)html='<div class="dose-stat total-stat" style="grid-column:1/-1"><div class="dv">-</div><div class="dl">Tidak ada data</div></div>';statsEl.innerHTML=html;}
+/* ═══════ CHART INIT — GDS tanpa grid ═══════ */
+function initGdsChart(){
+    var ctx=document.getElementById('gdsCanvas').getContext('2d');
+    state.gdsChart=new Chart(ctx,{
+        type:'line',
+        data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.4,fill:true,
+            borderColor:'#00E5A0',
+            backgroundColor:'rgba(0,229,160,0.06)',
+            pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:8,pointBorderWidth:2,pointHoverBorderWidth:3
+        }]},
+        options:{responsive:true,
+            interaction:{intersect:false,mode:'index'},
+            plugins:{legend:{display:false},tooltip:{
+                backgroundColor:'rgba(20,37,64,0.95)',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',
+                borderColor:'rgba(255,255,255,0.08)',borderWidth:1,cornerRadius:12,padding:14,
+                titleFont:{family:'Space Grotesk',weight:'600',size:12},bodyFont:{family:'Space Grotesk',size:12},
+                displayColors:false,
+                callbacks:{label:function(ctx){return 'GDS: '+ctx.parsed.y+' mg/dL';}}
+            }},
+            scales:{
+                x:{display:true,
+                    grid:{display:false},
+                    border:{display:false},
+                    ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45,padding:8}
+                },
+                y:{display:true,
+                    grid:{display:false},
+                    border:{display:false},
+                    ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11},padding:12},
+                    beginAtZero:false
+                }
+            }
+        }
+    });
+}
 
-function renderHistory(){var entries=filterByPeriod(state.data,historyPeriod);var list=document.getElementById('historyList');if(!list)return;if(!entries.length){list.innerHTML='<div class="empty-box"><i class="fa-solid fa-clipboard-list"></i><p>Belum ada data riwayat</p></div>';return;}var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]=[];grouped[d].push(e);});var html='';Object.keys(grouped).sort().reverse().forEach(function(date){html+='<div class="hp-date-label"><i class="fa-regular fa-calendar" style="font-size:10px"></i>'+date+'</div>';grouped[date].forEach(function(e){var cat=getCat(e.gds);var icon='fa-droplet',iconClass='gds';var valHtml='',badge='';if(e.doseType==='rapid'){icon='fa-syringe';iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'insulin';var gdsColor=e.gds?(cat.cls==='good'?'var(--accent)':cat.cls==='warn'?'var(--warning)':'var(--danger)'):'var(--muted)';valHtml='<div class="hp-item-val" style="'+(e.gds?'color:'+gdsColor:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';if(e.dose)valHtml+='<div class="hp-item-dose"><i class="fa-solid fa-syringe"></i>'+e.dose+' unit</div>';badge='<span class="hp-item-badge ins-b">Insulin</span>';}else if(e.doseType==='levemir'){icon='fa-syringe';iconClass='levemir';valHtml='<div class="hp-item-val levemir-v">'+(e.dose?e.dose+' unit':'—')+'</div>';badge='<span class="hp-item-badge lev-b">Levemir</span>';}else{iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'gds';valHtml='<div class="hp-item-val '+(e.gds?cat.cls:'')+'-v">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';badge='<span class="hp-item-badge gds-b">GDS</span>';}html+='<div class="hp-item"><div class="hp-item-icon '+iconClass+'"><i class="fa-solid '+icon+'"></i></div><div class="hp-item-info"><div class="hp-item-title">'+e.slot+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+e.time+'</div></div><div class="hp-item-right">'+valHtml+badge+'</div></div>';});});list.innerHTML=html;}
+function renderGdsChart(){
+    if(!state.gdsChart)return;
+    var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null;}),gdsPeriod);
+    if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});
+    entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});
+    var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});
+    state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=8;
+    state.gdsChart.update();
+    var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');
+    if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}
+}
+
+function initDoseChart(){
+    var ctx=document.getElementById('doseCanvas').getContext('2d');
+    state.doseChart=new Chart(ctx,{
+        type:'bar',
+        data:{labels:[],datasets:[
+            {label:'Insulin',data:[],borderWidth:0,borderRadius:8,backgroundColor:'rgba(56,189,248,0.7)',hoverBackgroundColor:'rgba(56,189,248,0.9)'},
+            {label:'Levemir',data:[],borderWidth:0,borderRadius:8,backgroundColor:'rgba(255,181,71,0.7)',hoverBackgroundColor:'rgba(255,181,71,0.9)'}
+        ]},
+        options:{responsive:true,
+            interaction:{intersect:false,mode:'index'},
+            plugins:{legend:{display:false},tooltip{
+                backgroundColor:'rgba(20,37,64,0.95)',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',
+                borderColor:'rgba(255,255,255,0.08)',borderWidth:1,cornerRadius:12,padding:14,
+                titleFont:{family:'Space Grotesk',weight:'600',size:12},bodyFont:{family:'Space Grotesk',size:12}
+            }},
+            scales:{
+                x:{grid:{display:false},border:{display:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45,padding:8}},
+                y:{grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},border:{display:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11},stepSize:1,padding:12},beginAtZero:true}
+            }
+        }
+    });
+}
+
+function renderDoseChart(){
+    if(!state.doseChart)return;
+    var entries=filterByPeriod(state.data,dosePeriod);if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});
+    var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={ins:0,lev:0};if(e.doseType==='rapid')grouped[d].ins+=e.dose;if(e.doseType==='levemir')grouped[d].lev+=e.dose;});
+    var dates=Object.keys(grouped).sort();
+    state.doseChart.data.labels=dates;state.doseChart.data.datasets[0].data=dates.map(function(d){return grouped[d].ins;});state.doseChart.data.datasets[1].data=dates.map(function(d){return grouped[d].lev;});
+    if(doseSlot==='levemir'){state.doseChart.data.datasets[0].hidden=true;state.doseChart.data.datasets[1].hidden=false;}
+    else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam'){state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=true;}
+    else{state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=false;}
+    state.doseChart.update();
+    var statsEl=document.getElementById('doseStats');if(!statsEl)return;
+    var insulinArr=[],levemirArr=[];entries.forEach(function(e){if(e.doseType==='rapid')insulinArr.push(e.dose||0);if(e.doseType==='levemir')levemirArr.push(e.dose||0);});
+    var insStats=calcStats(insulinArr),levStats=calcStats(levemirArr);
+    var insSum=insulinArr.reduce(function(a,b){return a+b;},0),levSum=levemirArr.reduce(function(a,b){return a+b;},0);
+    var showIns=(doseSlot==='all'||doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam');
+    var showLev=(doseSlot==='all'||doseSlot==='levemir');
+    function sc(arr,st,sum,cls){if(!arr.length)return'<div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Tot</div></div>';return'<div class="dose-stat '+cls+'"><div class="dv">'+st.min+'</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.max+'</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">'+sum+'</div><div class="dl">Tot</div></div>';}
+    var html='';if(showIns)html+=sc(insulinArr,insStats,insSum,'insulin-stat');if(showLev)html+=sc(levemirArr,levStats,levSum,'levemir-stat');if(!html)html='<div class="dose-stat total-stat" style="grid-column:1/-1"><div class="dv">-</div><div class="dl">Tidak ada data</div></div>';statsEl.innerHTML=html;
+}
+
+function renderHistory(){
+    var entries=filterByPeriod(state.data,historyPeriod);var list=document.getElementById('historyList');if(!list)return;
+    if(!entries.length){list.innerHTML='<div class="empty-box"><i class="fa-solid fa-clipboard-list"></i><p>Belum ada data riwayat</p></div>';return;}
+    var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]=[];grouped[d].push(e);});
+    var html='';Object.keys(grouped).sort().reverse().forEach(function(date){
+        html+='<div class="hp-date-label"><i class="fa-regular fa-calendar" style="font-size:10px"></i>'+date+'</div>';
+        grouped[date].forEach(function(e){var cat=getCat(e.gds);var icon='fa-droplet',iconClass='gds';var valHtml='',badge='';
+        if(e.doseType==='rapid'){icon='fa-syringe';iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'insulin';var gdsColor=e.gds?(cat.cls==='good'?'var(--accent)':cat.cls==='warn'?'var(--warning)':'var(--danger)'):'var(--muted)';valHtml='<div class="hp-item-val" style="'+(e.gds?'color:'+gdsColor:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';if(e.dose)valHtml+='<div class="hp-item-dose"><i class="fa-solid fa-syringe"></i>'+e.dose+' unit</div>';badge='<span class="hp-item-badge ins-b">Insulin</span>';}
+        else if(e.doseType==='levemir'){icon='fa-syringe';iconClass='levemir';valHtml='<div class="hp-item-val levemir-v">'+(e.dose?e.dose+' unit':'—')+'</div>';badge='<span class="hp-item-badge lev-b">Levemir</span>';}
+        else{iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'gds';valHtml='<div class="hp-item-val '+(e.gds?cat.cls:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';badge='<span class="hp-item-badge gds-b">GDS</span>';}
+        html+='<div class="hp-item"><div class="hp-item-icon '+iconClass+'"><i class="fa-solid '+icon+'"></i></div><div class="hp-item-info"><div class="hp-item-title">'+e.slot+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+e.time+'</div></div><div class="hp-item-right">'+valHtml+badge+'</div></div>';});});
+    list.innerHTML=html;
+}
 
 var DIET_UI=[
     {slot:'makan-pagi',time:'06:00',label:'Makan Pagi',icon:'fa-mug-hot',color:'var(--warning)',bg:'var(--warning-dim)',target:'KH 45g | Protein 18g',menu:'Nasi 100 gram, Telur 1.5 butir, Sayur 75 gram (lauk tidak perlu digoreng)'},
@@ -921,73 +913,44 @@ setInterval(async function(){var newData=await fetchData();if(newData.length!==l
 
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
 
-var themeToggleBtn = document.getElementById('themeToggle');
+var themeToggleBtn=document.getElementById('themeToggle');
 
-function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    
-    if (theme === 'light') {
-        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-    } else {
-        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
-    }
-
-    try {
-        if (theme === 'light') Telegram.WebApp.setHeaderColor('#F3F4F6');
-        else Telegram.WebApp.setHeaderColor('#060D1B');
-    } catch(e) {}
-
+function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme',theme);
+    localStorage.setItem('theme',theme);
+    if(theme==='light')themeToggleBtn.innerHTML='<i class="fa-solid fa-sun"></i>';
+    else themeToggleBtn.innerHTML='<i class="fa-solid fa-moon"></i>';
+    try{if(theme==='light')Telegram.WebApp.setHeaderColor('#F3F4F6');else Telegram.WebApp.setHeaderColor('#060D1B');}catch(e){}
     updateChartColors();
 }
-    
-function getThemeColors() {
-    var style = getComputedStyle(document.documentElement);
-    return {
-        grid: style.getPropertyValue('--border').trim(),
-        text: style.getPropertyValue('--muted').trim(),
-        tooltipBg: style.getPropertyValue('--card2').trim(),
-        tooltipTitle: style.getPropertyValue('--fg').trim(),
-        tooltipBody: style.getPropertyValue('--fg2').trim(),
-        tooltipBorder: style.getPropertyValue('--border2').trim()
-    };
-}
 
-function updateChartColors() {
-    var colors = getThemeColors();
-    
-    if (state.gdsChart) {
-        state.gdsChart.options.scales.x.grid.color = colors.grid;
-        state.gdsChart.options.scales.x.ticks.color = colors.text;
-        state.gdsChart.options.scales.y.grid.color = colors.grid;
-        state.gdsChart.options.scales.y.ticks.color = colors.text;
-        state.gdsChart.options.plugins.tooltip.backgroundColor = colors.tooltipBg;
-        state.gdsChart.options.plugins.tooltip.titleColor = colors.tooltipTitle;
-        state.gdsChart.options.plugins.tooltip.bodyColor = colors.tooltipBody;
-        state.gdsChart.options.plugins.tooltip.borderColor = colors.tooltipBorder;
+function getThemeColors(){var style=getComputedStyle(document.documentElement);return{grid:style.getPropertyValue('--border').trim(),text:style.getPropertyValue('--muted').trim(),tooltipBg:style.getPropertyValue('--card2').trim(),tooltipTitle:style.getPropertyValue('--fg').trim(),tooltipBody:style.getPropertyValue('--fg2').trim(),tooltipBorder:style.getPropertyValue('--border2').trim()};}
+
+function updateChartColors(){
+    var colors=getThemeColors();
+    if(state.gdsChart){
+        state.gdsChart.options.scales.x.ticks.color=colors.text;
+        state.gdsChart.options.scales.y.ticks.color=colors.text;
+        state.gdsChart.options.plugins.tooltip.backgroundColor=colors.tooltipBg;
+        state.gdsChart.options.plugins.tooltip.titleColor=colors.tooltipTitle;
+        state.gdsChart.options.plugins.tooltip.bodyColor=colors.tooltipBody;
+        state.gdsChart.options.plugins.tooltip.borderColor=colors.tooltipBorder;
         state.gdsChart.update();
     }
-    
-    if (state.doseChart) {
-        state.doseChart.options.scales.x.grid.color = colors.grid;
-        state.doseChart.options.scales.x.ticks.color = colors.text;
-        state.doseChart.options.scales.y.grid.color = colors.grid;
-        state.doseChart.options.scales.y.ticks.color = colors.text;
-        state.doseChart.options.plugins.tooltip.backgroundColor = colors.tooltipBg;
-        state.doseChart.options.plugins.tooltip.titleColor = colors.tooltipTitle;
-        state.doseChart.options.plugins.tooltip.bodyColor = colors.tooltipBody;
-        state.doseChart.options.plugins.tooltip.borderColor = colors.tooltipBorder;
+    if(state.doseChart){
+        state.doseChart.options.scales.x.ticks.color=colors.text;
+        state.doseChart.options.scales.y.ticks.color=colors.text;
+        state.doseChart.options.plugins.tooltip.backgroundColor=colors.tooltipBg;
+        state.doseChart.options.plugins.tooltip.titleColor=colors.tooltipTitle;
+        state.doseChart.options.plugins.tooltip.bodyColor=colors.tooltipBody;
+        state.doseChart.options.plugins.tooltip.borderColor=colors.tooltipBorder;
         state.doseChart.update();
     }
 }
 
-themeToggleBtn.addEventListener('click', function() {
-    var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(newTheme);
-});
+themeToggleBtn.addEventListener('click',function(){var currentTheme=document.documentElement.getAttribute('data-theme')||'dark';var newTheme=currentTheme==='dark'?'light':'dark';applyTheme(newTheme);});
 
-async function init(){var savedTheme = localStorage.getItem('theme') || 'dark';applyTheme(savedTheme);state.data=await fetchData();updateProgress();renderAiInsights();updateCountdown();if(autoSlot)selectSlot(autoSlot);setInterval(updateCountdown,1000);}
+async function init(){var savedTheme=localStorage.getItem('theme')||'dark';applyTheme(savedTheme);state.data=await fetchData();updateProgress();renderAiInsights();updateCountdown();if(autoSlot)selectSlot(autoSlot);setInterval(updateCountdown,1000);}
 init();
 </script>
 </body>
