@@ -47,7 +47,7 @@
         @keyframes orbB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,-30px) scale(1.1)}}
         @keyframes orbC{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-30%,-60%) scale(1.2)}}
         .ambient::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.4}
-        .shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;max-width:520px;margin:0 auto;padding:0 0 32px}
+        .shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:100%;margin:0 auto;padding:0 0 32px}
         .hdr{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
         .brand{display:flex;align-items:center;gap:12px}
         .brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#00B88C);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bg);box-shadow:0 6px 24px rgba(0,229,160,.25);position:relative}
@@ -87,7 +87,7 @@
         .p-slot.active-slot{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 24px rgba(0,229,160,.08)}
         .p-slot.active-slot::before{background:var(--accent)}
         .p-slot.active-slot .p-icon,.p-slot.active-slot .p-time{color:var(--accent)}
-        .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 20px 12px}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;padding:6px 20px 12px}
         .stat-card{padding:14px 12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:all .25s}
         .stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
         .stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -146,7 +146,7 @@
         .result-top-text .rt-tag{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;margin-left:8px;text-transform:uppercase;letter-spacing:.5px}
         .rt-tag.good{background:var(--accent-dim);color:var(--accent)}.rt-tag.warn{background:var(--warning-dim);color:var(--warning)}.rt-tag.danger{background:var(--danger-dim);color:var(--danger)}
         .result-body{padding:14px 16px}
-        .dose-dual{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+        .dose-dual{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:8px;margin-bottom:12px}
         .dose-box{padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center;transition:all .2s;position:relative}
         .dose-box .dose-box-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
         .dose-box .dose-box-val{font-size:28px;font-weight:700;line-height:1.1}
@@ -214,8 +214,8 @@
         .chart-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:500}
         .chart-legend-dot{width:8px;height:8px;border-radius:50%}
         .scoreboard{display:grid;gap:6px;margin-bottom:14px;padding:0 20px}
-        #gdsStats{grid-template-columns:repeat(4,1fr)}
-        #doseStats{grid-template-columns:repeat(4,1fr)}
+        #gdsStats{grid-template-columns:repeat(auto-fit, minmax(90px, 1fr))}
+        #doseStats{grid-template-columns:repeat(auto-fit, minmax(90px, 1fr))}
         .dose-stat{padding:12px 6px;border-radius:var(--radius-sm);text-align:center;background:var(--card);border:1px solid var(--border);transition:all .25s}
         .dose-stat:hover{transform:translateY(-2px);border-color:var(--border2)}
         .dose-stat .dv{font-size:20px;font-weight:700;margin-bottom:2px;line-height:1.1}
@@ -283,6 +283,45 @@
             #doseSlotFilters .fb,#gdsSlotFilters .fb{font-size:10px;padding:5px 9px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+        /* ========== RESPONSIVE TABLET & DESKTOP ========== */
+        @media (min-width: 768px) {
+            .shell {
+                max-width: 720px; /* Batas maksimal agar teks tidak terlalu melar di desktop */
+                padding: 0 20px 32px;
+            }
+            .chart-wrap canvas {
+                max-height: 400px; /* Grafik lebih tinggi di layar besar */
+            }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 kolom penuh di layar besar */
+            }
+            #gdsStats, #doseStats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .p-slot .p-label {
+                display: block !important; /* Paksa tampilkan label jam di tablet */
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .shell {
+                max-width: 800px; /* Sedikit lebih lebar di desktop */
+            }
+            .chart-wrap canvas {
+                max-height: 450px;
+            }
+        }
+        
+        /* Penyesuaian untuk layar HP kecil (di bawah 360px) */
+        @media (max-width: 360px) {
+            .info-bar, .divider, .stats-grid, .sec-head, .filter-bar, .input-section, .result-card, .ai-insights, .chart-section, .history-section {
+                margin-left: 12px !important;
+                margin-right: 12px !important;
+            }
+            .progress-strip {
+                padding: 10px 12px 8px;
+            }
+        }
     </style>
 </head>
 <body>
