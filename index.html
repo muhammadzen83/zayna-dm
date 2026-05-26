@@ -23,6 +23,20 @@
             --ai: #A78BFA; --ai2: #8B5CF6; --ai-dim: rgba(167,139,250,.07); --ai-border: rgba(167,139,250,.18); --ai-glow: rgba(167,139,250,.12);
             --radius: 14px; --radius-sm: 10px; --radius-xs: 8px;
         }
+        /* Tambahkan di bawah :root { ... } */
+        [data-theme="light"] {
+            --bg: #F3F4F6; --bg2: #E5E7EB; --card: #FFFFFF; --card2: #F9FAFB; --card-hover: #F3F4F6;
+            --accent: #059669; --accent2: #047857; --accent-dim: rgba(5,150,105,.08); --accent-border: rgba(5,150,105,.2);
+            --danger: #DC2626; --danger-dim: rgba(220,38,38,.08); --danger-border: rgba(220,38,38,.2);
+            --warning: #D97706; --warning-dim: rgba(217,119,6,.08); --warning-border: rgba(217,119,6,.2);
+            --good: #059669; --fg: #111827; --fg2: #374151; --muted: #6B7280;
+            --border: #D1D5DB; --border2: #E5E7EB;
+            --insulin: #2563EB; --insulin-dim: rgba(37,99,235,.08); --insulin-border: rgba(37,99,235,.2);
+            --levemir: #D97706; --levemir-dim: rgba(217,119,6,.08); --levemir-border: rgba(217,119,6,.2);
+            --ai: #7C3AED; --ai2: #6D28D9; --ai-dim: rgba(124,58,237,.08); --ai-border: rgba(124,58,237,.2); --ai-glow: rgba(124,58,237,.1);
+        }
+        [data-theme="light"] .ambient-orb { opacity: 0.05; }
+        [data-theme="light"] .toast { box-shadow: 0 10px 32px rgba(0,0,0,.1); }
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
         .ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
@@ -290,6 +304,7 @@
                 <div><h1>Diabetes Monitor</h1><p><i class="fa-solid fa-heart-pulse" style="margin-right:3px;font-size:10px;color:var(--danger)"></i>Zayna Kamila</p></div>
             </div>
             <div class="hdr-actions">
+                <button class="hdr-btn" id="themeToggle" title="Ganti Tema"><i class="fa-solid fa-sun"></i></button>
                 <button class="hdr-btn active" data-page="homePage" title="Home"><i class="fa-solid fa-house"></i></button>
                 <button class="hdr-btn" data-page="gdsPage" title="Grafik GDS"><i class="fa-solid fa-chart-line"></i></button>
                 <button class="hdr-btn" data-page="dosePage" title="Grafik Dosis"><i class="fa-solid fa-prescription-bottle-medical"></i></button>
@@ -814,7 +829,78 @@ setInterval(async function(){var newData=await fetchData();if(newData.length!==l
    INIT
    ==================================================================== */
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
-async function init(){state.data=await fetchData();updateProgress();renderDietCompact();renderAiInsights();updateCountdown();if(autoSlot)selectSlot(autoSlot);setInterval(updateCountdown,1000);}
+/* ====================================================================
+   THEME TOGGLE
+   ==================================================================== */
+var themeToggleBtn = document.getElementById('themeToggle');
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    // Ganti ikon
+    if (theme === 'light') {
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    } else {
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    }
+
+    // Update warna Telegram WebApp header agar sesuai
+    try {
+        if (theme === 'light') Telegram.WebApp.setHeaderColor('#F3F4F6');
+        else Telegram.WebApp.setHeaderColor('#060D1B');
+    } catch(e) {}
+
+    // Update Chart.js jika sudah di-render
+    updateChartColors();
+}
+    
+function getThemeColors() {
+    var style = getComputedStyle(document.documentElement);
+    return {
+        grid: style.getPropertyValue('--border').trim(),
+        text: style.getPropertyValue('--muted').trim(),
+        tooltipBg: style.getPropertyValue('--card2').trim(),
+        tooltipTitle: style.getPropertyValue('--fg').trim(),
+        tooltipBody: style.getPropertyValue('--fg2').trim(),
+        tooltipBorder: style.getPropertyValue('--border2').trim()
+    };
+}
+
+function updateChartColors() {
+    var colors = getThemeColors();
+    
+    if (state.gdsChart) {
+        state.gdsChart.options.scales.x.grid.color = colors.grid;
+        state.gdsChart.options.scales.x.ticks.color = colors.text;
+        state.gdsChart.options.scales.y.grid.color = colors.grid;
+        state.gdsChart.options.scales.y.ticks.color = colors.text;
+        state.gdsChart.options.plugins.tooltip.backgroundColor = colors.tooltipBg;
+        state.gdsChart.options.plugins.tooltip.titleColor = colors.tooltipTitle;
+        state.gdsChart.options.plugins.tooltip.bodyColor = colors.tooltipBody;
+        state.gdsChart.options.plugins.tooltip.borderColor = colors.tooltipBorder;
+        state.gdsChart.update();
+    }
+    
+    if (state.doseChart) {
+        state.doseChart.options.scales.x.grid.color = colors.grid;
+        state.doseChart.options.scales.x.ticks.color = colors.text;
+        state.doseChart.options.scales.y.grid.color = colors.grid;
+        state.doseChart.options.scales.y.ticks.color = colors.text;
+        state.doseChart.options.plugins.tooltip.backgroundColor = colors.tooltipBg;
+        state.doseChart.options.plugins.tooltip.titleColor = colors.tooltipTitle;
+        state.doseChart.options.plugins.tooltip.bodyColor = colors.tooltipBody;
+        state.doseChart.options.plugins.tooltip.borderColor = colors.tooltipBorder;
+        state.doseChart.update();
+    }
+}
+
+themeToggleBtn.addEventListener('click', function() {
+    var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+});
+async function init(){var savedTheme = localStorage.getItem('theme') || 'dark';applyTheme(savedTheme);state.data=await fetchData();updateProgress();renderDietCompact();renderAiInsights();updateCountdown();if(autoSlot)selectSlot(autoSlot);setInterval(updateCountdown,1000);}
 init();
 </script>
 </body>
