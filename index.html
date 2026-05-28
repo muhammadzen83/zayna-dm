@@ -552,9 +552,9 @@ function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min
 
 function calcStandardDose(gds,slot){
     var d=DEFAULT_DOSES[slot];
-    if(gds>300) d+=2;       // Jika > 300, +2 unit
-    else if(gds>200) d+=1;  // Jika > 200, +1 unit
-    else if(gds<100) d-=1;  // Jika < 100, -1 unit
+    if(gds>300) d+=2;
+    else if(gds>200) d+=1;
+    else if(gds<100) d-=1;
     return Math.max(0,d);
 }
 function getStandardReason(gds){
