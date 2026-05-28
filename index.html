@@ -541,8 +541,38 @@ function ptColor(gds){
 
 function fmtLabel(dateStr,timeStr){var nd=normalizeDate(dateStr);if(!nd)return timeStr||'?';var d=new Date(nd+'T00:00:00');return isNaN(d.getTime())?dateStr+' '+(timeStr||''):d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' '+(timeStr||'');}
 function showToast(msg,type){type=type||'success';var c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast '+type;t.innerHTML='<i class="fa-solid '+(type==='success'?'fa-circle-check':'fa-circle-xmark')+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.remove();},3000);}
-async function fetchData(){try{var r=await fetch(API_URL+'?action=data',{redirect:'follow'});if(!r.ok)return[];var d=await r.json();return Array.isArray(d)?d:[];}catch(e){return[];}}
-async function submitData(entry){try{var r=await fetch(API_URL+'?action=submit',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(entry),redirect:'follow'});var d=await r.json();return d.status==='ok';}catch(e){return false;}}
+async function fetchData(){
+  try{
+    var r=await fetch(API_URL+'?action=data',{redirect:'follow'});
+    if(!r.ok){
+      console.error('Fetch NOT OK:', r.status);
+      return[];
+    }
+    var d=await r.json();
+    if(!Array.isArray(d)){
+      console.error('Data bukan array:', d);
+      return[];
+    }
+    return d;
+  }catch(e){
+    console.error('Fetch crash:', e);
+    return[];
+  }
+}
+
+async function submitData(entry){
+  try{
+    // PENTING: Gunakan GET dengan payload di URL, bukan POST
+    // Karena browser mengubah POST menjadi GET saat redirect GAS (301), sehingga body kosong
+    var url = API_URL + '?action=submit&payload=' + encodeURIComponent(JSON.stringify(entry));
+    var r=await fetch(url, {redirect:'follow'});
+    var d=await r.json();
+    return d.status==='ok';
+  }catch(e){
+    console.error('Submit crash:', e);
+    return false;
+  }
+}
 function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=cutoff.toISOString().slice(0,10);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
 
