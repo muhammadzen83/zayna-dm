@@ -734,8 +734,8 @@ async function handleSubmit(){
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
-        if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
-        else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
+        if(gdsVal>300)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>GDS sangat tinggi (>300)! Segera konsultasi.</div>';
+        else if(gdsVal<100)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>GDS rendah (<100), waspadai hipoglikemi!</div>';
         var doseDualHtml='<div class="dose-dual">';
         doseDualHtml+='<div class="dose-box standard"><div class="dose-pick-badge">Tersimpan</div><div class="dose-box-label">Dosis Terinput</div><div class="dose-box-val">'+standardDose+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+standardReason+'</div></div>';
         doseDualHtml+='<div class="dose-box ai-recommend"><div class="dose-pick-badge">Saran</div><div class="dose-box-label">Saran AI</div><div class="dose-box-val">'+(ai&&ai.hasData?ai.aiDose:'—')+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+(ai&&ai.hasData?'Berdasarkan analisis history':'Belum cukup data')+'</div></div>';
