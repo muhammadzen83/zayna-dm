@@ -445,19 +445,19 @@
                     <canvas id="gdsCanvas"></canvas>
                     <div class="chart-legend">
                         <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--accent)"></div>Normal/Target</div>
-                        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--warning)"></div>GDS Tinggi/Rendah</div>
-                        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--danger)"></div>GDS Sangat Tinggi/Rendah</div>
+                        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--warning)"></div>Hiperglikemi</div>
+                        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--danger)"></div>Hipo/Hiper Berat</div>
                     </div>
                 </div>
                 <div style="margin-top:8px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:var(--card);">
                     <table class="data-table" style="margin:0; border:none;">
                         <thead><tr><th style="text-align:left; padding-left:14px; width: 45%;">Kategori</th><th>Kadar Gula Darah (mg/dL)</th></tr></thead>
                         <tbody>
-                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val warn">GDS Rendah</span></td><td>&lt; 100</td></tr>
-                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val good">Normal/Target</span></td><td>100 – 200</td></tr>
-                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val warn">GDS Tinggi</span></td><td>&gt; 200</td></tr>
-                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val danger">GDS Sangat Tinggi</span></td><td>&gt; 300 <span style="font-size:9px; color:var(--danger); font-weight:600;">(Risiko Ketoasidosis)</span></td></tr>
-                        </tbody>    
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hipoglikemi</span></td><td>&lt; 70</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val good">Normal/Target</span></td><td>70 – 180</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val warn">Hiperglikemi</span></td><td>&gt; 180</td></tr>
+                            <tr><td style="text-align:left; padding-left:14px;"><span class="cell-val danger">Hiperglikemi Berat</span></td><td>&gt; 250 <span style="font-size:9px; color:var(--danger); font-weight:600;">(Risiko Ketoasidosis)</span></td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <div class="data-table-wrap" id="gdsTableWrap"></div>
@@ -531,15 +531,15 @@ function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getM
 function getTimeStr(){return String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0');}
 
 function getCat(gds){
-    if(gds<100) return {label:'GDS Rendah',cls:'warn'};
-    if(gds>300) return {label:'GDS Sangat Tinggi',cls:'danger'};
-    if(gds>200) return {label:'GDS Tinggi',cls:'warn'};
+    if(gds<70) return {label:'Hipoglikemi',cls:'danger'};
+    if(gds>250) return {label:'Hiperglikemi Berat',cls:'danger'};
+    if(gds>180) return {label:'Hiperglikemi',cls:'warn'};
     return {label:'Normal/Target',cls:'good'};
 }
 
 function ptColor(gds){
-    if(gds<100||gds>300) return '#FF5C5C';
-    if(gds>200) return '#FFB547';
+    if(gds<70||gds>250) return '#FF5C5C';
+    if(gds>180) return '#FFB547';
     return '#00E5A0';
 }
 
@@ -552,15 +552,15 @@ function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min
 
 function calcStandardDose(gds,slot){
     var d=DEFAULT_DOSES[slot];
-    if(gds>300) d+=2;
-    else if(gds>200) d+=1;
-    else if(gds<100) d-=1;
+    if(gds>250) d+=2;
+    else if(gds>180) d+=1;
+    else if(gds<70) d-=2;
     return Math.max(0,d);
 }
 function getStandardReason(gds){
-    if(gds>300) return 'GDS sangat tinggi ('+gds+'), tambah +2 unit dari default';
-    if(gds>200) return 'GDS tinggi ('+gds+'), tambah +1 unit dari default';
-    if(gds<100) return 'GDS rendah ('+gds+'), kurangi -1 unit';
+    if(gds>250) return 'Hiperglikemi berat ('+gds+'), tambah +2 unit dari default';
+    if(gds>180) return 'Hiperglikemi ('+gds+'), tambah +1 unit dari default';
+    if(gds<70) return 'Hipoglikemi ('+gds+'), kurangi -2 unit (risiko hipo)';
     return 'GDS Normal/Target ('+gds+'), dosis sesuai default';
 }
 
@@ -600,14 +600,14 @@ function evaluateLastDose(slot){
     var pairs=getDoseGdsPairs(slot,7);
     if(pairs.length<2)return{effective:null,reason:'Data kurang untuk evaluasi'};
     var last=pairs[pairs.length-1],prev=pairs[pairs.length-2];
-    var gdsInRange=last.gds>=100&&last.gds<=200;
+    var gdsInRange=last.gds>=70&&last.gds<=180;
     var improved=last.gds<prev.gds;
     var worsened=last.gds>prev.gds+15;
     if(gdsInRange&&improved)return{effective:true,reason:'Dosis '+last.dose+'u berhasil menurunkan GDS ke '+last.gds+' (dari '+prev.gds+')'};
     if(gdsInRange)return{effective:true,reason:'Dosis '+last.dose+'u menjaga GDS di '+last.gds+', dalam rentang normal'};
     if(worsened)return{effective:false,reason:'Dosis '+last.dose+'u belum cukup, GDS naik dari '+prev.gds+' ke '+last.gds};
-    if(last.gds>200)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
-    if(last.gds<100)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
+    if(last.gds>180)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
+    if(last.gds<70)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
     return{effective:null,reason:'Pola belum jelas dari data tersedia'};
 }
 
@@ -668,11 +668,11 @@ function renderAiInsights(){
             requiredDose=Math.min(20,Math.max(0,requiredDose));
             var doseDelta=requiredDose-lastDose;
             var estimatedGds=Math.round(projectedGds-(doseDelta*ISF));
-            if(estimatedGds<100){doseDelta=Math.floor((projectedGds-120)/ISF);requiredDose=lastDose+doseDelta;estimatedGds=Math.round(projectedGds-(doseDelta*ISF));}
+            if(estimatedGds<70){doseDelta=Math.floor((projectedGds-80)/ISF);requiredDose=lastDose+doseDelta;estimatedGds=Math.round(projectedGds-(doseDelta*ISF));}
             requiredDose=Math.max(0,requiredDose);estimatedGds=Math.max(0,estimatedGds);
             var text='GDS '+slotLabel+' naik rata-rata <strong>'+Math.round(trend.slope)+' mg/dL</strong>/hari ('+gdsVals.length+' hari, avg: '+trend.avg+'). ';
             text+='Rekomendasi dosis: <strong>'+requiredDose+' unit</strong>. ';
-            text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target: 100–200 mg/dL).';
+            text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target: 70–180 mg/dL).';
             insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+slotLabel,text:text,slot:slot});
         }
     });
@@ -734,8 +734,8 @@ async function handleSubmit(){
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
-        if(gdsVal>300)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>GDS sangat tinggi (>300)! Segera konsultasi.</div>';
-        else if(gdsVal<100)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>GDS rendah (<100), waspadai hipoglikemi!</div>';
+        if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
+        else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
         var doseDualHtml='<div class="dose-dual">';
         doseDualHtml+='<div class="dose-box standard"><div class="dose-pick-badge">Tersimpan</div><div class="dose-box-label">Dosis Terinput</div><div class="dose-box-val">'+standardDose+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+standardReason+'</div></div>';
         doseDualHtml+='<div class="dose-box ai-recommend"><div class="dose-pick-badge">Saran</div><div class="dose-box-label">Saran AI</div><div class="dose-box-val">'+(ai&&ai.hasData?ai.aiDose:'—')+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+(ai&&ai.hasData?'Berdasarkan analisis history':'Belum cukup data')+'</div></div>';
@@ -879,9 +879,9 @@ function renderHistory(){
     var html='';Object.keys(grouped).sort().reverse().forEach(function(date){
         html+='<div class="hp-date-label"><i class="fa-regular fa-calendar" style="font-size:10px"></i>'+date+'</div>';
         grouped[date].forEach(function(e){var cat=getCat(e.gds);var icon='fa-droplet',iconClass='gds';var valHtml='',badge='';
-        if(e.doseType==='rapid'){icon='fa-syringe';iconClass=(e.gds&&(e.gds>300||e.gds<100))?'high':'insulin';var gdsColor=e.gds?(cat.cls==='good'?'var(--accent)':cat.cls==='warn'?'var(--warning)':'var(--danger)'):'var(--muted)';valHtml='<div class="hp-item-val" style="'+(e.gds?'color:'+gdsColor:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';if(e.dose)valHtml+='<div class="hp-item-dose"><i class="fa-solid fa-syringe"></i>'+e.dose+' unit</div>';badge='<span class="hp-item-badge ins-b">Insulin</span>';}
+        if(e.doseType==='rapid'){icon='fa-syringe';iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'insulin';var gdsColor=e.gds?(cat.cls==='good'?'var(--accent)':cat.cls==='warn'?'var(--warning)':'var(--danger)'):'var(--muted)';valHtml='<div class="hp-item-val" style="'+(e.gds?'color:'+gdsColor:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';if(e.dose)valHtml+='<div class="hp-item-dose"><i class="fa-solid fa-syringe"></i>'+e.dose+' unit</div>';badge='<span class="hp-item-badge ins-b">Insulin</span>';}
         else if(e.doseType==='levemir'){icon='fa-syringe';iconClass='levemir';valHtml='<div class="hp-item-val levemir-v">'+(e.dose?e.dose+' unit':'—')+'</div>';badge='<span class="hp-item-badge lev-b">Levemir</span>';}
-        else{iconClass=(e.gds&&(e.gds>300||e.gds<100))?'high':'gds';valHtml='<div class="hp-item-val '+(e.gds?cat.cls:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';badge='<span class="hp-item-badge gds-b">GDS</span>';}
+        else{iconClass=(e.gds&&(e.gds>250||e.gds<70))?'high':'gds';valHtml='<div class="hp-item-val '+(e.gds?cat.cls:'')+'">'+(e.gds?e.gds+' mg/dL':'—')+'</div>';badge='<span class="hp-item-badge gds-b">GDS</span>';}
         html+='<div class="hp-item"><div class="hp-item-icon '+iconClass+'"><i class="fa-solid '+icon+'"></i></div><div class="hp-item-info"><div class="hp-item-title">'+e.slot+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+e.time+'</div></div><div class="hp-item-right">'+valHtml+badge+'</div></div>';});});
     list.innerHTML=html;
 }
