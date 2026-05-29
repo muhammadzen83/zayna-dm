@@ -367,7 +367,20 @@
             <div class="divider"></div>
             <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-syringe ic-input"></i>Input Pengukuran</div></div>
             <div class="input-section">
-                <!-- Tombol Slot Waktu -->
+                <div class="slot-btns" id="slotBtns">
+                    <button class="slot-btn" data-slot="dini-hari"><i class="fa-solid fa-moon"></i><span>02:00 GDS</span></button>
+                    <button class="slot-btn" data-slot="sarapan"><i class="fa-solid fa-mug-hot"></i><span>06:00</span></button>
+                    <button class="slot-btn" data-slot="siang"><i class="fa-solid fa-sun"></i><span>12:00</span></button>
+                    <button class="slot-btn" data-slot="malam"><i class="fa-solid fa-cloud-moon"></i><span>18:00</span></button>
+                </div>
+                <div class="input-row" id="inputRow">
+                    <input type="number" class="gds-input" id="gdsInput" placeholder="Hasil GDS (mg/dL)" min="0" max="999">
+                    <button class="submit-btn" id="submitBtn" disabled><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+                <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
+            </div>
+            <div class="input-section">
                 <div class="slot-btns" id="slotBtns">
                     <button class="slot-btn" data-slot="dini-hari"><i class="fa-solid fa-moon"></i><span>02:00 GDS</span></button>
                     <button class="slot-btn" data-slot="sarapan"><i class="fa-solid fa-mug-hot"></i><span>06:00</span></button>
@@ -381,32 +394,16 @@
                     <button class="submit-btn" id="calcBtn" disabled><i class="fa-solid fa-calculator"></i></button>
                 </div>
             
-                <!-- STEP 2: Konfirmasi Dosis, Badge Hasil Kalkulasi, & Keterangan (Hidden by default) -->
-                <div class="input-wrapper" id="inputStep2" style="display:none; flex-direction:column; gap:8px; animation: slideDown .3s ease-out;">
-                    
-                    <!-- BADGE HASIL KALKULASI (Logic + AI) -->
-                    <div id="doseSummaryBadge" style="display:none; flex-wrap: wrap; gap:6px; justify-content: center;">
-                        <!-- Badge Logic -->
-                        <div style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--accent-dim); border: 1px solid var(--accent-border); color:var(--accent); display:flex; align-items:center; gap:4px;">
-                            <i class="fa-solid fa-calculator"></i> <span id="logicText"></span>
-                        </div>
-                        <!-- Badge AI -->
-                        <div id="aiBadge" style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--ai-dim); border: 1px solid var(--ai-border); color:var(--ai); display:none; align-items:center; gap:4px;">
-                            <i class="fa-solid fa-brain"></i> <span id="aiText"></span>
-                        </div>
-                    </div>
-            
-                    <!-- Input Dosis & Note -->
-                    <div class="input-row" style="gap:8px;">
-                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
-                        <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan..." style="flex:1; font-size:13px; display:none;">
-                        <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
-                        <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
+                <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
+                <div class="input-row" id="inputStep2" style="display:none; align-items: center;">
+                    <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
+                    <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
+                    <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                    <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             
-                <button class="levemir-btn" id="levemirBtn"><i class="fa-block fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
-                <div class="input-disabled-note" id="divNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="divNoteText"></span></div>
+                <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
             </div>
             <div class="result-card" id="resultCard"></div>
             
@@ -864,40 +861,19 @@ async function handleCalc(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
     
-    // 1. Hitung Logika Dosis
+    // Hitung dosis standar
     var standardDose=calcStandardDose(gdsVal,slot);
-    var logicText = getStandardReason(gdsVal);
     
-    // 2. Hitung Saran AI
-    var aiData = null;
-    var aiText = "";
-    if(SLOTS.find(function(s){return s.slot===slot;}).type === 'gds-insulin'){
-        aiData = aiSuggest(slot, standardDose, gdsVal);
-        if(aiData && aiData.hasData){
-            aiText = "Saran AI: " + aiData.aiDose + " unit";
-            document.getElementById('aiBadge').style.display = 'flex';
-        }
-    }
-
-    // 3. Tampilkan Badge Logika
-    var logicBadgeHtml = '<div style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--accent-dim); border:1px solid var(--accent-border); color:var(--accent); display:flex; align-items:center; gap:4px;">';
-    logicBadgeHtml += '<i class="fa-solid fa-calculator"></i> ' + logicText;
-    logicBadgeHtml += '</div>';
-    
-    document.getElementById('logicText').innerHTML = logicBadgeHtml; // Set text logic
-    document.getElementById('aiText').textContent = aiText;       // Set text AI (jika ada)
-
-    // 4. UI Switch ke Step 2
+    // UI Switch
     document.getElementById('inputStep1').style.display='none';
-    var step2 = document.getElementById('inputStep2');
-    step2.style.display='flex'; // Flex-col to show badge then inputs
+    document.getElementById('inputStep2').style.display='flex';
     
-    // Pre-fill Dosis
+    // Set nilai ke input dosis
     var doseInput = document.getElementById('doseInput');
     doseInput.value = standardDose;
-    doseInput.dataset.calc = standardDose; 
+    doseInput.dataset.calc = standardDose; // Simpan nilai kalkulasi untuk validasi nanti
     
-    // Reset & Siapkan Note Input
+    // Reset note input
     var noteInput = document.getElementById('noteInput');
     noteInput.style.display='none';
     noteInput.value = '';
