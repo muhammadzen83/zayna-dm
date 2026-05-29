@@ -444,22 +444,27 @@
                 </div>
             
                 <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
-                <div id="inputStep2" style="display:none;">
+                <div id="inputStep2" style="display:none; flex-direction: column; gap: 10px;">
                     
                     <!-- Area Pilihan Dosis (Badge Baru) -->
                     <div id="doseSelectorRow" class="dose-options-container">
                         <!-- Akan diisi oleh JavaScript -->
                     </div>
-
-                    <!-- Input Manual -->
-                    <div class="input-row" style="align-items: center;">
-                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;margin-left: 12px;" min="0" max="99">
-                        <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
-                        <div style="display:flex; flex-direction:column; margin-left:8px; gap:8px;">
+                
+                    <!-- BARIS 1: Input Dosis Angka & Tombol Simpan/Batal (Sebaris) -->
+                    <div class="input-row" style="align-items: center; margin-bottom: 0;">
+                        <!-- Input Dosis -->
+                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center; margin-left: 0;" min="0" max="99">
+                        
+                        <!-- Grup Tombol (Vertikal) -->
+                        <div style="display:flex; flex-direction:column; margin-left:8px; gap:8px; flex-shrink: 0;">
                             <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
                             <button class="submit-btn" id="cancelBtn" style="background:var(--warning);"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
+                
+                    <!-- BARIS 2: Input Catatan (Full Width Terpisah - Lebih Lega di HP) -->
+                    <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." style="width: 100%; font-size:13px; display:none; margin-top: 2px;">
                 </div>
             
                 <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
