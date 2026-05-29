@@ -285,7 +285,6 @@
         @media(max-width:540px){
             .shell{max-width:100%}
             .slot-btns{grid-template-columns:repeat(2,1fr)}
-            /* Override padding agar tidak meluber di HP kecil */
             .hdr{padding:14px 12px 10px;gap:8px}
             .info-bar{margin:0 12px 6px;padding:8px 10px}
             .progress-strip{padding:8px 12px 6px}
@@ -298,20 +297,15 @@
             .ai-insights{padding:0 12px 10px}
             .divider{margin:0 12px}
             .result-card{margin:0 12px 10px}
-            
             .hdr-btn{width:34px;height:34px;font-size:13px}
             .brand-icon{width:38px;height:38px;font-size:16px}
             .brand h1{font-size:14px}
             .brand p{font-size:10px}
             .p-slot .p-label{display:none}
-            
-            /* Pastikan grid mengecil sempurna */
             #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
             .dose-dual{grid-template-columns:1fr}
             .scoreboard{padding:0 12px}
         }
-        
-        /* Khusus HP sangat kecil (misal iPhone SE lama / HP entry level) */
         @media(max-width:340px){
             .hdr-actions{gap:3px}
             .hdr-btn{width:30px;height:30px;font-size:11px;border-radius:8px}
@@ -323,33 +317,16 @@
             .fb{padding:5px 8px;font-size:10px}
         }
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-        /* ========== RESPONSIVE TABLET & DESKTOP ========== */
         @media (min-width: 768px) {
-            .shell {
-                max-width: 720px; /* Batas maksimal agar teks tidak terlalu melar di desktop */
-                padding: 0 20px 32px;
-            }
-            .chart-wrap canvas {
-                max-height: 400px; /* Grafik lebih tinggi di layar besar */
-            }
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr); /* 4 kolom penuh di layar besar */
-            }
-            #gdsStats, #doseStats {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .p-slot .p-label {
-                display: block !important; /* Paksa tampilkan label jam di tablet */
-            }
+            .shell {max-width: 720px; padding: 0 20px 32px;}
+            .chart-wrap canvas {max-height: 400px;}
+            .stats-grid {grid-template-columns: repeat(4, 1fr);}
+            #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
+            .p-slot .p-label {display: block !important;}
         }
-        
         @media (min-width: 1024px) {
-            .shell {
-                max-width: 800px; /* Sedikit lebih lebar di desktop */
-            }
-            .chart-wrap canvas {
-                max-height: 450px;
-            }
+            .shell {max-width: 800px;}
+            .chart-wrap canvas {max-height: 450px;}
         }
     </style>
 </head>
@@ -413,6 +390,7 @@
         <!-- GDS -->
         <div class="page" id="gdsPage">
             <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Grafik GDS</span></div>
+            <!-- Filters tidak menyertakan Levemir -->
             <div class="filter-bar" id="gdsFilters"><button class="fb active" data-period="today"><i class="fa-solid fa-calendar-day" style="font-size:10px"></i>Hari Ini</button><button class="fb" data-period="7">7 Hari</button><button class="fb" data-period="30">30 Hari</button><button class="fb" data-period="all"><i class="fa-solid fa-infinity" style="font-size:10px"></i>Semua</button></div>
             <div class="filter-bar" id="gdsSlotFilters"><button class="fb type-btn active" data-gs="all"><i class="fa-solid fa-layer-group" style="font-size:10px"></i>Semua</button><button class="fb type-btn" data-gs="dini-hari"><i class="fa-solid fa-moon" style="font-size:10px"></i>Dini Hari</button><button class="fb type-btn" data-gs="sarapan"><i class="fa-solid fa-mug-hot" style="font-size:10px"></i>Sarapan</button><button class="fb type-btn" data-gs="siang"><i class="fa-solid fa-sun" style="font-size:10px"></i>Siang</button><button class="fb type-btn" data-gs="malam"><i class="fa-solid fa-cloud-moon" style="font-size:10px"></i>Malam</button></div>
             <div class="scoreboard" id="gdsStats"></div>
@@ -426,7 +404,7 @@
                     </div>
                 </div>
                 
-                <!-- LEGENDA KATEGORI GDS -->
+                <!-- LEGENDA KATEGORI GDS (ORIGINAL: Tidak diubah) -->
                 <div style="margin-top:8px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:var(--card);">
                     <table class="data-table" style="margin:0; border:none;">
                         <thead>
@@ -502,6 +480,7 @@ var SLOTS=[
     {slot:'malam',label:'Malam',icon:'fa-cloud-moon',type:'gds-insulin'},
     {slot:'levemir',label:'levemir',icon:'fa-cloud-moon',type:'levemir'}
 ];
+// Dosis default (Sesuai permintaan)
 var DEFAULT_DOSES={sarapan:4,siang:6,malam:6},LEVEMIR_DOSE=8;
 var gdsSlot='all',gdsPeriod='today',dosePeriod='today',doseSlot='all',historyPeriod='today';
 var gdsChartInit=false,doseChartInit=false;
@@ -526,6 +505,7 @@ function normalizeDate(r){if(!r||r==='')return '';if(/^\d{4}-\d{2}-\d{2}$/.test(
 function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getTimeStr(){return String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0');}
 
+// Kategori & Warna ORIGINAL (Tidak Diubah)
 function getCat(gds){
     if(gds<70) return {label:'Hipoglikemi',cls:'danger'};
     if(gds>250) return {label:'Hiperglikemi Berat',cls:'danger'};
@@ -562,8 +542,6 @@ async function fetchData(){
 
 async function submitData(entry){
   try{
-    // PENTING: Gunakan GET dengan payload di URL, bukan POST
-    // Karena browser mengubah POST menjadi GET saat redirect GAS (301), sehingga body kosong
     var url = API_URL + '?action=submit&payload=' + encodeURIComponent(JSON.stringify(entry));
     var r=await fetch(url, {redirect:'follow'});
     var d=await r.json();
@@ -576,18 +554,19 @@ async function submitData(entry){
 function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=cutoff.toISOString().slice(0,10);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
 
+// LOGIKA DOSIS BARU (100-200 range)
 function calcStandardDose(gds,slot){
     var d=DEFAULT_DOSES[slot];
-    if(gds>250) d+=2;
-    else if(gds>180) d+=1;
-    else if(gds<70) d-=2;
+    if(gds > 300) d+=2;
+    else if(gds > 200) d+=1;
+    else if(gds < 100) d-=1;
     return Math.max(0,d);
 }
 function getStandardReason(gds){
-    if(gds>250) return 'Hiperglikemi berat ('+gds+'), tambah +2 unit dari default';
-    if(gds>180) return 'Hiperglikemi ('+gds+'), tambah +1 unit dari default';
-    if(gds<70) return 'Hipoglikemi ('+gds+'), kurangi -2 unit (risiko hipo)';
-    return 'GDS Normal/Target ('+gds+'), dosis sesuai default';
+    if(gds > 300) return 'Hiperglikemi berat (>300), tambah +2 unit dari default';
+    if(gds > 200) return 'Hiperglikemi (>200), tambah +1 unit dari default';
+    if(gds < 100) return 'GDS rendah (<100), kurangi -1 unit dari default';
+    return 'GDS Normal/Target (sesuai aturan dosis), dosis sesuai default';
 }
 
 function getSlotHistory(slot,maxDays){
@@ -626,14 +605,15 @@ function evaluateLastDose(slot){
     var pairs=getDoseGdsPairs(slot,7);
     if(pairs.length<2)return{effective:null,reason:'Data kurang untuk evaluasi'};
     var last=pairs[pairs.length-1],prev=pairs[pairs.length-2];
-    var gdsInRange=last.gds>=70&&last.gds<=180;
+    // Evaluasi berdasarkan target Dosis Baru (100-200)
+    var gdsInRange=last.gds>=100&&last.gds<=200; 
     var improved=last.gds<prev.gds;
     var worsened=last.gds>prev.gds+15;
     if(gdsInRange&&improved)return{effective:true,reason:'Dosis '+last.dose+'u berhasil menurunkan GDS ke '+last.gds+' (dari '+prev.gds+')'};
-    if(gdsInRange)return{effective:true,reason:'Dosis '+last.dose+'u menjaga GDS di '+last.gds+', dalam rentang normal'};
+    if(gdsInRange)return{effective:true,reason:'Dosis '+last.dose+'u menjaga GDS di '+last.gds+', dalam rentang target'};
     if(worsened)return{effective:false,reason:'Dosis '+last.dose+'u belum cukup, GDS naik dari '+prev.gds+' ke '+last.gds};
-    if(last.gds>180)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
-    if(last.gds<70)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
+    if(last.gds>200)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
+    if(last.gds<100)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
     return{effective:null,reason:'Pola belum jelas dari data tersedia'};
 }
 
@@ -724,7 +704,7 @@ function renderAiInsights(){
     var insights=[];
     var insulinSlots=['sarapan','siang','malam'];
     var ISF = 30;
-    var targetGds = 130;
+    var targetGds = 150; // Tengah rentang 100-200
 
     insulinSlots.forEach(function(slot){
         var history=getSlotHistory(slot,7);
@@ -752,8 +732,9 @@ function renderAiInsights(){
             var doseDelta = requiredDose - lastDose;
             var estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
             
-            if(estimatedGds < 70) {
-                doseDelta = Math.floor((projectedGds - 80) / ISF);
+            // Batas bawah 100 (sesuai logika dosis baru)
+            if(estimatedGds < 100) {
+                doseDelta = Math.floor((projectedGds - 110) / ISF);
                 requiredDose = lastDose + doseDelta;
                 estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
             }
@@ -763,7 +744,7 @@ function renderAiInsights(){
 
             var text='GDS '+slotLabel+' naik rata-rata <strong>'+Math.round(trend.slope)+' mg/dL</strong>/hari ('+gdsVals.length+' hari, avg: '+trend.avg+'). ';
             text+='Rekomendasi dosis: <strong>'+requiredDose+' unit</strong>. ';
-            text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target: 70–180 mg/dL).';
+            text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target dosis: 100–200 mg/dL).';
 
             insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+slotLabel,text:text,slot:slot});
         }
@@ -848,6 +829,7 @@ async function handleSubmit(){
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
+        // Warning visual tetap berdasarkan kategori original (>250 or <70)
         if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
         else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
 
@@ -918,7 +900,7 @@ async function handleLevemir(){
 }
 
 function initGdsChart(){var ctx=document.getElementById('gdsCanvas').getContext('2d');state.gdsChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.35,fill:false,borderColor:'#00E5A0',pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11}},beginAtZero:false}}}});}
-function renderGdsChart(){if(!state.gdsChart)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=7;state.gdsChart.update();var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}}
+function renderGdsChart(){if(!state.gdsChart)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null && e.gds > 0;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=7;state.gdsChart.update();var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}}
 function initDoseChart(){var ctx=document.getElementById('doseCanvas').getContext('2d');state.doseChart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'Insulin',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#4D94FF'},{label:'Levemir',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#FFB547'}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{display:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11},stepSize:1},beginAtZero:true}}}});}
 function renderDoseChart(){if(!state.doseChart)return;var entries=filterByPeriod(state.data,dosePeriod);if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={ins:0,lev:0};if(e.doseType==='rapid')grouped[d].ins+=e.dose;if(e.doseType==='levemir')grouped[d].lev+=e.dose;});var dates=Object.keys(grouped).sort();state.doseChart.data.labels=dates;state.doseChart.data.datasets[0].data=dates.map(function(d){return grouped[d].ins;});state.doseChart.data.datasets[1].data=dates.map(function(d){return grouped[d].lev;});if(doseSlot==='levemir'){state.doseChart.data.datasets[0].hidden=true;state.doseChart.data.datasets[1].hidden=false;}else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam'){state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=true;}else{state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=false;}state.doseChart.update();var statsEl=document.getElementById('doseStats');if(!statsEl)return;var insulinArr=[],levemirArr=[];entries.forEach(function(e){if(e.doseType==='rapid')insulinArr.push(e.dose||0);if(e.doseType==='levemir')levemirArr.push(e.dose||0);});var insStats=calcStats(insulinArr),levStats=calcStats(levemirArr);var insSum=insulinArr.reduce(function(a,b){return a+b;},0),levSum=levemirArr.reduce(function(a,b){return a+b;},0);var showIns=(doseSlot==='all'||doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam');var showLev=(doseSlot==='all'||doseSlot==='levemir');function sc(arr,st,sum,cls){if(!arr.length)return'<div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Tot</div></div>';return'<div class="dose-stat '+cls+'"><div class="dv">'+st.min+'</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.max+'</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">'+sum+'</div><div class="dl">Tot</div></div>';}var html='';if(showIns)html+=sc(insulinArr,insStats,insSum,'insulin-stat');if(showLev)html+=sc(levemirArr,levStats,levSum,'levemir-stat');if(!html)html='<div class="dose-stat total-stat" style="grid-column:1/-1"><div class="dv">-</div><div class="dl">Tidak ada data</div></div>';statsEl.innerHTML=html;}
 
@@ -934,7 +916,7 @@ var DIET_UI=[
 ];
 function renderDiet(){var list=document.getElementById('dietList');if(!list)return;var today=getTodayKey(),todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var html='';DIET_UI.forEach(function(d){var isDone=todayData.some(function(e){return e.slot===d.slot;});html+='<div class="hp-item" style="flex-wrap:wrap;'+(isDone?'opacity:0.4;pointer-events:none;':'')+'"><div class="hp-item-icon" style="background:'+d.bg+';color:'+d.color+'"><i class="fa-solid '+d.icon+'"></i></div><div class="hp-item-info" style="flex:1;min-width:120px"><div class="hp-item-title" style="display:flex;align-items:center;gap:6px">'+d.label+(isDone?' <i class="fa-solid fa-circle-check" style="font-size:11px;color:var(--accent)"></i>':'')+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+d.time+' &bull; '+d.target+'</div><div style="font-size:11px;color:var(--fg2);margin-top:4px;line-height:1.4">'+d.menu+'</div></div></div>';});list.innerHTML=html;}
 
-function renderGdsTable(){var wrap=document.getElementById('gdsTableWrap');if(!wrap)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});if(!entries.length){wrap.innerHTML='<div class="empty-box" style="padding:24px 20px"><i class="fa-solid fa-table"></i><p>Tidak ada data</p></div>';return;}var GDS_COLS=gdsSlot==='all'?['dini-hari','sarapan','siang','malam']:[gdsSlot];var CL={'dini-hari':'Dini Hari',sarapan:'Sarapan',siang:'Siang',malam:'Malam'};var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={};grouped[d][e.slot]=e.gds;});var dates=Object.keys(grouped).sort().reverse();if(dates.length>14)dates=dates.slice(0,14);var allVals=[];dates.forEach(function(d){GDS_COLS.forEach(function(s){if(grouped[d][s]!=null)allVals.push(grouped[d][s]);});});var stats=calcStats(allVals);var h='<table class="data-table"><thead><tr><th>Tanggal</th>';GDS_COLS.forEach(function(s){h+='<th>'+CL[s]+'</th>';});if(gdsSlot==='all')h+='<th>Rata²</th>';h+='</tr></thead><tbody>';dates.forEach(function(d){var dd=new Date(d+'T00:00:00');var label=isNaN(dd.getTime())?d:dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'});h+='<tr><td>'+label+'</td>';var rowVals=[];GDS_COLS.forEach(function(s){var v=grouped[d][s];if(v==null)h+='<td><span class="cell-val empty">—</span></td>';else{rowVals.push(v);var cat=getCat(v);h+='<td><span class="cell-val '+cat.cls+'">'+v+'</span></td>';}});if(gdsSlot==='all'&&rowVals.length){var avg=Math.round(rowVals.reduce(function(a,b){return a+b;},0)/rowVals.length);h+='<td><span class="cell-val '+getCat(avg).cls+'">'+avg+'</span></td>';}else if(gdsSlot==='all')h+='<td><span class="cell-val empty">—</span></td>';h+='</tr>';});h+='<tr style="background:var(--card2)"><td class="row-total" style="padding-left:14px">Rata²</td>';GDS_COLS.forEach(function(s){var colVals=[];dates.forEach(function(d){if(grouped[d][s]!=null)colVals.push(grouped[d][s]);});if(colVals.length){var avg=Math.round(colVals.reduce(function(a,b){return a+b;},0)/colVals.length);h+='<td><span class="cell-val '+getCat(avg).cls+'">'+avg+'</span></td>';}else h+='<td><span class="cell-val empty">—</span></td>';});if(gdsSlot==='all'&&allVals.length)h+='<td><span class="cell-val '+getCat(stats.avg).cls+'" style="font-size:13px">'+stats.avg+'</span></td>';else if(gdsSlot==='all')h+='<td><span class="cell-val empty">—</span></td>';h+='</tr></tbody></table>';wrap.innerHTML=h;}
+function renderGdsTable(){var wrap=document.getElementById('gdsTableWrap');if(!wrap)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null && e.gds > 0;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});if(!entries.length){wrap.innerHTML='<div class="empty-box" style="padding:24px 20px"><i class="fa-solid fa-table"></i><p>Tidak ada data</p></div>';return;}var GDS_COLS=gdsSlot==='all'?['dini-hari','sarapan','siang','malam']:[gdsSlot];var CL={'dini-hari':'Dini Hari',sarapan:'Sarapan',siang:'Siang',malam:'Malam'};var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={};grouped[d][e.slot]=e.gds;});var dates=Object.keys(grouped).sort().reverse();if(dates.length>14)dates=dates.slice(0,14);var allVals=[];dates.forEach(function(d){GDS_COLS.forEach(function(s){if(grouped[d][s]!=null)allVals.push(grouped[d][s]);});});var stats=calcStats(allVals);var h='<table class="data-table"><thead><tr><th>Tanggal</th>';GDS_COLS.forEach(function(s){h+='<th>'+CL[s]+'</th>';});if(gdsSlot==='all')h+='<th>Rata²</th>';h+='</tr></thead><tbody>';dates.forEach(function(d){var dd=new Date(d+'T00:00:00');var label=isNaN(dd.getTime())?d:dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'});h+='<tr><td>'+label+'</td>';var rowVals=[];GDS_COLS.forEach(function(s){var v=grouped[d][s];if(v==null)h+='<td><span class="cell-val empty">—</span></td>';else{rowVals.push(v);var cat=getCat(v);h+='<td><span class="cell-val '+cat.cls+'">'+v+'</span></td>';}});if(gdsSlot==='all'&&rowVals.length){var avg=Math.round(rowVals.reduce(function(a,b){return a+b;},0)/rowVals.length);h+='<td><span class="cell-val '+getCat(avg).cls+'">'+avg+'</span></td>';}else if(gdsSlot==='all')h+='<td><span class="cell-val empty">—</span></td>';h+='</tr>';});h+='<tr style="background:var(--card2)"><td class="row-total" style="padding-left:14px">Rata²</td>';GDS_COLS.forEach(function(s){var colVals=[];dates.forEach(function(d){if(grouped[d][s]!=null)colVals.push(grouped[d][s]);});if(colVals.length){var avg=Math.round(colVals.reduce(function(a,b){return a+b;},0)/colVals.length);h+='<td><span class="cell-val '+getCat(avg).cls+'">'+avg+'</span></td>';}else h+='<td><span class="cell-val empty">—</span></td>';});if(gdsSlot==='all'&&allVals.length)h+='<td><span class="cell-val '+getCat(stats.avg).cls+'" style="font-size:13px">'+stats.avg+'</span></td>';else if(gdsSlot==='all')h+='<td><span class="cell-val empty">—</span></td>';h+='</tr></tbody></table>';wrap.innerHTML=h;}
 function renderDoseTable(){var wrap=document.getElementById('doseTableWrap');if(!wrap)return;var entries=filterByPeriod(state.data,dosePeriod);if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});if(!entries.length){wrap.innerHTML='<div class="empty-box" style="padding:24px 20px"><i class="fa-solid fa-table"></i><p>Tidak ada data</p></div>';return;}var DC=doseSlot==='all'?['sarapan','siang','malam','levemir']:[doseSlot];var CL={sarapan:'Sarapan',siang:'Siang',malam:'Malam',levemir:'Levemir'};var CT={sarapan:'rapid',siang:'rapid',malam:'rapid',levemir:'levemir'};var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={};if(!grouped[d][e.slot])grouped[d][e.slot]={dose:0};if(e.dose!=null)grouped[d][e.slot].dose+=e.dose;});var dates=Object.keys(grouped).sort().reverse();if(dates.length>14)dates=dates.slice(0,14);var h='<table class="data-table"><thead><tr><th>Tanggal</th>';DC.forEach(function(s){h+='<th>'+CL[s]+'</th>';});h+='<th>Total</th></tr></thead><tbody>';var gt=0;dates.forEach(function(d){var dd=new Date(d+'T00:00:00');var label=isNaN(dd.getTime())?d:dd.toLocaleDateString('id-ID',{day:'numeric',month:'short'});h+='<tr><td>'+label+'</td>';var rt=0;DC.forEach(function(s){var info=grouped[d][s];var v=info&&info.dose?info.dose:0;rt+=v;var cc=CT[s]==='levemir'?'levemir-c':'insulin-c';h+='<td><span class="cell-val '+(v?cc:'empty')+'">'+(v?v+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';});gt+=rt;h+='<td><span class="cell-val '+(rt?'good':'empty')+'" style="font-size:13px">'+(rt?rt+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td></tr>';});h+='<tr style="background:var(--card2)"><td class="row-total" style="padding-left:14px">Total</td>';DC.forEach(function(s){var ct=0;dates.forEach(function(d){var info=grouped[d][s];if(info&&info.dose)ct+=info.dose;});var cc=CT[s]==='levemir'?'levemir-c':'insulin-c';h+='<td><span class="cell-val '+(ct?cc:'empty')+'">'+(ct?ct+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td>';});h+='<td><span class="cell-val good" style="font-size:13px">'+(gt?gt+'<span class="cell-dose-unit"> u</span>':'—')+'</span></td></tr></tbody></table>';wrap.innerHTML=h;}
 
 document.getElementById('gdsFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');gdsPeriod=btn.dataset.period;renderGdsChart();renderGdsTable();});
