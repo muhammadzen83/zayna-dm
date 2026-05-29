@@ -391,6 +391,166 @@
             .shell {max-width: 800px;}
             .chart-wrap canvas {max-height: 450px;}
         }
+        /* Container Utama Step 2 dengan Background Halus */
+        #inputStep2 {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        /* Styling Kartu Pilihan Dosis (Badge) */
+        .dose-opt-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .dose-opt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        .dose-opt-card.selected {
+            border-width: 2px;
+            transform: scale(1.02);
+            z-index: 3;
+        }
+        
+        /* Wrapper untuk Input Dosis & Tombol (Agar terlihat menyatu) */
+        .input-control-group {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        #doseInput {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+            flex: 1; /* Mengisi sisa ruang */
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Tombol Vertikal Group */
+        .btn-group-vertical {
+            display: flex;
+            flex-direction: row; /* Default horizontal di HP agar muat */
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        .btn-group-vertical button {
+            width: 44px;
+            height: 48px; /* Sesuaikan tinggi dengan input */
+            border: none;
+            background: var(--card);
+            color: var(--muted);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+        }
+        
+        .btn-group-vertical button:first-child {
+            border-right: 1px solid var(--border);
+        }
+        
+        .btn-group-vertical button:hover {
+            background: var(--card-hover);
+            color: var(--accent);
+        }
+        
+        #saveBtn {
+            background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+            color: var(--bg) !important;
+            font-weight: bold;
+        }
+        
+        #saveBtn:hover {
+            opacity: 0.9;
+        }
+        
+        #cancelBtn {
+            background: var(--card) !important;
+            color: var(--danger) !important;
+        }
+        
+        #cancelBtn:hover {
+            background: var(--danger-dim) !important;
+        }
+        
+        /* Input Catatan Full Width */
+        #noteInput {
+            margin-top: 12px;
+            font-size: 13px;
+            border-left: 3px solid var(--warning); /* Indikator visual peringatan */
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* --- RESPONSIVE MODE (Tablet / PC) --- */
+        @media (min-width: 640px) {
+            #inputStep2 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr; /* 2 Kolom Sama Rata */
+                gap: 24px;
+                align-items: start;
+            }
+        
+            /* Kolom Kiri: Pilihan Dosis */
+            .dose-options-container {
+                margin-bottom: 0 !important;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            /* Di Desktop, kartu menjadi lebar memanjang horizontal sedikit */
+            .dose-opt-card {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 16px 20px;
+                align-items: center;
+            }
+            .doc-label { margin-bottom: 0; }
+            .doc-val { font-size: 28px; }
+            .doc-sub { margin-top: 0; margin-left: 12px; text-align: right; }
+        
+            /* Kolom Kanan: Input & Tombol */
+            .input-section-right {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+        
+            .btn-group-vertical {
+                flex-direction: column; /* Vertikal di Desktop agar rapi */
+                border-radius: 0 var(--radius) var(--radius) 0;
+                border-left: none;
+            }
+        
+            #doseInput {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                border-right: none;
+                height: 48px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -444,27 +604,31 @@
                 </div>
             
                 <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
-                <div id="inputStep2" style="display:none; flex-direction: column; gap: 10px;">
+                <div id="inputStep2" style="display:none;">
                     
-                    <!-- Area Pilihan Dosis (Badge Baru) -->
+                    <!-- KOLOM KIRI (Mobile: Atas, Desktop: Kiri) -->
                     <div id="doseSelectorRow" class="dose-options-container">
                         <!-- Akan diisi oleh JavaScript -->
                     </div>
                 
-                    <!-- BARIS 1: Input Dosis Angka & Tombol Simpan/Batal (Sebaris) -->
-                    <div class="input-row" style="align-items: center; margin-bottom: 0;">
-                        <!-- Input Dosis -->
-                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 110px; text-align: center; margin-left: 0;" min="0" max="99">
+                    <!-- KOLOM KANAN (Mobile: Bawah, Desktop: Kanan) -->
+                    <div class="input-section-right">
                         
-                        <!-- Grup Tombol (Vertikal) -->
-                        <div style="display:flex; flex-direction:column; margin-left:8px; gap:8px; flex-shrink: 0;">
-                            <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
-                            <button class="submit-btn" id="cancelBtn" style="background:var(--warning);"><i class="fa-solid fa-xmark"></i></button>
+                        <!-- Wrapper Input & Tombol (Menyatu) -->
+                        <div class="input-control-group">
+                            <!-- Input Dosis -->
+                            <input type="number" class="gds-input" id="doseInput" placeholder="0" min="0" max="99">
+                            
+                            <!-- Grup Tombol (Vertikal) -->
+                            <div class="btn-group-vertical">
+                                <button id="saveBtn" title="Simpan"><i class="fa-solid fa-check"></i></button>
+                                <button id="cancelBtn" title="Batal"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
                         </div>
-                    </div>
                 
-                    <!-- BARIS 2: Input Catatan (Full Width Terpisah - Lebih Lega di HP) -->
-                    <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." style="width: 100%; font-size:13px; display:none; margin-top: 2px;">
+                        <!-- Input Catatan (Muncul jika berubah) -->
+                        <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." style="display:none;">
+                    </div>
                 </div>
             
                 <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
