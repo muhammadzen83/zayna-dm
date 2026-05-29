@@ -282,6 +282,66 @@
         .data-table .cell-val.levemir-c{background:var(--levemir-dim);color:var(--levemir)}
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
+
+        /* STYLES BARU UNTUK PILIHAN DOSIS (BADGE) */
+        .dose-options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .dose-opt-card {
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .dose-opt-card:hover {
+            transform: translateY(-2px);
+            background: var(--card-hover);
+        }
+        .dose-opt-card.selected {
+            border-width: 2px;
+            background: var(--card-hover);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .dose-opt-card.selected .doc-check {
+            opacity: 1;
+        }
+        
+        /* Style Standar */
+        .dose-opt-card.std-opt { border-color: var(--accent-border); }
+        .dose-opt-card.std-opt.selected { background: var(--accent-dim); border-color: var(--accent); }
+        .dose-opt-card.std-opt .doc-label { color: var(--accent); }
+        .dose-opt-card.std-opt .doc-val { color: var(--fg); }
+        
+        /* Style AI */
+        .dose-opt-card.ai-opt { border-color: var(--ai-border); }
+        .dose-opt-card.ai-opt.selected { background: var(--ai-dim); border-color: var(--ai); }
+        .dose-opt-card.ai-opt .doc-label { color: var(--ai); }
+        .dose-opt-card.ai-opt .doc-val { color: var(--fg); }
+        
+        .doc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+        .doc-val { font-size: 24px; font-weight: 700; line-height: 1; }
+        .doc-unit { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 400; }
+        .doc-sub { font-size: 9px; color: var(--muted); margin-top: 4px; }
+        .doc-check {
+            position: absolute; top: 6px; right: 6px; font-size: 10px;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); }
+        .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; }
+
         @media(max-width:540px){
             .shell{max-width:100%}
             .slot-btns{grid-template-columns:repeat(2,1fr)}
@@ -305,6 +365,8 @@
             #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
             .dose-dual{grid-template-columns:1fr}
             .scoreboard{padding:0 12px}
+            .dose-options-container { gap: 8px; }
+            .doc-val { font-size: 20px; }
         }
         @media(max-width:340px){
             .hdr-actions{gap:3px}
@@ -323,6 +385,7 @@
             .stats-grid {grid-template-columns: repeat(4, 1fr);}
             #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
             .p-slot .p-label {display: block !important;}
+            .dose-options-container { gap: 12px; }
         }
         @media (min-width: 1024px) {
             .shell {max-width: 800px;}
@@ -381,11 +444,20 @@
                 </div>
             
                 <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
-                <div class="input-row" id="inputStep2" style="display:none; align-items: center;">
-                    <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
-                    <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
-                    <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
-                    <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
+                <div id="inputStep2" style="display:none;">
+                    
+                    <!-- Area Pilihan Dosis (Badge Baru) -->
+                    <div id="doseSelectorRow" class="dose-options-container">
+                        <!-- Akan diisi oleh JavaScript -->
+                    </div>
+
+                    <!-- Input Manual -->
+                    <div class="input-row" style="align-items: center;">
+                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
+                        <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
+                        <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                        <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
             
                 <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
@@ -842,33 +914,106 @@ function cancelDoseEdit(){
     gdsInput.focus();
 }
 
-// LANGKAH 1: Hitung Dosis Standar
-async function handleCalc(){
-    var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
-    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
-    
-    // Hitung dosis standar
-    var standardDose=calcStandardDose(gdsVal,slot);
-    
-    // UI Switch
-    document.getElementById('inputStep1').style.display='none';
-    document.getElementById('inputStep2').style.display='flex';
-    
-    // Set nilai ke input dosis
+// Fungsi Helper untuk memilih opsi dosis (Badge)
+function selectDoseOption(val, type, standardDose, aiData) {
     var doseInput = document.getElementById('doseInput');
-    doseInput.value = standardDose;
-    doseInput.dataset.calc = standardDose; // Simpan nilai kalkulasi untuk validasi nanti
-    
-    // Reset note input
     var noteInput = document.getElementById('noteInput');
-    noteInput.style.display='none';
-    noteInput.value = '';
-    noteInput.required = false;
+    var selectorRow = document.getElementById('doseSelectorRow');
+    
+    doseInput.value = val;
+    
+    // Update visual state selected pada card
+    var cards = selectorRow.querySelectorAll('.dose-opt-card');
+    cards.forEach(function(c) { c.classList.remove('selected'); });
+    
+    if(type === 'std') {
+        cards[0].classList.add('selected');
+        // Jika kembali ke standar, reset dataset.calc ke standar
+        doseInput.dataset.calc = standardDose;
+    } else {
+        cards[1].classList.add('selected');
+        // Jika pilih AI, tetap pertahankan dataset.calc = standardDose (untuk memicu note jika beda)
+        doseInput.dataset.calc = standardDose;
+    }
+    
+    // Trigger event input manual untuk cek logic Note
+    doseInput.dispatchEvent(new Event('input'));
     
     doseInput.focus();
 }
 
-// LANGKAH 2: Simpan Data Final (Dosis Manual + Note)
+// LANGKAH 1: Hitung Dosis Standar & Munculkan Badge
+async function handleCalc(){
+    var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
+    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
+    
+    // 1. Hitung Standar
+    var standardDose=calcStandardDose(gdsVal,slot);
+    
+    // 2. Hitung AI
+    var aiData = aiSuggest(slot, standardDose, gdsVal);
+    var aiDose = aiData.aiDose;
+    var aiConfidence = aiData.confidence; // low, medium, high
+    var aiConfLabel = aiConfidence === 'high' ? 'Tinggi' : (aiConfidence === 'medium' ? 'Sedang' : 'Rendah');
+
+    // 3. Generate UI Badge
+    var selectorRow = document.getElementById('doseSelectorRow');
+    
+    // Badge Standar
+    var stdHtml = `
+        <div class="dose-opt-card std-opt" id="badgeStd" onclick="selectDoseOption(${standardDose}, 'std', ${standardDose}, null)">
+            <div class="doc-check"><i class="fa-solid fa-check"></i></div>
+            <div class="doc-label"><i class="fa-solid fa-calculator"></i> Standar</div>
+            <div class="doc-val">${standardDose}<span class="doc-unit">u</span></div>
+            <div class="doc-sub">Berdasarkan GDS saat ini</div>
+        </div>
+    `;
+    
+    // Badge AI
+    // Jika AI sama dengan Standar, beri tahu visualnya
+    var aiSub = 'Saran AI: ' + aiConfLabel;
+    if(aiDose === standardDose) aiSub = 'Sesuai Standar';
+    else if (aiDose > standardDose) aiSub += ' (Naik)';
+    else aiSub += ' (Turun)';
+
+    var aiHtml = `
+        <div class="dose-opt-card ai-opt" id="badgeAI" onclick="selectDoseOption(${aiDose}, 'ai', ${standardDose}, null)">
+            <div class="doc-check"><i class="fa-solid fa-check"></i></div>
+            <div class="doc-label"><i class="fa-solid fa-brain"></i> AI Saran</div>
+            <div class="doc-val">${aiDose}<span class="doc-unit">u</span></div>
+            <div class="doc-sub">${aiSub}</div>
+        </div>
+    `;
+    
+    selectorRow.innerHTML = stdHtml + aiHtml;
+
+    // 4. UI Switch & Inisialisasi Input
+    document.getElementById('inputStep1').style.display='none';
+    document.getElementById('inputStep2').style.display='flex';
+    
+    var doseInput = document.getElementById('doseInput');
+    
+    // Logic Default Input:
+    // Jika AI Confidence High, gunakan AI sebagai default value di input (tapi user bisa ganti).
+    // Jika Low/Medium, gunakan Standard.
+    // Atau: Selalu gunakan Standard di input awal untuk keamanan, biarkan user klik AI jika mau.
+    // Disini kita gunakan Standard sebagai default di input box.
+    doseInput.value = standardDose;
+    doseInput.dataset.calc = standardDose; // Referensi untuk validasi Note
+    
+    // Tandai visual yang aktif (Default Standar)
+    document.getElementById('badgeStd').classList.add('selected');
+    
+    // Reset note input
+    var noteInput = document.getElementById('noteInput');
+    noteInput.style.display='none';
+    noteInput.value='';
+    noteInput.required=false;
+    
+    doseInput.focus();
+}
+
+// LANGKAH 2: Simpan Data Final
 async function handleFinalSubmit(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
@@ -887,7 +1032,7 @@ async function handleFinalSubmit(){
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}
     var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);
 
-    var standardDose = calculatedDose; // Gunakan nilai kalkulasi sebagai referensi di sheet
+    var standardDose = calculatedDose; 
     var standardReason = getStandardReason(gdsVal);
 
     var ai=null;
@@ -895,7 +1040,7 @@ async function handleFinalSubmit(){
         ai=aiSuggest(slot,standardDose,gdsVal);
     }
 
-    var finalDose = manualDose; // Simpan dosis yang dipilih user
+    var finalDose = manualDose; 
 
     var entry={
         date:getTodayKey(),
@@ -907,17 +1052,16 @@ async function handleFinalSubmit(){
         category:cat.cls,
         aiGenerated:false,
         standardDose:standardDose,
-        note: noteVal // <--- KIRIM KE SHEET KOLOM NOTE
+        note: noteVal 
     };
 
-    // Tampilkan Hasil (Card) seperti biasa
+    // Tampilkan Hasil (Card)
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
         if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
         else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
 
-        // Tampilkan info dosis yang disimpan
         var doseInfoHtml = '<div style="text-align:center; margin-bottom:10px; padding:10px; background:rgba(0,245,200,0.1); border-radius:8px; border:1px solid var(--accent-border);">';
         doseInfoHtml += '<div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Dosis Tersimpan</div>';
         doseInfoHtml += '<div style="font-size:24px; font-weight:700; color:var(--accent)">'+finalDose+' <span style="font-size:14px; color:var(--muted)">unit</span></div>';
@@ -975,7 +1119,7 @@ async function handleFinalSubmit(){
         gdsInput.value='';state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
-        cancelDoseEdit(); // Reset ke tampilan awal
+        cancelDoseEdit();
         
         try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
     }else showToast('Gagal menyimpan','error');
@@ -1011,7 +1155,7 @@ function renderDoseTable(){var wrap=document.getElementById('doseTableWrap');if(
 document.getElementById('gdsFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');gdsPeriod=btn.dataset.period;renderGdsChart();renderGdsTable();});
 document.getElementById('gdsSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#gdsSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin');});gdsSlot=btn.dataset.gs;if(gdsSlot!=='all')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderGdsChart();renderGdsTable();});
 document.getElementById('dosePeriodFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#dosePeriodFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');dosePeriod=btn.dataset.dp;renderDoseChart();renderDoseTable();});
-document.getElementById('doseSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#doseSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin','active-levemir');});doseSlot=btn.dataset.ds;if(doseSlot==='levemir')btn.classList.add('active','active-levemir');else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam')btn.classList.add('active','active-insulin');else btn.classList.add('active');renderDoseChart();renderDoseTable();});
+document.getElementById('doseSlotFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#doseSlotFilters .fb').forEach(function(b){b.classList.remove('active','active-insulin','active-levemir');});doseSlot=btn.dataset.ds;if(doseSlot==='levemir')btn.classList.add('active-levemir');else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam')btn.classList.add('active-insulin');else btn.classList.add('active');renderDoseChart();renderDoseTable();});
 document.getElementById('historyFilters').addEventListener('click',function(e){var btn=e.target.closest('.fb');if(!btn)return;document.querySelectorAll('#historyFilters .fb').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');historyPeriod=btn.dataset.hp;renderHistory();});
 
 var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{hour:6,minute:0,slot:'sarapan',label:'GDS + Insulin'},{hour:9,minute:0,slot:'snack-pagi',label:'Snack Pagi',autoDone:true},{hour:12,minute:0,slot:'siang',label:'GDS + Insulin'},{hour:15,minute:0,slot:'snack-siang',label:'Snack Siang',autoDone:true},{hour:18,minute:0,slot:'malam',label:'GDS + Insulin'},{hour:20,minute:0,slot:'levemir',label:'Suntik Levemir'},{hour:21,minute:0,slot:'snack-malam',label:'Snack Malam',autoDone:true}];
