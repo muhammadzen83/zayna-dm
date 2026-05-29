@@ -367,47 +367,46 @@
             <div class="divider"></div>
             <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-syringe ic-input"></i>Input Pengukuran</div></div>
             <div class="input-section">
-                <div class="input-section">
-                <!-- STEP 1: Input GDS (Otomatis Enter) -->
+                <!-- Tombol Slot Waktu -->
+                <div class="slot-btns" id="slotBtns">
+                    <button class="slot-btn" data-slot="dini-hari"><i class="fa-solid fa-moon"></i><span>02:00 GDS</span></button>
+                <button class="step-btn active" data-slot="sarapan"><i class="fa-solid fa-mug-hot"></i><span>06:00</span></button>
+                    <button class="slot-btn" data-slot="siang"><i class="fa-solid fa-sun"></i><span>12:00</span></button>
+                    <button class="slot-btn" data-slot="malam"><i class="fa-solid fa-cloud-moon"></i><span>18:00</span></button>
+                </div>
+            
+                <!-- STEP 1: Input GDS -->
                 <div class="input-row" id="inputStep1">
                     <input type="number" class="gds-input" id="gdsInput" placeholder="Hasil GDS (mg/dL)" min="0" max="999">
                     <button class="submit-btn" id="calcBtn" disabled><i class="fa-solid fa-calculator"></i></button>
                 </div>
             
-                <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
-                <div class="dose-confirm-row" id="inputStep2" style="display:none; flex-direction: column; gap: 8px; align-items: stretch;">
+                <!-- STEP 2: Konfirmasi Dosis, Badge Hasil Kalkulasi, & Keterangan (Hidden by default) -->
+                <div class="input-wrapper" id="inputStep2" style="display:none; flex-direction:column; gap:8px; animation: slideDown .3s ease-out;">
                     
-                    <!-- Area Tampilan Dosis & AI -->
-                    <div style="display:flex; gap: 8px;">
-                        <!-- Box Input Dosis -->
-                        <div style="flex:1; display: flex; flex-direction: column; justify-content: center; position: relative; background: var(--card2); border: 1px solid var(--border2); border-radius: 12px; padding: 8px;">
-                            <span style="font-size:10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dosis</span>
-                            <span style="font-size: 24px; font-weight: 700; color: var(--fg); display: flex; align-items: baseline;">
-                                <input type="number" id="doseInput" value="" placeholder="0" style="width: 60px; background: transparent; text-align: center; color: var(--accent); border: none; outline: none; font-size: 22px; font-weight:700;">
-                                <span style="font-size: 12px; font-weight: 400; color: var(--muted); margin-left:2px;">unit</span>
-                            </span>
+                    <!-- BADGE HASIL KALKULASI (Logic + AI) -->
+                    <div id="doseSummaryBadge" style="display:none; flex-wrap: wrap; gap:6px; justify-content: center;">
+                        <!-- Badge Logic -->
+                        <div style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--accent-dim); border: 1px solid var(--accent-border); color:var(--accent); display:flex; align-items:center; gap:4px;">
+                            <i class="fa-solid fa-calculator"></i> <span id="logicText"></span>
                         </div>
-            
-                        <!-- Pill Rekomendasi AI -->
-                        <div id="aiSuggestPill" style="display:none; background: var(--ai-dim); border: 1px solid var(--ai-border); border-radius: 8px; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; gap:8px;">
-                            <span style="font-size:10px; color: var(--ai); font-weight: 600; display: flex; align-items: center; gap:6px;"><i class="fa-solid fa-brain"></i> AI Saran</span>
-                            <span style="font-size:14px; font-weight: 700; color: var(--fg);" id="aiSuggestDisplay">—</span>
-                            <button type="button" id="useAiBtn" style="background:none; border:none; color: var(--ai); padding:0; cursor: pointer;" title="Gunakan Saran AI"><i class="fa-solid fa-check-circle"></i></button>
+                        <!-- Badge AI -->
+                        <div id="aiBadge" style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--ai-dim); border: 1px solid var(--ai-border); color:var(--ai); display:none; align-items:center; gap:4px;">
+                            <i class="fa-solid fa-brain"></i> <span id="aiText"></span>
                         </div>
                     </div>
             
-                    <!-- Area Note & Tombol Aksi (Note tersembunyi jika sama) -->
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." style="flex:1; font-size: 12px; display: none;">
-                        <div style="display:flex; gap:6px;">
-                            <button class="submit-btn" id="saveBtn" style="flex:1;"><i class="fa-solid fa-check"></i> Simpan</button>
-                            <button class="submit-btn" id="cancelBtn" style="background: var(--warning); width: auto; padding: 0 16px; border: 1px solid var(--warning-border);"><i class="fa-solid fa-xmark"></i> Batal</button>
-                        </div>
+                    <!-- Input Dosis & Note -->
+                    <div class="input-row" style="gap:8px;">
+                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
+                        <input type="text" class="gds-input" id="noteInput" placeholder="Wajib isi alasan..." style="flex:1; font-size:13px; display:none;">
+                        <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                        <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-            
-                    <button class="levemir-btn" id="levemirBtn" style="display:none;"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
-                    <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
                 </div>
+            
+                <button class="levemir-btn" id="levemirBtn"><i class="fa-block fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <div class="input-disabled-note" id="divNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="divNoteText"></span></div>
             </div>
             <div class="result-card" id="resultCard"></div>
             
@@ -817,101 +816,106 @@ function selectSlot(slot){
 }
 function updateSubmitBtn(){var slot=state.selectedSlot;submitBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);}
 // Ganti event listener lama dengan yang baru
-gdsInput.addEventListener('input', updateCalcBtn);
-gdsInput.addEventListener('keydown',function(e){
-    if(e.key==='Enter' && !document.getElementById('calcBtn').disabled){
-        handleAutoCalc(); // Enter langsung hitung
-    }
-});
-document.getElementById('calcBtn').addEventListener('click',handleAutoCalc);
-document.getElementById('useAiBtn').addEventListener('click', function(){
-    var aiDose = document.getElementById('aiSuggestDisplay').innerText.replace(' u','');
-    var doseInput = document.getElementById('doseInput');
-    if(aiDose !== '-' && aiDose !== null){
-        doseInput.value = aiDose;
-        // Trigger event manual agar validasi note jalan
-        doseInput.dispatchEvent(new Event('input', {bubbles: true}));
-    }
-});
+gdsInput.addEventListener('input',updateCalcBtn);
+gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('calcBtn').disabled)handleCalc();});
+document.getElementById('calcBtn').addEventListener('click',handleCalc);
 document.getElementById('saveBtn').addEventListener('click',handleFinalSubmit);
 document.getElementById('cancelBtn').addEventListener('click',cancelDoseEdit);
 
-// Update tombol kalkulator
+// Listener untuk mengecek perubahan dosis manual
+document.getElementById('doseInput').addEventListener('input',function(){
+    var calcDose = parseInt(this.dataset.calc);
+    var currDose = parseInt(this.value);
+    var noteInput = document.getElementById('noteInput');
+    
+    if(isNaN(currDose) || currDose !== calcDose){
+        noteInput.style.display = 'block';
+        noteInput.required = true;
+        noteInput.placeholder = "Wajib isi alasan perubahan dosis...";
+    } else {
+        noteInput.style.display = 'none';
+        noteInput.required = false;
+        noteInput.value = '';
+    }
+});
+levemirBtn.addEventListener('click',handleLevemir);
+document.querySelectorAll('.slot-btn').forEach(function(b){b.addEventListener('click',function(){selectSlot(b.dataset.slot);});});
+document.querySelectorAll('.p-slot').forEach(function(el){el.addEventListener('click',function(){selectSlot(el.dataset.slot);});});
+
+// Fungsi update tombol hitung
 function updateCalcBtn(){
     var slot=state.selectedSlot;
     var calcBtn=document.getElementById('calcBtn');
     calcBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);
 }
 
-// Batal Edit Dosis
+// Fungsi Batal Edit Dosis
 function cancelDoseEdit(){
     document.getElementById('inputStep1').style.display='flex';
     document.getElementById('inputStep2').style.display='none';
     document.getElementById('doseInput').value='';
     document.getElementById('noteInput').value='';
     document.getElementById('noteInput').style.display='none';
-    document.getElementById('aiSuggestPill').style.display='none';
-    gdsInput.value=''; // Reset GDS input juga agar bersih
     gdsInput.focus();
 }
 
-// Fungsi Utama: Hitung Dosis & Tampilkan UI Konfirmasi
-async function handleAutoCalc(){
-    var slot=state.selectedSlot, gdsVal=parseInt(gdsInput.value.trim());
+// LANGKAH 1: Hitung Dosis Standar
+async function handleCalc(){
+    var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
     
-    // 1. Hitung Dosis Logika
-    var standardDose = calcStandardDose(gdsVal, slot);
+    // 1. Hitung Logika Dosis
+    var standardDose=calcStandardDose(gdsVal,slot);
+    var logicText = getStandardReason(gdsVal);
     
-    // 2. Hitung Rekomendasi AI
-    var ai = null;
-    var aiDoseStr = '—';
-    if(SLOTS.find(function(s){return s.slot===slot;}).type==='gds-insulin'){
-        ai = aiSuggest(slot, standardDose, gdsVal);
-        if(ai && ai.hasData && ai.aiDose !== standardDose){
-            aiDoseStr = ai.aiDose + ' unit';
+    // 2. Hitung Saran AI
+    var aiData = null;
+    var aiText = "";
+    if(SLOTS.find(function(s){return s.slot===slot;}).type === 'gds-insulin'){
+        aiData = aiSuggest(slot, standardDose, gdsVal);
+        if(aiData && aiData.hasData){
+            aiText = "Saran AI: " + aiData.aiDose + " unit";
+            document.getElementById('aiBadge').style.display = 'flex';
         }
     }
 
-    // 3. UI Switch: Tampilkan Step 2
+    // 3. Tampilkan Badge Logika
+    var logicBadgeHtml = '<div style="font-size:9px; padding:4px 8px; border-radius:20px; background:var(--accent-dim); border:1px solid var(--accent-border); color:var(--accent); display:flex; align-items:center; gap:4px;">';
+    logicBadgeHtml += '<i class="fa-solid fa-calculator"></i> ' + logicText;
+    logicBadgeHtml += '</div>';
+    
+    document.getElementById('logicText').innerHTML = logicBadgeHtml; // Set text logic
+    document.getElementById('aiText').textContent = aiText;       // Set text AI (jika ada)
+
+    // 4. UI Switch ke Step 2
     document.getElementById('inputStep1').style.display='none';
     var step2 = document.getElementById('inputStep2');
-    step2.style.display='flex';
-    step2.style.flexDirection='column';
-
-    // 4. Isi Dosis Input dengan Dosis Logika
+    step2.style.display='flex'; // Flex-col to show badge then inputs
+    
+    // Pre-fill Dosis
     var doseInput = document.getElementById('doseInput');
     doseInput.value = standardDose;
-    doseInput.dataset.calc = standardDose; // Simpan nilai logic untuk validasi nanti
-
-    // 5. Tampilkan/Hide AI Suggestion
-    var aiPill = document.getElementById('aiSuggestPill');
-    var aiText = document.getElementById('aiSuggestDisplay');
-    if(aiPill && aiDoseStr !== '—'){
-        aiPill.style.display = 'flex';
-        aiText.innerText = aiDoseStr;
-    } else {
-        aiPill.style.display = 'none';
-    }
-
-    // 6. Reset Note Input
+    doseInput.dataset.calc = standardDose; 
+    
+    // Reset & Siapkan Note Input
     var noteInput = document.getElementById('noteInput');
     noteInput.style.display='none';
     noteInput.value = '';
+    noteInput.required = false;
     
     doseInput.focus();
 }
 
-// Fungsi Final: Simpan Data (Dosis Manual + Note)
+// LANGKAH 2: Simpan Data Final (Dosis Manual + Note)
 async function handleFinalSubmit(){
-    var slot=state.selectedSlot, gdsVal=parseInt(gdsInput.value.trim());
+    var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
     var noteVal = document.getElementById('noteInput').value.trim();
-    var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
     
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;
     
-    // Validasi: Jika dosis berbeda dari logika, note wajib diisi
+    // Validasi: Jika dosis berbeda dari kalkulasi, note wajib diisi
+    var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
     if(manualDose !== calculatedDose && noteVal === ''){
         showToast('Mohon isi alasan perubahan dosis','error');
         document.getElementById('noteInput').focus();
@@ -921,18 +925,15 @@ async function handleFinalSubmit(){
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}
     var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);
 
-    // Kita gunakan dose yang dipilih user (manualDose) sebagai referensi di sheet
-    var standardDose = calculatedDose; 
+    var standardDose = calculatedDose; // Gunakan nilai kalkulasi sebagai referensi di sheet
     var standardReason = getStandardReason(gdsVal);
 
-    // Hitung ulang untuk Result Card (Opsional, biar menampilkan rekomendasi AI di card juga jika berbeda)
-    var aiCardHtml = '';
-    if(manualDose !== calculatedDose && ai && ai.hasData){
-        aiCardHtml = '<div style="margin-top:10px; padding:8px; background:rgba(168,85,247,0.1); border-radius:8px; border:1px dashed var(--ai-border); font-size:11px; color:var(--ai); text-align:center;">Anda memilih dosis '+manualDose+' unit (Saran AI: '+ai.aiDose+' u)</div>';
+    var ai=null;
+    if(s.type==='gds-insulin'){
+        ai=aiSuggest(slot,standardDose,gdsVal);
     }
 
-    // Simpan Dosis Final
-    var finalDose = manualDose; 
+    var finalDose = manualDose; // Simpan dosis yang dipilih user
 
     var entry={
         date:getTodayKey(),
@@ -947,23 +948,22 @@ async function handleFinalSubmit(){
         note: noteVal // <--- KIRIM KE SHEET KOLOM NOTE
     };
 
-    // Tampilkan Hasil
+    // Tampilkan Hasil (Card) seperti biasa
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
         if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
         else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
 
+        // Tampilkan info dosis yang disimpan
         var doseInfoHtml = '<div style="text-align:center; margin-bottom:10px; padding:10px; background:rgba(0,245,200,0.1); border-radius:8px; border:1px solid var(--accent-border);">';
         doseInfoHtml += '<div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Dosis Tersimpan</div>';
         doseInfoHtml += '<div style="font-size:24px; font-weight:700; color:var(--accent)">'+finalDose+' <span style="font-size:14px; color:var(--muted)">unit</span></div>';
-        if(noteVal) doseInfoHtml += '<div style="font-size:10px; color:var(--fg2); margin-top:4px; font-style:italic; line-height:1.2">"'+noteVal+'"</div>';
-        else if(manualDose !== calculatedDose) doseInfoHtml += '<div style="font-size:9px; color:var(--warning); margin-top:4px;">Beda dari Logika</div>';
+        if(noteVal) doseInfoHtml += '<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+noteVal+'"</div>';
         doseInfoHtml += '</div>';
 
-        // AI Panel di Card (Re-use logika tampilan AI Card dari handleAutoCalc)
         var aiPanelHtml='';
-        if(ai && ai.hasData){
+        if(ai&&ai.hasData){
             var confPct=ai.confidence==='high'?85:ai.confidence==='medium'?55:25;
             var confLabel=ai.confidence==='high'?'Tinggi':ai.confidence==='medium'?'Sedang':'Rendah';
             var trendIcon='',trendCls='',trendText='';
@@ -982,24 +982,24 @@ async function handleFinalSubmit(){
             aiPanelHtml='<div class="ai-panel">'+
                 '<div class="ai-panel-head">'+
                     '<span class="ai-badge"><i class="fa-solid fa-brain"></i>AI Saran</span>'+
-                    '<div class="ai-confidence '+ai.confidence+'>'+
+                    '<div class="ai-confidence '+ai.confidence+'">'+
                         '<span>'+confLabel+'</span>'+
                         '<div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:'+confPct+'%"></div></div>'+
                     '</div>'+
                 '</div>'+
                 '<div class="ai-trend-row"><div class="ai-trend-icon '+trendCls+'"><i class="fa-solid '+trendIcon+'"></i></div><span class="ai-trend-text">'+trendText+'</span></div>'+
                 '<div class="ai-reasons">'+reasonsHtml+'</div>'+
-                '<div class="ai-diff-row"><i class="fa-solid '+diffIcon+'></i><span>Saran penyesuaian dari dosis logik</span><span class="ai-diff-val">'+diffStr+' unit</span></div>'+
-                '<div style="margin-top:8px;font-size:9px;color:var(--muted);opacity:.7;text-align:center">Berdasarkan '+ai.dataPoints+' GDS & '+ai.dosePairs+' data dosis — saran referensi</div>'+
+                '<div class="ai-diff-row"><i class="fa-solid '+diffIcon+'"></i><span>Saran penyesuaian dari dosis standar</span><span class="ai-diff-val">'+diffStr+' unit</span></div>'+
+                '<div style="margin-top:8px;font-size:9px;color:var(--muted);opacity:.7;text-align:center">Berdasarkan '+ai.dataPoints+' GDS & '+ai.dosePairs+' data dosis — saran referensi, bukan dosis yang digunakan</div>'+
             '</div>';
         }else{
             aiPanelHtml='<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span></div><div class="ai-no-data">Belum cukup data history untuk saran AI. Minimal 2 data GDS + 1 data dosis pada slot ini diperlukan.</div></div>';
         }
 
-        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+aiPanelHtml+aiCardHtml+'</div>';
+        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+aiPanelHtml+'</div>';
     }else{
         var catIcon2=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
-        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon2+'"></i></div><div class="result-top-text"><div class="rt-label">GDS Dini Hari</div><div class="rt-value '+cat.cls+'>'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body"></div>';
+        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon2+'"></i></div><div class="result-top-text"><div class="rt-label">GDS Dini Hari</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body"></div>';
     }
 
     resultCard.classList.add('show');
