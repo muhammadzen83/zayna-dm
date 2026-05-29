@@ -1251,33 +1251,29 @@ async function handleCalc(){
     // 3. Generate UI Badge
     var selectorRow = document.getElementById('doseSelectorRow');
     
-    // Badge Standar
+    // HTML Kartu Standar
     var stdHtml = `
         <div class="dose-opt-card std-opt" id="badgeStd" onclick="selectDoseOption(${standardDose}, 'std', ${standardDose}, null)">
             <div class="doc-check"><i class="fa-solid fa-check"></i></div>
-            <div class="doc-label"><i class="fa-solid fa-calculator"></i> Standar</div>
+            <div class="doc-label"><i class="fa-solid fa-calculator" style="margin-right:4px"></i> Standar</div>
             <div class="doc-val">${standardDose}<span class="doc-unit">u</span></div>
-            <div class="doc-sub">Berdasarkan GDS saat ini</div>
-        </div>
-    `;
+            <div class="doc-sub">Default</div>
+        </div>`;
     
-    // Badge AI
-    // Jika AI sama dengan Standar, beri tahu visualnya
-    var aiSub = 'Saran AI: ' + aiConfLabel;
-    if(aiDose === standardDose) aiSub = 'Sesuai Standar';
-    else if (aiDose > standardDose) aiSub += ' (Naik)';
-    else aiSub += ' (Turun)';
-
+    // HTML Kartu AI
+    var aiSub = aiConfidence === 'high' ? 'Akurasi Tinggi' : (aiConfidence === 'medium' ? 'Akurasi Sedang' : 'Perlu Data');
     var aiHtml = `
         <div class="dose-opt-card ai-opt" id="badgeAI" onclick="selectDoseOption(${aiDose}, 'ai', ${standardDose}, null)">
-            <div class="doc-check"><i class="fa-solid fa-check"></i></div>
-            <div class="doc-label"><i class="fa-solid fa-brain"></i> AI Saran</div>
+            <div class="doc-check"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="doc-label"><i class="fa-solid fa-brain" style="margin-right:4px"></i> AI Saran</div>
             <div class="doc-val">${aiDose}<span class="doc-unit">u</span></div>
             <div class="doc-sub">${aiSub}</div>
-        </div>
-    `;
+        </div>`;
     
     selectorRow.innerHTML = stdHtml + aiHtml;
+    
+    // Seleksi default standar
+    document.getElementById('badgeStd').classList.add('selected');
 
     // 4. UI Switch & Inisialisasi Input
     document.getElementById('inputStep1').style.display='none';
