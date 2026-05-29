@@ -391,267 +391,6 @@
             .shell {max-width: 800px;}
             .chart-wrap canvas {max-height: 450px;}
         }
-        /* --- MODERN DOSE UI START --- */
-        #inputStep2 {
-            display: none;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            margin-top: 16px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
-            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        
-        /* Container Grid Pilihan */
-        .dose-options-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        /* Kartu Pilihan Modern */
-        .dose-opt-card {
-            background: rgba(20, 25, 40, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        
-        /* Efek Glow Halus di Background */
-        .dose-opt-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            background: radial-gradient(circle at center, var(--glow-color, rgba(255,255,255,0.1)) 0%, transparent 70%);
-            z-index: 0;
-        }
-        
-        .dose-opt-card:hover {
-            transform: translateY(-4px);
-            background: rgba(30, 35, 55, 0.8);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        
-        /* State Selected */
-        .dose-opt-card.selected {
-            border-color: var(--active-color);
-            background: rgba(var(--active-rgb), 0.1); /* Fallback */
-            transform: scale(1.02);
-            box-shadow: 0 0 0 2px rgba(var(--active-rgb), 0.2), 0 10px 30px -10px rgba(var(--active-rgb), 0.3);
-        }
-        
-        /* Indikator Check */
-        .doc-check {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            color: var(--active-color);
-            border: 1px solid var(--active-color);
-            z-index: 2;
-        }
-        
-        .dose-opt-card.selected .doc-check {
-            opacity: 1;
-            transform: scale(1);
-            background: var(--active-color);
-            color: var(--bg);
-        }
-        
-        /* Typography Card */
-        .doc-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--muted);
-            margin-bottom: 4px;
-            z-index: 1;
-            font-weight: 600;
-        }
-        .doc-val {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--fg);
-            line-height: 1;
-            margin-bottom: 4px;
-            z-index: 1;
-        }
-        .doc-unit {
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 500;
-        }
-        .doc-sub {
-            font-size: 10px;
-            color: var(--muted);
-            opacity: 0.8;
-            z-index: 1;
-        }
-        
-        /* Specific Colors */
-        .std-opt { --active-color: var(--accent); --active-rgb: 0, 245, 200; --glow-color: rgba(0, 245, 200, 0.15); }
-        .ai-opt { --active-color: var(--ai); --active-rgb: 168, 85, 247; --glow-color: rgba(168, 85, 247, 0.15); }
-        
-        .std-opt.selected .doc-val, .ai-opt.selected .doc-val {
-            color: var(--active-color);
-            text-shadow: 0 0 20px var(--glow-color);
-        }
-        
-        /* --- CONTROL PANEL (Input & Buttons) --- */
-        .input-control-wrapper {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            padding: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: border-color 0.3s ease;
-        }
-        
-        .input-control-wrapper:focus-within {
-            border-color: var(--accent); /* Default border color on focus */
-            box-shadow: 0 0 0 4px rgba(0, 245, 200, 0.05);
-        }
-        
-        /* Styling Input Number */
-        #doseInput {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 16px;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--fg);
-            outline: none;
-            min-width: 0;
-            text-align: center;
-        }
-        #doseInput::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-            font-weight: 400;
-        }
-        
-        /* Tombol Aksi (Modern Pill Buttons) */
-        .modern-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 16px;
-        }
-        
-        #saveBtn {
-            background: var(--accent);
-            color: var(--bg);
-            box-shadow: 0 4px 12px rgba(0, 245, 200, 0.3);
-        }
-        #saveBtn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 245, 200, 0.4);
-        }
-        #saveBtn:active {
-            transform: scale(0.95);
-        }
-        
-        #cancelBtn {
-            background: rgba(255, 107, 107, 0.1);
-            color: var(--danger);
-        }
-        #cancelBtn:hover {
-            background: rgba(255, 107, 107, 0.2);
-            color: #ff8787;
-        }
-        
-        /* Input Catatan */
-        #noteInput {
-            margin-top: 12px;
-            width: 100%;
-            padding: 14px;
-            background: rgba(255, 181, 71, 0.05); /* Kuning tipis */
-            border: 1px dashed rgba(255, 181, 71, 0.3);
-            border-radius: 12px;
-            color: var(--fg);
-            font-size: 13px;
-            outline: none;
-            transition: all 0.3s ease;
-            animation: fadeIn 0.4s ease;
-        }
-        #noteInput:focus {
-            background: rgba(255, 181, 71, 0.1);
-            border-color: var(--warning);
-            border-style: solid;
-        }
-        
-        /* --- RESPONSIVE --- */
-        @media (max-width: 480px) {
-            .dose-options-container {
-                gap: 10px;
-            }
-            .doc-val { font-size: 26px; }
-            .modern-btn { width: 42px; height: 42px; }
-        }
-        
-        @media (min-width: 640px) {
-            #inputStep2 {
-                display: grid !important;
-                grid-template-columns: 240px 1fr;
-                gap: 24px;
-                align-items: center;
-            }
-            .dose-options-container {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                margin-bottom: 0;
-                width: 100%;
-            }
-            .dose-opt-card {
-                flex-direction: row;
-                justify-content: space-between;
-                padding: 16px 20px;
-                text-align: left;
-            }
-            .doc-label { margin-bottom: 0; }
-            .doc-val { margin-bottom: 0; }
-            .doc-sub { margin-left: auto; margin-right: 30px; text-align: right; }
-        }
-        /* --- MODERN DOSE UI END --- */
     </style>
 </head>
 <body>
@@ -704,51 +443,22 @@
                     <button class="submit-btn" id="calcBtn" disabled><i class="fa-solid fa-calculator"></i></button>
                 </div>
             
-                <!-- STEP 2: Konfirmasi Dosis (Modern UI) -->
-                <div id="inputStep2">
+                <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
+                <div id="inputStep2" style="display:none;">
                     
-                    <!-- KOLOM 1: Pilihan Dosis (Kartu Glass) -->
+                    <!-- Area Pilihan Dosis (Badge Baru) -->
                     <div id="doseSelectorRow" class="dose-options-container">
-                        <!-- 
-                           Kartu Standar (Hijau) 
-                           JS akan mengisi class 'selected' secara dinamis
-                        -->
-                        <div class="dose-opt-card std-opt" id="badgeStd" onclick="selectDoseOption(null, 'std', 0, null)">
-                            <div class="doc-check"><i class="fa-solid fa-check"></i></div>
-                            <div class="doc-label"><i class="fa-solid fa-calculator" style="margin-right:4px"></i> Standar</div>
-                            <div class="doc-val">--<span class="doc-unit">u</span></div>
-                            <div class="doc-sub">Berdasarkan GDS</div>
-                        </div>
-                
-                        <!-- 
-                           Kartu AI (Ungu) 
-                        -->
-                        <div class="dose-opt-card ai-opt" id="badgeAI" onclick="selectDoseOption(null, 'ai', 0, null)">
-                            <div class="doc-check"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                            <div class="doc-label"><i class="fa-solid fa-brain" style="margin-right:4px"></i> AI Saran</div>
-                            <div class="doc-val">--<span class="doc-unit">u</span></div>
-                            <div class="doc-sub">Analisis Trend</div>
-                        </div>
+                        <!-- Akan diisi oleh JavaScript -->
                     </div>
-                
-                    <!-- KOLOM 2: Kontrol Input (Floating Panel) -->
-                    <div style="display:flex; flex-direction:column;">
-                        
-                        <!-- Baris Input Dosis & Tombol -->
-                        <div class="input-control-wrapper">
-                            <input type="number" id="doseInput" placeholder="0" min="0" max="99">
-                            
-                            <button class="modern-btn" id="cancelBtn" title="Batal">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                            
-                            <button class="modern-btn" id="saveBtn" title="Simpan">
-                                <i class="fa-solid fa-check"></i>
-                            </button>
+
+                    <!-- Input Manual -->
+                    <div class="input-row" style="align-items: center;">
+                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;margin-left: 12px;" min="0" max="99">
+                        <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
+                        <div style="display:flex; flex-direction:column; margin-left:8px; gap:8px;">
+                            <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                            <button class="submit-btn" id="cancelBtn" style="background:var(--warning);"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                
-                        <!-- Baris Catatan (Conditional) -->
-                        <input type="text" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." style="display:none;">
                     </div>
                 </div>
             
@@ -1251,29 +961,33 @@ async function handleCalc(){
     // 3. Generate UI Badge
     var selectorRow = document.getElementById('doseSelectorRow');
     
-    // HTML Kartu Standar
+    // Badge Standar
     var stdHtml = `
         <div class="dose-opt-card std-opt" id="badgeStd" onclick="selectDoseOption(${standardDose}, 'std', ${standardDose}, null)">
             <div class="doc-check"><i class="fa-solid fa-check"></i></div>
-            <div class="doc-label"><i class="fa-solid fa-calculator" style="margin-right:4px"></i> Standar</div>
+            <div class="doc-label"><i class="fa-solid fa-calculator"></i> Standar</div>
             <div class="doc-val">${standardDose}<span class="doc-unit">u</span></div>
-            <div class="doc-sub">Default</div>
-        </div>`;
+            <div class="doc-sub">Berdasarkan GDS saat ini</div>
+        </div>
+    `;
     
-    // HTML Kartu AI
-    var aiSub = aiConfidence === 'high' ? 'Akurasi Tinggi' : (aiConfidence === 'medium' ? 'Akurasi Sedang' : 'Perlu Data');
+    // Badge AI
+    // Jika AI sama dengan Standar, beri tahu visualnya
+    var aiSub = 'Saran AI: ' + aiConfLabel;
+    if(aiDose === standardDose) aiSub = 'Sesuai Standar';
+    else if (aiDose > standardDose) aiSub += ' (Naik)';
+    else aiSub += ' (Turun)';
+
     var aiHtml = `
         <div class="dose-opt-card ai-opt" id="badgeAI" onclick="selectDoseOption(${aiDose}, 'ai', ${standardDose}, null)">
-            <div class="doc-check"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <div class="doc-label"><i class="fa-solid fa-brain" style="margin-right:4px"></i> AI Saran</div>
+            <div class="doc-check"><i class="fa-solid fa-check"></i></div>
+            <div class="doc-label"><i class="fa-solid fa-brain"></i> AI Saran</div>
             <div class="doc-val">${aiDose}<span class="doc-unit">u</span></div>
             <div class="doc-sub">${aiSub}</div>
-        </div>`;
+        </div>
+    `;
     
     selectorRow.innerHTML = stdHtml + aiHtml;
-    
-    // Seleksi default standar
-    document.getElementById('badgeStd').classList.add('selected');
 
     // 4. UI Switch & Inisialisasi Input
     document.getElementById('inputStep1').style.display='none';
