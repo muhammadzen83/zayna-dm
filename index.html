@@ -800,7 +800,7 @@ function selectSlot(slot){
 function updateSubmitBtn(){var slot=state.selectedSlot;submitBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);}
 // Ganti event listener lama dengan yang baru
 gdsInput.addEventListener('input',updateCalcBtn);
-gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('calcBtn').disabled)handleCalc();});
+gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter' && gdsInput.value.trim() !== '' && Number(gdsInput.value) >= 0){handleCalc();}});
 document.getElementById('calcBtn').addEventListener('click',handleCalc);
 document.getElementById('saveBtn').addEventListener('click',handleFinalSubmit);
 document.getElementById('cancelBtn').addEventListener('click',cancelDoseEdit);
