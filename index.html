@@ -283,64 +283,196 @@
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
 
-        /* STYLES BARU UNTUK PILIHAN DOSIS (BADGE) */
+        /* ==============================
+           IMPROVED DOSE INPUT STYLES
+           ============================== */
+        
+        /* Container untuk Step 2 - Layout Grid */
+        #inputStep2 {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Layout Responsif untuk Desktop */
+        @media (min-width: 640px) {
+            #inputStep2 {
+                flex-direction: row;
+                align-items: stretch;
+            }
+            
+            .dose-selector-group {
+                flex: 2;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .dose-manual-group {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background: var(--bg2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 16px;
+                min-width: 280px; /* Prevent squishing on smaller tablets */
+            }
+        }
+
+        /* Styling Kartu Pilihan (Badges) */
         .dose-options-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 12px;
         }
+        
+        /* Pada desktop, biarkan kartu agak lebar tapi proporsional */
+        @media (min-width: 640px) {
+            .dose-options-container {
+                height: 100%;
+                align-content: center;
+            }
+        }
+
         .dose-opt-card {
-            padding: 12px;
+            padding: 16px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: var(--card);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             position: relative;
             overflow: hidden;
+            height: 100%;
+            justify-content: center;
         }
+
         .dose-opt-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             background: var(--card-hover);
+            border-color: var(--border2);
         }
+
         .dose-opt-card.selected {
             border-width: 2px;
-            background: var(--card-hover);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        }
-        .dose-opt-card.selected .doc-check {
-            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
         
         /* Style Standar */
-        .dose-opt-card.std-opt { border-color: var(--accent-border); }
-        .dose-opt-card.std-opt.selected { background: var(--accent-dim); border-color: var(--accent); }
+        .dose-opt-card.std-opt { border-color: rgba(0,245,200,0.1); }
+        .dose-opt-card.std-opt.selected { background: var(--accent-dim); border-color: var(--accent); box-shadow: 0 0 20px rgba(0,245,200,0.15); }
         .dose-opt-card.std-opt .doc-label { color: var(--accent); }
         .dose-opt-card.std-opt .doc-val { color: var(--fg); }
         
         /* Style AI */
-        .dose-opt-card.ai-opt { border-color: var(--ai-border); }
-        .dose-opt-card.ai-opt.selected { background: var(--ai-dim); border-color: var(--ai); }
+        .dose-opt-card.ai-opt { border-color: rgba(168,85,247,0.1); }
+        .dose-opt-card.ai-opt.selected { background: var(--ai-dim); border-color: var(--ai); box-shadow: 0 0 20px rgba(168,85,247,0.2); }
         .dose-opt-card.ai-opt .doc-label { color: var(--ai); }
         .dose-opt-card.ai-opt .doc-val { color: var(--fg); }
         
-        .doc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-        .doc-val { font-size: 24px; font-weight: 700; line-height: 1; }
-        .doc-unit { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 400; }
-        .doc-sub { font-size: 9px; color: var(--muted); margin-top: 4px; }
+        .doc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
+        .doc-val { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .doc-unit { font-size: 12px; color: var(--muted); margin-left: 2px; font-weight: 400; }
+        .doc-sub { font-size: 10px; color: var(--muted); margin-top: auto; opacity: 0.8; padding-top: 8px; }
         .doc-check {
-            position: absolute; top: 6px; right: 6px; font-size: 10px;
-            width: 18px; height: 18px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s;
+            position: absolute; top: 10px; right: 10px; font-size: 12px;
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content:center;
+            opacity: 0; transform: scale(0.5); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); }
-        .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; }
+        .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); opacity: 1; transform: scale(1); }
+        .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; opacity: 1; transform: scale(1); }
+
+        /* Manual Input Group Styling */
+        .dose-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .dose-action-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        @media (min-width: 640px) {
+            .dose-action-row {
+                margin-top: 4px;
+            }
+        }
+
+        #doseInput {
+            flex: 1;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            transition: all .2s;
+            min-width: 0;
+        }
+        #doseInput:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        #noteInput {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-xs);
+            border: 1px dashed var(--warning-border);
+            background: rgba(255,181,71,.04);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            transition: all .2s;
+            display: none; /* Hidden by default via JS */
+        }
+        #noteInput:focus {
+            background: rgba(255,181,71,.08);
+            border-style: solid;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btns .submit-btn {
+            flex: 1;
+            width: auto;
+            height: 52px;
+            font-size: 18px;
+        }
+        
+        .action-btns .submit-btn:last-child {
+            background: linear-gradient(135deg,var(--danger),#dc2626);
+            box-shadow: 0 4px 20px rgba(220,38,38,.2);
+        }
+        
+        .action-btns .submit-btn:last-child:hover {
+            box-shadow: 0 6px 28px rgba(220,38,38,.3);
+        }
 
         @media(max-width:540px){
             .shell{max-width:100%}
@@ -365,8 +497,8 @@
             #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
             .dose-dual{grid-template-columns:1fr}
             .scoreboard{padding:0 12px}
-            .dose-options-container { gap: 8px; }
-            .doc-val { font-size: 20px; }
+            .dose-options-container { gap: 10px; }
+            .doc-val { font-size: 28px; }
         }
         @media(max-width:340px){
             .hdr-actions{gap:3px}
@@ -385,7 +517,7 @@
             .stats-grid {grid-template-columns: repeat(4, 1fr);}
             #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
             .p-slot .p-label {display: block !important;}
-            .dose-options-container { gap: 12px; }
+            .dose-options-container { gap: 16px; }
         }
         @media (min-width: 1024px) {
             .shell {max-width: 800px;}
@@ -443,21 +575,30 @@
                     <button class="submit-btn" id="calcBtn" disabled><i class="fa-solid fa-calculator"></i></button>
                 </div>
             
-                <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
+                <!-- STEP 2: Konfirmasi Dosis (NEW LAYOUT) -->
                 <div id="inputStep2" style="display:none;">
                     
-                    <!-- Area Pilihan Dosis (Badge Baru) -->
-                    <div id="doseSelectorRow" class="dose-options-container">
-                        <!-- Akan diisi oleh JavaScript -->
+                    <!-- GROUP 1: Pilihan Dosis (Kiri / Atas) -->
+                    <div class="dose-selector-group">
+                        <div class="dose-options-container" id="doseSelectorRow">
+                            <!-- Akan diisi oleh JavaScript -->
+                        </div>
                     </div>
 
-                    <!-- Input Manual -->
-                    <div class="input-row" style="align-items: center;">
-                        <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;margin-left: 12px;" min="0" max="99">
-                        <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
-                        <div style="display:flex; flex-direction:column; margin-left:8px; gap:8px;">
-                            <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
-                            <button class="submit-btn" id="cancelBtn" style="background:var(--warning);"><i class="fa-solid fa-xmark"></i></button>
+                    <!-- GROUP 2: Input Manual & Action (Kanan / Bawah) -->
+                    <div class="dose-manual-group">
+                        <div class="dose-input-wrapper">
+                            
+                            <div class="dose-action-row">
+                                <input type="number" id="doseInput" placeholder="Unit" min="0" max="99">
+                            </div>
+
+                            <input type="text" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." autocomplete="off">
+
+                            <div class="action-btns">
+                                <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                                <button class="submit-btn" id="cancelBtn"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -475,7 +616,6 @@
         <!-- GDS -->
         <div class="page" id="gdsPage">
             <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Grafik GDS</span></div>
-            <!-- Filters tidak menyertakan Levemir -->
             <div class="filter-bar" id="gdsFilters"><button class="fb active" data-period="today"><i class="fa-solid fa-calendar-day" style="font-size:10px"></i>Hari Ini</button><button class="fb" data-period="7">7 Hari</button><button class="fb" data-period="30">30 Hari</button><button class="fb" data-period="all"><i class="fa-solid fa-infinity" style="font-size:10px"></i>Semua</button></div>
             <div class="filter-bar" id="gdsSlotFilters"><button class="fb type-btn active" data-gs="all"><i class="fa-solid fa-layer-group" style="font-size:10px"></i>Semua</button><button class="fb type-btn" data-gs="dini-hari"><i class="fa-solid fa-moon" style="font-size:10px"></i>Dini Hari</button><button class="fb type-btn" data-gs="sarapan"><i class="fa-solid fa-mug-hot" style="font-size:10px"></i>Sarapan</button><button class="fb type-btn" data-gs="siang"><i class="fa-solid fa-sun" style="font-size:10px"></i>Siang</button><button class="fb type-btn" data-gs="malam"><i class="fa-solid fa-cloud-moon" style="font-size:10px"></i>Malam</button></div>
             <div class="scoreboard" id="gdsStats"></div>
@@ -489,7 +629,6 @@
                     </div>
                 </div>
                 
-                <!-- LEGENDA KATEGORI GDS (ORIGINAL: Tidak diubah) -->
                 <div style="margin-top:8px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); background:var(--card);">
                     <table class="data-table" style="margin:0; border:none;">
                         <thead>
@@ -565,7 +704,6 @@ var SLOTS=[
     {slot:'malam',label:'Malam',icon:'fa-cloud-moon',type:'gds-insulin'},
     {slot:'levemir',label:'levemir',icon:'fa-cloud-moon',type:'levemir'}
 ];
-// Dosis default (Sesuai permintaan)
 var DEFAULT_DOSES={sarapan:4,siang:6,malam:6},LEVEMIR_DOSE=8;
 var gdsSlot='all',gdsPeriod='today',dosePeriod='today',doseSlot='all',historyPeriod='today';
 var gdsChartInit=false,doseChartInit=false;
@@ -590,7 +728,6 @@ function normalizeDate(r){if(!r||r==='')return '';if(/^\d{4}-\d{2}-\d{2}$/.test(
 function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getTimeStr(){var now = new Date();return String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');}
 
-// Kategori & Warna ORIGINAL (Tidak Diubah)
 function getCat(gds){
     if(gds<70) return {label:'Hipoglikemi',cls:'danger'};
     if(gds>250) return {label:'Hiperglikemi Berat',cls:'danger'};
@@ -639,7 +776,6 @@ async function submitData(entry){
 function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=cutoff.toISOString().slice(0,10);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
 
-// LOGIKA DOSIS BARU (100-200 range)
 function calcStandardDose(gds,slot){
     var d=DEFAULT_DOSES[slot];
     if(gds > 300) d+=2;
@@ -690,7 +826,6 @@ function evaluateLastDose(slot){
     var pairs=getDoseGdsPairs(slot,7);
     if(pairs.length<2)return{effective:null,reason:'Data kurang untuk evaluasi'};
     var last=pairs[pairs.length-1],prev=pairs[pairs.length-2];
-    // Evaluasi berdasarkan target Dosis Baru (100-200)
     var gdsInRange=last.gds>=100&&last.gds<=200; 
     var improved=last.gds<prev.gds;
     var worsened=last.gds>prev.gds+15;
@@ -789,7 +924,7 @@ function renderAiInsights(){
     var insights=[];
     var insulinSlots=['sarapan','siang','malam'];
     var ISF = 30;
-    var targetGds = 150; // Tengah rentang 100-200
+    var targetGds = 150;
 
     insulinSlots.forEach(function(slot){
         var history=getSlotHistory(slot,7);
@@ -817,7 +952,6 @@ function renderAiInsights(){
             var doseDelta = requiredDose - lastDose;
             var estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
             
-            // Batas bawah 100 (sesuai logika dosis baru)
             if(estimatedGds < 100) {
                 doseDelta = Math.floor((projectedGds - 110) / ISF);
                 requiredDose = lastDose + doseDelta;
@@ -872,14 +1006,12 @@ function selectSlot(slot){
     updateSubmitBtn();resultCard.classList.remove('show');
 }
 function updateSubmitBtn(){var slot=state.selectedSlot;submitBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);}
-// Ganti event listener lama dengan yang baru
 gdsInput.addEventListener('input',updateCalcBtn);
 gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('calcBtn').disabled)handleCalc();});
 document.getElementById('calcBtn').addEventListener('click',handleCalc);
 document.getElementById('saveBtn').addEventListener('click',handleFinalSubmit);
 document.getElementById('cancelBtn').addEventListener('click',cancelDoseEdit);
 
-// Listener untuk mengecek perubahan dosis manual
 document.getElementById('doseInput').addEventListener('input',function(){
     var calcDose = parseInt(this.dataset.calc);
     var currDose = parseInt(this.value);
@@ -899,14 +1031,12 @@ levemirBtn.addEventListener('click',handleLevemir);
 document.querySelectorAll('.slot-btn').forEach(function(b){b.addEventListener('click',function(){selectSlot(b.dataset.slot);});});
 document.querySelectorAll('.p-slot').forEach(function(el){el.addEventListener('click',function(){selectSlot(el.dataset.slot);});});
 
-// Fungsi update tombol hitung
 function updateCalcBtn(){
     var slot=state.selectedSlot;
     var calcBtn=document.getElementById('calcBtn');
     calcBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);
 }
 
-// Fungsi Batal Edit Dosis
 function cancelDoseEdit(){
     document.getElementById('inputStep1').style.display='flex';
     document.getElementById('inputStep2').style.display='none';
@@ -916,7 +1046,6 @@ function cancelDoseEdit(){
     gdsInput.focus();
 }
 
-// Fungsi Helper untuk memilih opsi dosis (Badge)
 function selectDoseOption(val, type, standardDose, aiData) {
     var doseInput = document.getElementById('doseInput');
     var noteInput = document.getElementById('noteInput');
@@ -924,44 +1053,33 @@ function selectDoseOption(val, type, standardDose, aiData) {
     
     doseInput.value = val;
     
-    // Update visual state selected pada card
     var cards = selectorRow.querySelectorAll('.dose-opt-card');
     cards.forEach(function(c) { c.classList.remove('selected'); });
     
     if(type === 'std') {
         cards[0].classList.add('selected');
-        // Jika kembali ke standar, reset dataset.calc ke standar
         doseInput.dataset.calc = standardDose;
     } else {
         cards[1].classList.add('selected');
-        // Jika pilih AI, tetap pertahankan dataset.calc = standardDose (untuk memicu note jika beda)
         doseInput.dataset.calc = standardDose;
     }
     
-    // Trigger event input manual untuk cek logic Note
     doseInput.dispatchEvent(new Event('input'));
-    
     doseInput.focus();
 }
 
-// LANGKAH 1: Hitung Dosis Standar & Munculkan Badge
 async function handleCalc(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
     
-    // 1. Hitung Standar
     var standardDose=calcStandardDose(gdsVal,slot);
-    
-    // 2. Hitung AI
     var aiData = aiSuggest(slot, standardDose, gdsVal);
     var aiDose = aiData.aiDose;
-    var aiConfidence = aiData.confidence; // low, medium, high
+    var aiConfidence = aiData.confidence;
     var aiConfLabel = aiConfidence === 'high' ? 'Tinggi' : (aiConfidence === 'medium' ? 'Sedang' : 'Rendah');
 
-    // 3. Generate UI Badge
     var selectorRow = document.getElementById('doseSelectorRow');
     
-    // Badge Standar
     var stdHtml = `
         <div class="dose-opt-card std-opt" id="badgeStd" onclick="selectDoseOption(${standardDose}, 'std', ${standardDose}, null)">
             <div class="doc-check"><i class="fa-solid fa-check"></i></div>
@@ -971,8 +1089,6 @@ async function handleCalc(){
         </div>
     `;
     
-    // Badge AI
-    // Jika AI sama dengan Standar, beri tahu visualnya
     var aiSub = 'Saran AI: ' + aiConfLabel;
     if(aiDose === standardDose) aiSub = 'Sesuai Standar';
     else if (aiDose > standardDose) aiSub += ' (Naik)';
@@ -989,24 +1105,15 @@ async function handleCalc(){
     
     selectorRow.innerHTML = stdHtml + aiHtml;
 
-    // 4. UI Switch & Inisialisasi Input
     document.getElementById('inputStep1').style.display='none';
     document.getElementById('inputStep2').style.display='flex';
     
     var doseInput = document.getElementById('doseInput');
-    
-    // Logic Default Input:
-    // Jika AI Confidence High, gunakan AI sebagai default value di input (tapi user bisa ganti).
-    // Jika Low/Medium, gunakan Standard.
-    // Atau: Selalu gunakan Standard di input awal untuk keamanan, biarkan user klik AI jika mau.
-    // Disini kita gunakan Standard sebagai default di input box.
     doseInput.value = standardDose;
-    doseInput.dataset.calc = standardDose; // Referensi untuk validasi Note
+    doseInput.dataset.calc = standardDose; 
     
-    // Tandai visual yang aktif (Default Standar)
     document.getElementById('badgeStd').classList.add('selected');
     
-    // Reset note input
     var noteInput = document.getElementById('noteInput');
     noteInput.style.display='none';
     noteInput.value='';
@@ -1015,7 +1122,6 @@ async function handleCalc(){
     doseInput.focus();
 }
 
-// LANGKAH 2: Simpan Data Final
 async function handleFinalSubmit(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
@@ -1023,7 +1129,6 @@ async function handleFinalSubmit(){
     
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;
     
-    // Validasi: Jika dosis berbeda dari kalkulasi, note wajib diisi
     var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
     if(manualDose !== calculatedDose && noteVal === ''){
         showToast('Mohon isi alasan perubahan dosis','error');
@@ -1057,7 +1162,6 @@ async function handleFinalSubmit(){
         note: noteVal 
     };
 
-    // Tampilkan Hasil (Card)
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
@@ -1117,7 +1221,6 @@ async function handleFinalSubmit(){
         state.data.unshift(entry);
         updateProgress();renderAiInsights();
         
-        // Reset UI
         gdsInput.value='';state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
