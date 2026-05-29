@@ -380,6 +380,31 @@
                 <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
                 <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
             </div>
+            <div class="input-section">
+                <div class="slot-btns" id="slotBtns">
+                    <button class="slot-btn" data-slot="dini-hari"><i class="fa-solid fa-moon"></i><span>02:00 GDS</span></button>
+                    <button class="slot-btn" data-slot="sarapan"><i class="fa-solid fa-mug-hot"></i><span>06:00</span></button>
+                    <button class="slot-btn" data-slot="siang"><i class="fa-solid fa-sun"></i><span>12:00</span></button>
+                    <button class="slot-btn" data-slot="malam"><i class="fa-solid fa-cloud-moon"></i><span>18:00</span></button>
+                </div>
+            
+                <!-- STEP 1: Input GDS -->
+                <div class="input-row" id="inputStep1">
+                    <input type="number" class="gds-input" id="gdsInput" placeholder="Hasil GDS (mg/dL)" min="0" max="999">
+                    <button class="submit-btn" id="calcBtn" disabled><i class="fa-solid fa-calculator"></i></button>
+                </div>
+            
+                <!-- STEP 2: Konfirmasi Dosis & Keterangan (Hidden by default) -->
+                <div class="input-row" id="inputStep2" style="display:none; align-items: center;">
+                    <input type="number" class="gds-input" id="doseInput" placeholder="Dosis (Unit)" style="flex: 0 0 80px; text-align: center;" min="0" max="99">
+                    <input type="text" class="gds-input" id="noteInput" placeholder="Alasan perubahan dosis..." style="flex:1; font-size:13px; display:none;">
+                    <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
+                    <button class="submit-btn" id="cancelBtn" style="background:var(--warning); margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            
+                <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
+            </div>
             <div class="result-card" id="resultCard"></div>
             
             <div class="divider"></div>
@@ -787,32 +812,104 @@ function selectSlot(slot){
     updateSubmitBtn();resultCard.classList.remove('show');
 }
 function updateSubmitBtn(){var slot=state.selectedSlot;submitBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);}
-gdsInput.addEventListener('input',updateSubmitBtn);
-gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!submitBtn.disabled)handleSubmit();});
-submitBtn.addEventListener('click',handleSubmit);
+// Ganti event listener lama dengan yang baru
+gdsInput.addEventListener('input',updateCalcBtn);
+gdsInput.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('calcBtn').disabled)handleCalc();});
+document.getElementById('calcBtn').addEventListener('click',handleCalc);
+document.getElementById('saveBtn').addEventListener('click',handleFinalSubmit);
+document.getElementById('cancelBtn').addEventListener('click',cancelDoseEdit);
+
+// Listener untuk mengecek perubahan dosis manual
+document.getElementById('doseInput').addEventListener('input',function(){
+    var calcDose = parseInt(this.dataset.calc);
+    var currDose = parseInt(this.value);
+    var noteInput = document.getElementById('noteInput');
+    
+    if(isNaN(currDose) || currDose !== calcDose){
+        noteInput.style.display = 'block';
+        noteInput.required = true;
+        noteInput.placeholder = "Wajib isi alasan perubahan dosis...";
+    } else {
+        noteInput.style.display = 'none';
+        noteInput.required = false;
+        noteInput.value = '';
+    }
+});
 levemirBtn.addEventListener('click',handleLevemir);
 document.querySelectorAll('.slot-btn').forEach(function(b){b.addEventListener('click',function(){selectSlot(b.dataset.slot);});});
 document.querySelectorAll('.p-slot').forEach(function(el){el.addEventListener('click',function(){selectSlot(el.dataset.slot);});});
 
-async function handleSubmit(){
+// Fungsi update tombol hitung
+function updateCalcBtn(){
+    var slot=state.selectedSlot;
+    var calcBtn=document.getElementById('calcBtn');
+    calcBtn.disabled=!(slot&&slot!=='levemir'&&gdsInput.value.trim()!==''&&Number(gdsInput.value)>=0);
+}
+
+// Fungsi Batal Edit Dosis
+function cancelDoseEdit(){
+    document.getElementById('inputStep1').style.display='flex';
+    document.getElementById('inputStep2').style.display='none';
+    document.getElementById('doseInput').value='';
+    document.getElementById('noteInput').value='';
+    document.getElementById('noteInput').style.display='none';
+    gdsInput.focus();
+}
+
+// LANGKAH 1: Hitung Dosis Standar
+async function handleCalc(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
+    
+    // Hitung dosis standar
+    var standardDose=calcStandardDose(gdsVal,slot);
+    
+    // UI Switch
+    document.getElementById('inputStep1').style.display='none';
+    document.getElementById('inputStep2').style.display='flex';
+    
+    // Set nilai ke input dosis
+    var doseInput = document.getElementById('doseInput');
+    doseInput.value = standardDose;
+    doseInput.dataset.calc = standardDose; // Simpan nilai kalkulasi untuk validasi nanti
+    
+    // Reset note input
+    var noteInput = document.getElementById('noteInput');
+    noteInput.style.display='none';
+    noteInput.value = '';
+    noteInput.required = false;
+    
+    doseInput.focus();
+}
+
+// LANGKAH 2: Simpan Data Final (Dosis Manual + Note)
+async function handleFinalSubmit(){
+    var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
+    var manualDose = parseInt(document.getElementById('doseInput').value);
+    var noteVal = document.getElementById('noteInput').value.trim();
+    
+    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;
+    
+    // Validasi: Jika dosis berbeda dari kalkulasi, note wajib diisi
+    var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
+    if(manualDose !== calculatedDose && noteVal === ''){
+        showToast('Mohon isi alasan perubahan dosis','error');
+        document.getElementById('noteInput').focus();
+        return;
+    }
+
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}
     var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);
 
-    var standardDose=null;
-    var standardReason='';
-    if(s.type==='gds-insulin'){
-        standardDose=calcStandardDose(gdsVal,slot);
-        standardReason=getStandardReason(gdsVal);
-    }
+    var standardDose = calculatedDose; // Gunakan nilai kalkulasi sebagai referensi di sheet
+    var standardReason = getStandardReason(gdsVal);
 
     var ai=null;
     if(s.type==='gds-insulin'){
         ai=aiSuggest(slot,standardDose,gdsVal);
     }
 
-    var finalDose=standardDose;
+    var finalDose = manualDose; // Simpan dosis yang dipilih user
 
     var entry={
         date:getTodayKey(),
@@ -823,20 +920,23 @@ async function handleSubmit(){
         doseType:s.type==='gds-insulin'?'rapid':null,
         category:cat.cls,
         aiGenerated:false,
-        standardDose:standardDose
+        standardDose:standardDose,
+        note: noteVal // <--- KIRIM KE SHEET KOLOM NOTE
     };
 
+    // Tampilkan Hasil (Card) seperti biasa
     if(s.type==='gds-insulin'){
         var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         var nh='';
-        // Warning visual tetap berdasarkan kategori original (>250 or <70)
         if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';
         else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';
 
-        var doseDualHtml='<div class="dose-dual">';
-        doseDualHtml+='<div class="dose-box standard"><div class="dose-pick-badge">Tersimpan</div><div class="dose-box-label">Dosis Terinput</div><div class="dose-box-val">'+standardDose+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+standardReason+'</div></div>';
-        doseDualHtml+='<div class="dose-box ai-recommend"><div class="dose-pick-badge">Saran</div><div class="dose-box-label">Saran AI</div><div class="dose-box-val">'+(ai&&ai.hasData?ai.aiDose:'—')+'<span class="dose-box-unit"> unit</span></div><div class="dose-box-sub">'+(ai&&ai.hasData?'Berdasarkan analisis history':'Belum cukup data')+'</div></div>';
-        doseDualHtml+='</div>';
+        // Tampilkan info dosis yang disimpan
+        var doseInfoHtml = '<div style="text-align:center; margin-bottom:10px; padding:10px; background:rgba(0,245,200,0.1); border-radius:8px; border:1px solid var(--accent-border);">';
+        doseInfoHtml += '<div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Dosis Tersimpan</div>';
+        doseInfoHtml += '<div style="font-size:24px; font-weight:700; color:var(--accent)">'+finalDose+' <span style="font-size:14px; color:var(--muted)">unit</span></div>';
+        if(noteVal) doseInfoHtml += '<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+noteVal+'"</div>';
+        doseInfoHtml += '</div>';
 
         var aiPanelHtml='';
         if(ai&&ai.hasData){
@@ -872,7 +972,7 @@ async function handleSubmit(){
             aiPanelHtml='<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span></div><div class="ai-no-data">Belum cukup data history untuk saran AI. Minimal 2 data GDS + 1 data dosis pada slot ini diperlukan.</div></div>';
         }
 
-        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseDualHtml+nh+aiPanelHtml+'</div>';
+        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+aiPanelHtml+'</div>';
     }else{
         var catIcon2=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon2+'"></i></div><div class="result-top-text"><div class="rt-label">GDS Dini Hari</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body"></div>';
@@ -881,13 +981,16 @@ async function handleSubmit(){
     resultCard.classList.add('show');
     var ok=await submitData(entry);
     if(ok){
-        showToast('Tersimpan: dosis standar '+finalDose+' unit');
+        showToast('Tersimpan: '+finalDose+' unit');
         state.data.unshift(entry);
         updateProgress();renderAiInsights();
+        
+        // Reset UI
         gdsInput.value='';state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
-        inputRow.style.display='flex';levemirBtn.style.display='none';updateSubmitBtn();
+        cancelDoseEdit(); // Reset ke tampilan awal
+        
         try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
     }else showToast('Gagal menyimpan','error');
 }
@@ -899,7 +1002,7 @@ async function handleLevemir(){
     if(ok){showToast('Levemir 8 unit tercatat');state.data.unshift(entry);updateProgress();try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');Telegram.WebApp.close();}catch(e){}}else showToast('Gagal menyimpan','error');
 }
 
-function initGdsChart(){var ctx=document.getElementById('gdsCanvas').getContext('2d');state.gdsChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.35,fill:false,borderColor:'#00E5A0',pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11}},beginAtZero:false}}}});}
+function initGdsChart(){var ctx=document.getElementById('gdsCanvas').getContext('2d');state.gdsChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.35,fill:false,borderColor:'#00E5A0',pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{display:false,drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{display:false,drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11}},beginAtZero:false}}}});}
 function renderGdsChart(){if(!state.gdsChart)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null && e.gds > 0;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=7;state.gdsChart.update();var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}}
 function initDoseChart(){var ctx=document.getElementById('doseCanvas').getContext('2d');state.doseChart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'Insulin',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#4D94FF'},{label:'Levemir',data:[],borderWidth:0,borderRadius:6,backgroundColor:'#FFB547'}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{display:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{color:'rgba(30,39,68,.5)',drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11},stepSize:1},beginAtZero:true}}}});}
 function renderDoseChart(){if(!state.doseChart)return;var entries=filterByPeriod(state.data,dosePeriod);if(doseSlot!=='all')entries=entries.filter(function(e){return e.slot===doseSlot;});var grouped={};entries.forEach(function(e){var d=normalizeDate(e.date);if(!grouped[d])grouped[d]={ins:0,lev:0};if(e.doseType==='rapid')grouped[d].ins+=e.dose;if(e.doseType==='levemir')grouped[d].lev+=e.dose;});var dates=Object.keys(grouped).sort();state.doseChart.data.labels=dates;state.doseChart.data.datasets[0].data=dates.map(function(d){return grouped[d].ins;});state.doseChart.data.datasets[1].data=dates.map(function(d){return grouped[d].lev;});if(doseSlot==='levemir'){state.doseChart.data.datasets[0].hidden=true;state.doseChart.data.datasets[1].hidden=false;}else if(doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam'){state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=true;}else{state.doseChart.data.datasets[0].hidden=false;state.doseChart.data.datasets[1].hidden=false;}state.doseChart.update();var statsEl=document.getElementById('doseStats');if(!statsEl)return;var insulinArr=[],levemirArr=[];entries.forEach(function(e){if(e.doseType==='rapid')insulinArr.push(e.dose||0);if(e.doseType==='levemir')levemirArr.push(e.dose||0);});var insStats=calcStats(insulinArr),levStats=calcStats(levemirArr);var insSum=insulinArr.reduce(function(a,b){return a+b;},0),levSum=levemirArr.reduce(function(a,b){return a+b;},0);var showIns=(doseSlot==='all'||doseSlot==='sarapan'||doseSlot==='siang'||doseSlot==='malam');var showLev=(doseSlot==='all'||doseSlot==='levemir');function sc(arr,st,sum,cls){if(!arr.length)return'<div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">-</div><div class="dl">Tot</div></div>';return'<div class="dose-stat '+cls+'"><div class="dv">'+st.min+'</div><div class="dl">Min</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.max+'</div><div class="dl">Max</div></div><div class="dose-stat '+cls+'"><div class="dv">'+st.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat '+cls+'"><div class="dv">'+sum+'</div><div class="dl">Tot</div></div>';}var html='';if(showIns)html+=sc(insulinArr,insStats,insSum,'insulin-stat');if(showLev)html+=sc(levemirArr,levStats,levSum,'levemir-stat');if(!html)html='<div class="dose-stat total-stat" style="grid-column:1/-1"><div class="dv">-</div><div class="dl">Tidak ada data</div></div>';statsEl.innerHTML=html;}
