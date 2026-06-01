@@ -1245,11 +1245,23 @@ function showDoseCalculation(slot, gdsVal) {
  * Submit data untuk slot gds-insulin (dengan dosis)
  */
 async function handleFinalSubmit(){
+    var saveBtn = document.getElementById('saveBtn');
+    var cancelBtn = document.getElementById('cancelBtn');
+    
+    // PERBAIKAN: Cegah double click
+    if(saveBtn.disabled) return; 
+    saveBtn.disabled = true;
+    cancelBtn.disabled = true;
+    
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
     var noteVal = document.getElementById('noteInput').value.trim();
     
-    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;
+    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose)){
+        saveBtn.disabled = false; // Aktifkan kembali jika validasi gagal
+        cancelBtn.disabled = false;
+        return;
+    }
     
     var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
     if(manualDose !== calculatedDose && noteVal === ''){
@@ -1352,18 +1364,22 @@ async function handleFinalSubmit(){
         resultCard.innerHTML = '<div class="result-top"><div class="result-top-icon ' + cat.cls + '"><i class="fa-solid ' + catIcon + '"></i></div><div class="result-top-text"><div class="rt-label">GDS ' + s.label + '</div><div class="rt-value ' + cat.cls + '">' + gdsVal + ' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag ' + cat.cls + '">' + cat.label + '</span></div></div></div><div class="result-body">' + doseInfoHtml + nh + aiPanelHtml + '</div>';
     }
 
-    resultCard.classList.add('show');
     var ok=await submitData(entry);
     if(ok){
         showToast('Tersimpan: '+finalDose+' unit');
         state.data.unshift(entry);
         updateProgress();renderAiInsights();
+        resultCard.classList.add('show');
         gdsInput.value='';state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
         cancelDoseEdit();
         try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
-    }else showToast('Gagal menyimpan','error');
+    }else{
+        showToast('Gagal menyimpan','error');
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+    }
 }
 
 /**
