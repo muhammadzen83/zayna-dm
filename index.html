@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.1)</title>
+    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.3)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -216,6 +216,30 @@
             font-size: 12px; font-weight: 700; color: var(--ai); text-transform: uppercase; letter-spacing: 0.5px;
             display: flex; align-items: center; gap: 6px;
         }
+        .last-data-info {
+            font-size: 11px;
+            color: var(--fg2);
+            background: var(--bg2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .ldi-item span {
+            color: var(--muted);
+            font-size: 9px;
+            text-transform: uppercase;
+            display: block;
+            text-align: center;
+        }
+        .ldi-item strong {
+            color: var(--fg);
+            font-size: 13px;
+        }
         .pred-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -349,7 +373,7 @@
         /* DOSE INPUT STYLES */
         #inputStep2 {
             display: flex;
-            flex-direction: column;
+            flex-direction: column,
             gap: 16px;
             animation: fadeIn 0.3s ease-out;
         }
@@ -437,13 +461,13 @@
         .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); opacity: 1; transform: scale(1); }
         .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; opacity: 1; transform: scale(1); }
         .dose-input-wrapper {
-            display: flex;
+            display: flex,
             flex-direction: column,
             gap: 12px,
             width: 100%;
         }
         .dose-action-row {
-            display: flex;
+            display: flex,
             gap: 8px,
             align-items: center;
         }
@@ -489,13 +513,13 @@
             border-style: solid;
         }
         .action-btns {
-            display: flex;
+            display: flex,
             gap: 8px;
         }
         .action-btns .submit-btn {
             flex: 1;
-            width: auto;
-            height: 52px;
+            width: auto,
+            height: 52px,
             font-size: 18px;
         }
         .action-btns .submit-btn:last-child {
@@ -951,78 +975,114 @@ function generateAiPanelHtml(ai){
 
 /**
  * MODIFIED: renderAiInsights
- * Menampilkan Prediksi Ganda (Standar vs AI) dari entri insulin terakhir.
+ * Menampilkan Data Terakhir (GDS apapun slotnya) + Prediksi Ganda (jika insulin) atau Estimasi (jika GDS Only).
  */
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
     
-    // 1. Cari entri insulin terakhir (Rapid: Sarapan, Siang, Malam)
-    // Filter hanya yang punya GDS dan Dose
-    var insulinEntries = state.data.filter(function(e) { 
-        return e.doseType === 'rapid' && e.gds != null; 
+    // 1. Cari entri TERAKHIR yang punya GDS (bukan hanya insulin)
+    // Filter: e.gds != null
+    var allEntries = state.data.filter(function(e) { 
+        return e.gds != null; 
     });
 
-    if(insulinEntries.length === 0) {
-        el.innerHTML = '<div class="empty-box"><i class="fa-solid fa-chart-simple"></i><p>Belum ada data insulin yang cukup untuk menampilkan prediksi ganda.</p></div>';
+    if(allEntries.length === 0) {
+        el.innerHTML = '<div class="empty-box"><i class="fa-solid fa-chart-simple"></i><p>Belum ada data pengukuran GDS.</p></div>';
         return;
     }
 
     // Urutkan berdasarkan waktu (terbaru)
-    insulinEntries.sort(function(a, b){
+    allEntries.sort(function(a, b){
         var da = new Date(normalizeDate(a.date) + 'T' + (a.time || '00:00'));
         var db = new Date(normalizeDate(b.date) + 'T' + (b.time || '00:00'));
         return db - da;
     });
 
-    var lastEntry = insulinEntries[0];
-
-    // 2. Hitung ulang logika untuk entry tersebut
-    var stdDose = calcStandardDose(lastEntry.gds, lastEntry.slot);
-    var aiData = aiSuggest(lastEntry.slot, stdDose, lastEntry.gds);
-    var aiDose = aiData.aiDose;
-    var aiConfidence = aiData.confidence;
-    var aiConfLabel = aiConfidence === 'high' ? 'Tinggi' : (aiConfidence === 'medium' ? 'Sedang' : 'Rendah');
+    var lastEntry = allEntries[0];
+    var slotConfig = SLOTS.find(function(s){ return s.slot === lastEntry.slot; });
     
-    // Cek apakah user mengikuti saran AI atau Standar atau Manual
-    var actualDose = lastEntry.dose;
-    var usedStd = (actualDose === stdDose);
-    var usedAi = (actualDose === aiDose);
-    
-    // Tentukan warna badge hasil aktual
-    var resultBadge = '';
-    if(usedStd) resultBadge = '<span style="font-size:9px;color:var(--accent);background:var(--accent-dim);padding:2px 6px;border-radius:4px;font-weight:700">Pakai Standar</span>';
-    else if(usedAi) resultBadge = '<span style="font-size:9px;color:var(--ai);background:var(--ai-dim);padding:2px 6px;border-radius:4px;font-weight:700">Pakai AI</span>';
-    else resultBadge = '<span style="font-size:9px;color:var(--warning);background:var(--warning-dim);padding:2px 6px;border-radius:4px;font-weight:700">Manual ('+actualDose+'u)</span>';
+    // Jika config tidak ditemukan (seharusnya tidak terjadi), return
+    if(!slotConfig) return;
 
-    // 3. Render HTML (Menggunakan style pred-card)
+    var nextSlot = getNextSlot(lastEntry.slot);
+
+    // 2. Render HTML
     var html = '<div class="pred-card">';
-    html += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-clock-rotate-left"></i> Analisis Terakhir: '+SLOT_LABELS[lastEntry.slot]+'</span></div>';
-    html += '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">GDS: '+lastEntry.gds+' mg/dL &bull; '+resultBadge+'</div>';
     
-    html += '<div class="double-pred-container" style="margin-top:0; background:transparent; border:none; padding:0;">';
-    html += '<div class="dp-grid">';
+    // Header Judul
+    html += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-chart-line"></i> Analisis & Prediksi</span></div>';
     
-    // Kolom Standar
-    var stdClass = (usedStd) ? 'border-color:var(--accent);background:var(--accent-dim)' : '';
-    var stdValClass = (usedStd) ? 'color:var(--accent)' : '';
-    html += '<div class="dp-item" style="'+stdClass+'">';
-    html += '<div class="dp-label"><i class="fa-solid fa-calculator" style="color:var(--accent);margin-right:4px"></i> Standar</div>';
-    html += '<div class="dp-val" style="'+stdValClass+'">'+stdDose+'</div>';
-    html += '<div class="dp-impact">Berdasarkan GDS</div>';
+    // Info Data Terakhir
+    html += '<div class="last-data-info">';
+    html += '<div class="ldi-item"><span>GDS Terakhir</span><strong>'+lastEntry.gds+' mg/dL</strong></div>';
+    html += '<div class="ldi-item"><span>Waktu</span><strong>'+(lastEntry.time?lastEntry.time.slice(0,5):'-')+'</strong></div>';
+    html += '<div class="ldi-item"><span>Slot</span><strong>'+SLOT_LABELS[lastEntry.slot]+'</strong></div>';
+    // Dosis: Hanya tampilkan jika ada (Sarapan, Siang, Malam, Levemir)
+    if(lastEntry.dose != null && lastEntry.dose > 0) {
+        html += '<div class="ldi-item"><span>Dosis</span><strong>'+lastEntry.dose+' unit</strong></div>';
+    }
     html += '</div>';
+
+    // Judul Prediksi
+    if(nextSlot) {
+        html += '<div style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0;">Prediksi GDS '+SLOT_LABELS[nextSlot]+'</div>';
+        
+        html += '<div class="double-pred-container" style="margin-top:0; background:transparent; border:none; padding:0;">';
+
+        if (slotConfig.type === 'gds-insulin') {
+            // KASUS: SLOT INSULIN (Sarapan, Siang, Malam)
+            // Hitung ulang logika Standar dan AI
+            var stdDose = calcStandardDose(lastEntry.gds, lastEntry.slot);
+            var aiData = aiSuggest(lastEntry.slot, stdDose, lastEntry.gds);
+            var aiDose = aiData.aiDose;
+            
+            var predStd = predictNextGDS(lastEntry.slot, stdDose);
+            var predAi = predictNextGDS(lastEntry.slot, aiDose);
+
+            html += '<div class="dp-grid">';
+            
+            // Kolom Standar
+            html += '<div class="dp-item">';
+            html += '<div class="dp-label"><i class="fa-solid fa-calculator" style="color:var(--accent);margin-right:4px"></i> Logika Standar</div>';
+            html += '<div class="dp-val">'+(predStd?predStd.value:'-')+'</div>';
+            html += '<div class="dp-impact">Berdasarkan Dosis '+stdDose+'u</div>';
+            html += '</div>';
+            
+            // Kolom AI
+            html += '<div class="dp-item" style="border-color:var(--ai-border);background:var(--ai-dim)">';
+            html += '<div class="dp-label" style="color:var(--ai)"><i class="fa-solid fa-brain" style="margin-right:4px"></i> Saran AI</div>';
+            html += '<div class="dp-val" style="color:var(--ai)">'+(predAi?predAi.value:'-')+'</div>';
+            html += '<div class="dp-impact">Berdasarkan Dosis '+aiDose+'u</div>';
+            html += '</div>';
+            
+            html += '</div>';
+
+        } else {
+            // KASUS: SLOT GDS ONLY (Dini Hari)
+            // Tidak ada insulin, jadi tidak ada perbandingan Standar vs AI dosis.
+            // Hanya tampilkan prediksi rata-rata historis.
+            
+            var predResult = predictNextGDS(lastEntry.slot, null);
+            
+            // Ubah grid menjadi 1 kolom untuk tampilan yang lebih rapi
+            html += '<div class="dp-grid" style="grid-template-columns: 1fr;">';
+            
+            html += '<div class="dp-item">';
+            html += '<div class="dp-label"><i class="fa-solid fa-clock" style="color:var(--accent);margin-right:4px"></i> Estimasi</div>';
+            html += '<div class="dp-val">'+(predResult?predResult.value:'-')+'</div>';
+            html += '<div class="dp-impact">Berdasarkan Rata-rata Historis</div>';
+            html += '</div>';
+            
+            html += '</div>';
+        }
+        
+        html += '</div>'; // end double-pred-container
+    } else {
+        // Tidak ada slot berikutnya (misal error config)
+        html += '<div style="font-size:10px;color:var(--muted);text-align:center;padding:10px;">Tidak ada slot berikutnya untuk diprediksi.</div>';
+    }
     
-    // Kolom AI
-    var aiClass = (usedAi) ? 'border-color:var(--ai);background:var(--ai-dim)' : 'border-color:var(--ai-border);background:var(--bg2)';
-    var aiValClass = (usedAi) ? 'color:var(--ai)' : 'color:var(--ai)';
-    html += '<div class="dp-item" style="'+aiClass+'">';
-    html += '<div class="dp-label" style="color:var(--ai)"><i class="fa-solid fa-brain" style="margin-right:4px"></i> AI Saran</div>';
-    html += '<div class="dp-val" style="'+aiValClass+'">'+aiDose+'</div>';
-    html += '<div class="dp-impact">Confidence: '+aiConfLabel+'</div>';
-    html += '</div>';
-    
-    html += '</div>'; // grid
-    html += '</div>'; // container
-    html += '</div>'; // card
+    html += '</div>'; // end pred-card
 
     el.innerHTML = html;
 }
@@ -1335,7 +1395,6 @@ async function handleFinalSubmit(){
         if(noteVal) doseInfoHtml += '<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+noteVal+'"</div>';
         doseInfoHtml += '</div>';
 
-        // Hasil Akhir: Ringkasan tanpa panel AI detail (karena sudah tampil saat calculate)
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+'</div>';
     }
 
