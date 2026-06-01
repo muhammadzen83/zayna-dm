@@ -1245,23 +1245,11 @@ function showDoseCalculation(slot, gdsVal) {
  * Submit data untuk slot gds-insulin (dengan dosis)
  */
 async function handleFinalSubmit(){
-    var saveBtn = document.getElementById('saveBtn');
-    var cancelBtn = document.getElementById('cancelBtn');
-    
-    // PERBAIKAN: Cegah double click
-    if(saveBtn.disabled) return; 
-    saveBtn.disabled = true;
-    cancelBtn.disabled = true;
-    
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
     var noteVal = document.getElementById('noteInput').value.trim();
     
-    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose)){
-        saveBtn.disabled = false; // Aktifkan kembali jika validasi gagal
-        cancelBtn.disabled = false;
-        return;
-    }
+    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;
     
     var calculatedDose = parseInt(document.getElementById('doseInput').dataset.calc);
     if(manualDose !== calculatedDose && noteVal === ''){
@@ -1375,12 +1363,7 @@ async function handleFinalSubmit(){
         document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});
         cancelDoseEdit();
         try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
-    }else {
-        showToast('Gagal menyimpan','error');
-        // PERBAIKAN: Aktifkan kembali tombol jika gagal menyimpan
-        saveBtn.disabled = false;
-        cancelBtn.disabled = false;
-    }
+    }else showToast('Gagal menyimpan','error');
 }
 
 /**
