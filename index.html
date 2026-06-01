@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3)</title>
+    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.1)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -438,13 +438,13 @@
         .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; opacity: 1; transform: scale(1); }
         .dose-input-wrapper {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: column,
+            gap: 12px,
             width: 100%;
         }
         .dose-action-row {
             display: flex;
-            gap: 8px;
+            gap: 8px,
             align-items: center;
         }
         @media (min-width: 640px) {
@@ -637,7 +637,8 @@
             <div class="result-card" id="resultCard"></div>
             
             <div class="divider"></div>
-            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-brain ic-ai"></i>AI Insights & Prediksi</div></div>
+            <!-- MODIFIED SECTION -->
+            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-wand-magic-sparkles ic-ai"></i>Prediksi Ganda Terakhir</div></div>
             <div class="ai-insights" id="aiInsights"></div>
         </div>
 
@@ -948,88 +949,82 @@ function generateAiPanelHtml(ai){
     return html;
 }
 
+/**
+ * MODIFIED: renderAiInsights
+ * Menampilkan Prediksi Ganda (Standar vs AI) dari entri insulin terakhir.
+ */
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
     
-    var predHtml = '';
-    var predictionSources = ['dini-hari', 'sarapan', 'siang', 'malam', 'levemir'];
-    var predDataList = [];
-    
-    predictionSources.forEach(function(slot){
-        var pred = predictNextGDS(slot, null); // Gunakan data aktual terakhir
-        if(pred) {
-            if(pred.confidence === 'Tinggi') {
-                predDataList.push(pred);
-            }
-        }
+    // 1. Cari entri insulin terakhir (Rapid: Sarapan, Siang, Malam)
+    // Filter hanya yang punya GDS dan Dose
+    var insulinEntries = state.data.filter(function(e) { 
+        return e.doseType === 'rapid' && e.gds != null; 
     });
 
-    if(predDataList.length > 0) {
-        predHtml += '<div class="pred-card">';
-        predHtml += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Prediksi Slot Berikutnya</span></div>';
-        predHtml += '<div class="pred-grid">';
-        
-        predDataList.forEach(function(p){
-            var trendDir = p.doseImpact > 5 ? 'down' : (p.doseImpact < -5 ? 'up' : 'stable'); 
-            var trendIcon = trendDir === 'up' ? 'fa-arrow-trend-up' : (trendDir === 'down' ? 'fa-arrow-trend-down' : 'fa-minus');
-            var trendClass = trendDir === 'up' ? 'up' : (trendDir === 'down' ? 'down' : 'stable');
-            var valColor = getCat(p.value).cls; 
-            
-            var labelSource = SLOT_LABELS[p.sourceSlot];
-            var labelTarget = SLOT_LABELS[p.targetSlot];
-
-            predHtml += '<div class="pred-item">';
-            predHtml += '<div class="pred-item-label">'+labelSource+' <i class="fa-solid fa-arrow-right pred-arrow"></i> '+labelTarget+'</div>';
-            predHtml += '<div class="pred-item-val" style="color:var(--'+valColor+')">'+p.value+' <span class="pred-item-unit">mg/dL</span></div>';
-            predHtml += '<div class="pred-trend '+trendClass+'"><i class="fa-solid '+trendIcon+'"></i> Estimasi: '+trendDir+'</div>';
-            predHtml += '</div>';
-        });
-        
-        predHtml += '</div>'; 
-        predHtml += '</div>'; 
+    if(insulinEntries.length === 0) {
+        el.innerHTML = '<div class="empty-box"><i class="fa-solid fa-chart-simple"></i><p>Belum ada data insulin yang cukup untuk menampilkan prediksi ganda.</p></div>';
+        return;
     }
 
-    var html = predHtml;
-    
-    var insights=[];
-    var ISF = 30;
-    var targetGds = 150;
-    var insulinSlots = ['sarapan', 'siang', 'malam', 'dini-hari'];
-    
-    insulinSlots.forEach(function(slot){
-        var history=getSlotHistory(slot,7);
-        if(history.length<2)return;
-        var gdsVals=history.map(function(e){return e.gds;});
-        var trend=analyzeTrend(gdsVals);
-        if(trend.direction==='worsening'&&trend.strength>1){
-            var pairs=getDoseGdsPairs(slot,14);
-            var lastDose=pairs.length?pairs[pairs.length-1].dose:calcStandardDose(gdsVals[gdsVals.length-1],slot);
-            var projectedGds = gdsVals[gdsVals.length-1] + trend.slope;
-            var gdsToDrop = projectedGds - targetGds;
-            var requiredDose = lastDose;
-            if(gdsToDrop > 0) {var doseIncrease = Math.ceil(gdsToDrop / ISF); requiredDose = lastDose + doseIncrease;}
-            requiredDose = Math.min(20, Math.max(0, requiredDose));
-            var doseDelta = requiredDose - lastDose;
-            var estimatedGds = Math.round(projectedGds - (doseDelta * ISF));
-            if(estimatedGds < 100) {doseDelta = Math.floor((projectedGds - 110) / ISF); requiredDose = lastDose + doseDelta; estimatedGds = Math.round(projectedGds - (doseDelta * ISF));}
-            requiredDose = Math.max(0, requiredDose);
-            estimatedGds = Math.max(0, estimatedGds);
-            var text='GDS '+SLOT_LABELS[slot]+' naik. Rekomendasi: <strong>'+requiredDose+' unit</strong>. Estimasi GDS: '+estimatedGds;
-            insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+SLOT_LABELS[slot],text:text,slot:slot});
-        }
+    // Urutkan berdasarkan waktu (terbaru)
+    insulinEntries.sort(function(a, b){
+        var da = new Date(normalizeDate(a.date) + 'T' + (a.time || '00:00'));
+        var db = new Date(normalizeDate(b.date) + 'T' + (b.time || '00:00'));
+        return db - da;
     });
+
+    var lastEntry = insulinEntries[0];
+
+    // 2. Hitung ulang logika untuk entry tersebut
+    var stdDose = calcStandardDose(lastEntry.gds, lastEntry.slot);
+    var aiData = aiSuggest(lastEntry.slot, stdDose, lastEntry.gds);
+    var aiDose = aiData.aiDose;
+    var aiConfidence = aiData.confidence;
+    var aiConfLabel = aiConfidence === 'high' ? 'Tinggi' : (aiConfidence === 'medium' ? 'Sedang' : 'Rendah');
     
-    if(!insights.length && predHtml === ''){
-        html+='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Analisis</span></div><div class="ai-insight-empty"><i class="fa-solid fa-shield-check"></i>Stabil. Tidak ada tren kenaikan signifikan.</div></div>';
-    } else if (insights.length > 0) {
-        html+='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Peringatan</span></div><div class="ai-insight-items">';
-        insights.forEach(function(ins){
-            html+='<div class="ai-insight-item"><div class="ai-ii-icon '+ins.type+'"><i class="fa-solid '+ins.icon+'"></i></div><div><div class="ai-ii-text">'+ins.text+'</div>'+(ins.slot?'<div class="ai-ii-slot"><i class="fa-regular fa-clock" style="font-size:8px;margin-right:3px"></i>'+SLOT_LABELS[ins.slot]+'</div>':'')+'</div></div>';
-        });
-        html+='</div></div>';
-    }
+    // Cek apakah user mengikuti saran AI atau Standar atau Manual
+    var actualDose = lastEntry.dose;
+    var usedStd = (actualDose === stdDose);
+    var usedAi = (actualDose === aiDose);
     
-    el.innerHTML=html;
+    // Tentukan warna badge hasil aktual
+    var resultBadge = '';
+    if(usedStd) resultBadge = '<span style="font-size:9px;color:var(--accent);background:var(--accent-dim);padding:2px 6px;border-radius:4px;font-weight:700">Pakai Standar</span>';
+    else if(usedAi) resultBadge = '<span style="font-size:9px;color:var(--ai);background:var(--ai-dim);padding:2px 6px;border-radius:4px;font-weight:700">Pakai AI</span>';
+    else resultBadge = '<span style="font-size:9px;color:var(--warning);background:var(--warning-dim);padding:2px 6px;border-radius:4px;font-weight:700">Manual ('+actualDose+'u)</span>';
+
+    // 3. Render HTML (Menggunakan style pred-card)
+    var html = '<div class="pred-card">';
+    html += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-clock-rotate-left"></i> Analisis Terakhir: '+SLOT_LABELS[lastEntry.slot]+'</span></div>';
+    html += '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">GDS: '+lastEntry.gds+' mg/dL &bull; '+resultBadge+'</div>';
+    
+    html += '<div class="double-pred-container" style="margin-top:0; background:transparent; border:none; padding:0;">';
+    html += '<div class="dp-grid">';
+    
+    // Kolom Standar
+    var stdClass = (usedStd) ? 'border-color:var(--accent);background:var(--accent-dim)' : '';
+    var stdValClass = (usedStd) ? 'color:var(--accent)' : '';
+    html += '<div class="dp-item" style="'+stdClass+'">';
+    html += '<div class="dp-label"><i class="fa-solid fa-calculator" style="color:var(--accent);margin-right:4px"></i> Standar</div>';
+    html += '<div class="dp-val" style="'+stdValClass+'">'+stdDose+'</div>';
+    html += '<div class="dp-impact">Berdasarkan GDS</div>';
+    html += '</div>';
+    
+    // Kolom AI
+    var aiClass = (usedAi) ? 'border-color:var(--ai);background:var(--ai-dim)' : 'border-color:var(--ai-border);background:var(--bg2)';
+    var aiValClass = (usedAi) ? 'color:var(--ai)' : 'color:var(--ai)';
+    html += '<div class="dp-item" style="'+aiClass+'">';
+    html += '<div class="dp-label" style="color:var(--ai)"><i class="fa-solid fa-brain" style="margin-right:4px"></i> AI Saran</div>';
+    html += '<div class="dp-val" style="'+aiValClass+'">'+aiDose+'</div>';
+    html += '<div class="dp-impact">Confidence: '+aiConfLabel+'</div>';
+    html += '</div>';
+    
+    html += '</div>'; // grid
+    html += '</div>'; // container
+    html += '</div>'; // card
+
+    el.innerHTML = html;
 }
 
 function updateProgress(){
