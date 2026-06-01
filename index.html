@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Monitor — Zayna Kamila</title>
+    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -188,7 +188,72 @@
         .ai-diff-row i{font-size:10px}
         .ai-diff-row .ai-diff-val{margin-left:auto;font-size:16px;font-weight:700}
         .ai-no-data{font-size:10px;color:var(--muted);text-align:center;padding:8px 0;font-style:italic}
-        .ai-insights{padding:0 20px 14px}
+        .ai-insights{padding:0 20px 14px;display:flex;flex-direction:column;gap:12px}
+        
+        /* PREDICTION CARD STYLE */
+        .pred-card {
+            padding: 16px;
+            border-radius: var(--radius);
+            background: var(--card);
+            border: 1px solid var(--ai-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .pred-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--ai), var(--ai2));
+        }
+        .pred-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 4px;
+        }
+        .pred-title {
+            font-size: 12px; font-weight: 700; color: var(--ai); text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .pred-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .pred-item {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .pred-item-label { font-size: 10px; color: var(--muted); font-weight: 600; display:flex; align-items:center; gap:4px; }
+        .pred-arrow { color: var(--ai); font-size: 8px; }
+        .pred-item-val { font-size: 20px; font-weight: 700; color: var(--fg); display: flex; align-items: baseline; gap: 4px; }
+        .pred-item-unit { font-size: 11px; color: var(--muted); font-weight: 400; }
+        .pred-trend { font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .pred-trend.up { color: var(--danger); }
+        .pred-trend.down { color: var(--accent); }
+        .pred-trend.stable { color: var(--ai); }
+
+        /* DOUBLE PREDICTION STYLE (Calc Step) */
+        .double-pred-container {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(0,245,200,0.04);
+            border: 1px dashed var(--accent-border);
+        }
+        .dp-title { font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center;}
+        .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .dp-item { text-align: center; padding: 8px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); }
+        .dp-label { font-size: 9px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+        .dp-val { font-size: 18px; font-weight: 700; color: var(--fg); }
+        .dp-impact { font-size: 8px; color: var(--muted); margin-top: 2px; }
+        
         .ai-insight-card{padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border);transition:all .25s;position:relative;overflow:hidden}
         .ai-insight-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--ai),var(--ai2));border-radius:0 2px 2px 0}
         .ai-insight-card:hover{border-color:var(--ai-border);transform:translateY(-1px)}
@@ -485,6 +550,7 @@
             #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
             .p-slot .p-label {display: block !important;}
             .dose-options-container { gap: 16px; }
+            .pred-grid { grid-template-columns: repeat(4, 1fr); }
         }
         @media (min-width: 1024px) {
             .shell {max-width: 800px;}
@@ -546,6 +612,10 @@
                 <div id="inputStep2" style="display:none;">
                     <div class="dose-selector-group">
                         <div class="dose-options-container" id="doseSelectorRow"></div>
+                        <!-- AI PANEL (DISPLAYED ON CALCULATE) -->
+                        <div id="calcAiPanel" style="margin-top:16px;"></div>
+                        <!-- DOUBLE PREDICTION -->
+                        <div id="calcDoublePred" style="margin-top:12px;"></div>
                     </div>
                     <div class="dose-manual-group">
                         <div class="dose-input-wrapper">
@@ -567,7 +637,7 @@
             <div class="result-card" id="resultCard"></div>
             
             <div class="divider"></div>
-            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-brain ic-ai"></i>AI Insights</div></div>
+            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-brain ic-ai"></i>AI Insights & Prediksi</div></div>
             <div class="ai-insights" id="aiInsights"></div>
         </div>
 
@@ -792,23 +862,149 @@ function aiSuggest(slot,standardDose,currentGds){
     aiDose=Math.max(0,Math.min(20,aiDose));
     return{standardDose:standardDose,aiAdjustment:aiAdjustment,aiDose:aiDose,trend:trend.direction,trendSlope:trend.slope,trendAvg:trend.avg,isVolatile:trend.isVolatile||false,stdDev:trend.stdDev,confidence:confidence,dataPoints:dataPoints,dosePairs:dosePairs.length,lastEval:lastEval,reasons:reasons,hasData:dataPoints>=2&&dosePairs.length>=1};
 }
+
+function getNextSlot(slot) {
+    if(slot === 'dini-hari') return 'sarapan';
+    if(slot === 'sarapan') return 'siang';
+    if(slot === 'siang') return 'malam';
+    if(slot === 'malam') return 'dini-hari';
+    return null;
+}
+
+/**
+ * PREDIKSI GDS SLOT BERIKUTNYA (HYPOTHETICAL)
+ * hypotheticalDose: Jika diberikan, gunakan ini sebagai referensi dampak
+ */
+function predictNextGDS(sourceSlot, hypotheticalDose) {
+    var targetSlot = getNextSlot(sourceSlot);
+    if(!targetSlot) return null;
+
+    var targetHistory = getSlotHistory(targetSlot, 7);
+    if(targetHistory.length < 1) return null;
+    
+    var targetGdsValues = targetHistory.map(function(e){return e.gds;});
+    var baselineAvg = Math.round(targetGdsValues.reduce(function(a,b){return a+b;},0) / targetGdsValues.length);
+
+    var doseImpact = 0;
+    var sourcePairs = getDoseGdsPairs(sourceSlot, 7);
+    
+    if(sourcePairs.length > 0) {
+        // Gunakan hypotheticalDose jika ada, pakai lastDose dari history jika null
+        var lastDose = (typeof hypotheticalDose === 'number') ? hypotheticalDose : sourcePairs[sourcePairs.length - 1].dose;
+        
+        var sourceDoses = sourcePairs.map(function(e){return e.dose;});
+        var avgSourceDose = Math.round(sourceDoses.reduce(function(a,b){return a+b;},0) / sourceDoses.length);
+        
+        var doseDiff = lastDose - avgSourceDose;
+        var impactFactor = (sourceSlot === 'levemir') ? -5 : -15; 
+        doseImpact = doseDiff * impactFactor;
+    }
+
+    var predicted = baselineAvg + doseImpact;
+    if(predicted < 50) predicted = 50;
+    if(predicted > 400) predicted = 400;
+    predicted = Math.round(predicted);
+
+    return {
+        value: predicted,
+        baseline: baselineAvg,
+        impact: Math.round(doseImpact)
+    };
+}
+
+/**
+ * Generate HTML AI Panel
+ */
+function generateAiPanelHtml(ai){
+    if(!ai) return '';
+    if(!ai.hasData) return '<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span></div><div class="ai-no-data">Data kurang untuk analisis mendalam.</div></div>';
+    
+    var confPct=ai.confidence==='high'?85:ai.confidence==='medium'?55:25;
+    var confLabel=ai.confidence==='high'?'Tinggi':ai.confidence==='medium'?'Sedang':'Rendah';
+    var trendIcon='',trendCls='',trendText='';
+    if(ai.trend==='improving'){trendIcon='fa-arrow-trend-down';trendCls='improving';trendText='Tren membaik';if(ai.trendSlope)trendText+=' (~'+Math.round(Math.abs(ai.trendSlope))+' mg/dL/hari)';}
+    else if(ai.trend==='worsening'){trendIcon='fa-arrow-trend-up';trendCls='worsening';trendText='Tren memburuk';if(ai.trendSlope)trendText+=' (~'+Math.round(ai.trendSlope)+' mg/dL/hari)';}
+    else if(ai.isVolatile){trendIcon='fa-wave-square';trendCls='volatile';trendText='Fluktuatif (SD='+ai.stdDev+')';}
+    else{trendIcon='fa-minus';trendCls='stable';trendText='Stabil (avg: '+ai.trendAvg+')';}
+    
+    var reasonsHtml='';
+    ai.reasons.forEach(function(r){reasonsHtml+='<div class="ai-reason"><i class="fa-solid fa-circle"></i><span>'+r+'</span></div>';});
+    var diffVal=ai.aiAdjustment;
+    var diffStr=diffVal>0?'+'+diffVal:diffVal===0?'0 (sesuai)':String(diffVal);
+    var diffIcon=diffVal>0?'fa-arrow-up':diffVal<0?'fa-arrow-down':'fa-equals';
+
+    var html='<div class="ai-panel">'+
+        '<div class="ai-panel-head">'+
+            '<span class="ai-badge"><i class="fa-solid fa-brain"></i>Analisis AI</span>'+
+            '<div class="ai-confidence '+ai.confidence+'">'+
+                '<span>'+confLabel+'</span>'+
+                '<div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:'+confPct+'%"></div></div>'+
+            '</div>'+
+        '</div>'+
+        '<div class="ai-trend-row"><div class="ai-trend-icon '+trendCls+'"><i class="fa-solid '+trendIcon+'"></i></div><span class="ai-trend-text">'+trendText+'</span></div>'+
+        '<div class="ai-reasons">'+reasonsHtml+'</div>'+
+        '<div class="ai-diff-row"><i class="fa-solid '+diffIcon+'"></i><span>Adjustment dari Standar</span><span class="ai-diff-val">'+diffStr+' unit</span></div>'+
+    '</div>';
+    return html;
+}
+
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
+    
+    var predHtml = '';
+    var predictionSources = ['dini-hari', 'sarapan', 'siang', 'malam', 'levemir'];
+    var predDataList = [];
+    
+    predictionSources.forEach(function(slot){
+        var pred = predictNextGDS(slot, null); // Gunakan data aktual terakhir
+        if(pred) {
+            if(pred.confidence === 'Tinggi') {
+                predDataList.push(pred);
+            }
+        }
+    });
+
+    if(predDataList.length > 0) {
+        predHtml += '<div class="pred-card">';
+        predHtml += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Prediksi Slot Berikutnya</span></div>';
+        predHtml += '<div class="pred-grid">';
+        
+        predDataList.forEach(function(p){
+            var trendDir = p.doseImpact > 5 ? 'down' : (p.doseImpact < -5 ? 'up' : 'stable'); 
+            var trendIcon = trendDir === 'up' ? 'fa-arrow-trend-up' : (trendDir === 'down' ? 'fa-arrow-trend-down' : 'fa-minus');
+            var trendClass = trendDir === 'up' ? 'up' : (trendDir === 'down' ? 'down' : 'stable');
+            var valColor = getCat(p.value).cls; 
+            
+            var labelSource = SLOT_LABELS[p.sourceSlot];
+            var labelTarget = SLOT_LABELS[p.targetSlot];
+
+            predHtml += '<div class="pred-item">';
+            predHtml += '<div class="pred-item-label">'+labelSource+' <i class="fa-solid fa-arrow-right pred-arrow"></i> '+labelTarget+'</div>';
+            predHtml += '<div class="pred-item-val" style="color:var(--'+valColor+')">'+p.value+' <span class="pred-item-unit">mg/dL</span></div>';
+            predHtml += '<div class="pred-trend '+trendClass+'"><i class="fa-solid '+trendIcon+'"></i> Estimasi: '+trendDir+'</div>';
+            predHtml += '</div>';
+        });
+        
+        predHtml += '</div>'; 
+        predHtml += '</div>'; 
+    }
+
+    var html = predHtml;
+    
     var insights=[];
-    var insulinSlots=['sarapan','siang','malam'];
     var ISF = 30;
     var targetGds = 150;
+    var insulinSlots = ['sarapan', 'siang', 'malam', 'dini-hari'];
+    
     insulinSlots.forEach(function(slot){
         var history=getSlotHistory(slot,7);
         if(history.length<2)return;
         var gdsVals=history.map(function(e){return e.gds;});
         var trend=analyzeTrend(gdsVals);
-        var lastGds=gdsVals[gdsVals.length-1];
-        var slotLabel=SLOT_LABELS[slot]||slot;
         if(trend.direction==='worsening'&&trend.strength>1){
             var pairs=getDoseGdsPairs(slot,14);
-            var lastDose=pairs.length?pairs[pairs.length-1].dose:calcStandardDose(lastGds,slot);
-            var projectedGds = lastGds + trend.slope;
+            var lastDose=pairs.length?pairs[pairs.length-1].dose:calcStandardDose(gdsVals[gdsVals.length-1],slot);
+            var projectedGds = gdsVals[gdsVals.length-1] + trend.slope;
             var gdsToDrop = projectedGds - targetGds;
             var requiredDose = lastDose;
             if(gdsToDrop > 0) {var doseIncrease = Math.ceil(gdsToDrop / ISF); requiredDose = lastDose + doseIncrease;}
@@ -818,21 +1014,22 @@ function renderAiInsights(){
             if(estimatedGds < 100) {doseDelta = Math.floor((projectedGds - 110) / ISF); requiredDose = lastDose + doseDelta; estimatedGds = Math.round(projectedGds - (doseDelta * ISF));}
             requiredDose = Math.max(0, requiredDose);
             estimatedGds = Math.max(0, estimatedGds);
-            var text='GDS '+slotLabel+' naik rata-rata <strong>'+Math.round(trend.slope)+' mg/dL</strong>/hari ('+gdsVals.length+' hari, avg: '+trend.avg+'). ';
-            text+='Rekomendasi dosis: <strong>'+requiredDose+' unit</strong>. ';
-            text+='Estimasi GDS berikutnya: <strong>'+estimatedGds+' mg/dL</strong> (target dosis: 100–200 mg/dL).';
-            insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+slotLabel,text:text,slot:slot});
+            var text='GDS '+SLOT_LABELS[slot]+' naik. Rekomendasi: <strong>'+requiredDose+' unit</strong>. Estimasi GDS: '+estimatedGds;
+            insights.push({type:'danger',icon:'fa-arrow-trend-up',title:'Tren naik di '+SLOT_LABELS[slot],text:text,slot:slot});
         }
     });
-    if(!insights.length){
-        el.innerHTML='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Analisis</span></div><div class="ai-insight-empty"><i class="fa-solid fa-shield-check"></i>Tidak ada tren kenaikan GDS yang signifikan saat ini</div></div>';
-        return;
+    
+    if(!insights.length && predHtml === ''){
+        html+='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Analisis</span></div><div class="ai-insight-empty"><i class="fa-solid fa-shield-check"></i>Stabil. Tidak ada tren kenaikan signifikan.</div></div>';
+    } else if (insights.length > 0) {
+        html+='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Peringatan</span></div><div class="ai-insight-items">';
+        insights.forEach(function(ins){
+            html+='<div class="ai-insight-item"><div class="ai-ii-icon '+ins.type+'"><i class="fa-solid '+ins.icon+'"></i></div><div><div class="ai-ii-text">'+ins.text+'</div>'+(ins.slot?'<div class="ai-ii-slot"><i class="fa-regular fa-clock" style="font-size:8px;margin-right:3px"></i>'+SLOT_LABELS[ins.slot]+'</div>':'')+'</div></div>';
+        });
+        html+='</div></div>';
     }
-    var html='<div class="ai-insight-card"><div class="ai-insight-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span><span>Rekomendasi Dosis</span></div><div class="ai-insight-items">';
-    insights.forEach(function(ins){
-        html+='<div class="ai-insight-item"><div class="ai-ii-icon '+ins.type+'"><i class="fa-solid '+ins.icon+'"></i></div><div><div class="ai-ii-text">'+ins.text+'</div>'+(ins.slot?'<div class="ai-ii-slot"><i class="fa-regular fa-clock" style="font-size:8px;margin-right:3px"></i>'+SLOT_LABELS[ins.slot]+'</div>':'')+'</div></div>';
-    });
-    html+='</div></div>';el.innerHTML=html;
+    
+    el.innerHTML=html;
 }
 
 function updateProgress(){
@@ -855,7 +1052,6 @@ function selectSlot(slot){
     
     state.selectedSlot=slot;
     
-    // Reset tampilan ke step 1
     document.getElementById('inputStep1').style.display='flex';
     document.getElementById('inputStep2').style.display='none';
     document.getElementById('doseInput').value='';
@@ -866,21 +1062,17 @@ function selectSlot(slot){
     document.querySelectorAll('.p-slot').forEach(function(el){el.classList.toggle('active-slot',el.dataset.slot===slot);});
     
     if(slot==='levemir'){
-        // Levemir: hanya tombol konfirmasi
         document.getElementById('inputStep1').style.display='none';
         levemirBtn.style.display='flex';
     } else {
         document.getElementById('inputStep1').style.display='flex';
         levemirBtn.style.display='none';
         
-        // Ubah icon dan placeholder berdasarkan tipe slot
         var sObj = SLOTS.find(function(s){return s.slot===slot;});
         if(sObj && sObj.type==='gds-only'){
-            // Dini-hari: langsung simpan GDS tanpa kalkulasi dosis
             calcBtn.innerHTML='<i class="fa-solid fa-check"></i>';
             gdsInput.placeholder='Hasil GDS (mg/dL) — langsung simpan';
         } else {
-            // gds-insulin: kalkulasi dosis dulu
             calcBtn.innerHTML='<i class="fa-solid fa-calculator"></i>';
             gdsInput.placeholder='Hasil GDS (mg/dL)';
         }
@@ -957,30 +1149,20 @@ function selectDoseOption(val, type, standardDose, aiData) {
     doseInput.focus();
 }
 
-/**
- * Fungsi utama yang dipanggil saat tombol calc/submit diklik.
- * Untuk dini-hari (gds-only): langsung simpan GDS
- * Untuk sarapan/siang/malam (gds-insulin): tampilkan kalkulasi dosis
- */
 function handleCalcOrSubmit(){
     var slot=state.selectedSlot, gdsVal=parseInt(gdsInput.value.trim());
     if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
     
     var sObj=SLOTS.find(function(s){return s.slot===slot;});
     
-    // Jika slot gds-only (dini-hari), langsung simpan tanpa kalkulasi dosis
     if(sObj && sObj.type==='gds-only'){
         submitGdsOnly(slot, gdsVal);
         return;
     }
     
-    // Jika slot gds-insulin, lanjut ke kalkulasi dosis
     showDoseCalculation(slot, gdsVal);
 }
 
-/**
- * Submit GDS saja untuk slot dini-hari (tanpa dosis insulin)
- */
 async function submitGdsOnly(slot, gdsVal){
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){
         showToast('Data sudah tercatat hari ini','error');
@@ -1010,7 +1192,6 @@ async function submitGdsOnly(slot, gdsVal){
         state.data.unshift(entry);
         updateProgress();
         
-        // Tampilkan result card
         var nh='';
         if(gdsVal>250) nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi dokter.</div>';
         else if(gdsVal<70) nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi! Berikan glukosa segera.</div>';
@@ -1019,7 +1200,6 @@ async function submitGdsOnly(slot, gdsVal){
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+nh+'</div>';
         resultCard.classList.add('show');
         
-        // Reset form
         gdsInput.value='';
         state.selectedSlot='';
         document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});
@@ -1031,9 +1211,6 @@ async function submitGdsOnly(slot, gdsVal){
     }
 }
 
-/**
- * Tampilkan kalkulasi dosis untuk slot gds-insulin (sarapan/siang/malam)
- */
 function showDoseCalculation(slot, gdsVal){
     var standardDose=calcStandardDose(gdsVal,slot);
     var aiData = aiSuggest(slot, standardDose, gdsVal);
@@ -1062,6 +1239,40 @@ function showDoseCalculation(slot, gdsVal){
     
     selectorRow.innerHTML = stdHtml + aiHtml;
 
+    // RENDER AI PANEL (LANGSUNG DI SINI)
+    var aiPanelHtml = generateAiPanelHtml(aiData);
+    document.getElementById('calcAiPanel').innerHTML = aiPanelHtml;
+
+    // RENDER DOUBLE PREDICTION
+    var nextSlot = getNextSlot(slot);
+    if(nextSlot) {
+        var predStd = predictNextGDS(slot, standardDose);
+        var predAi = predictNextGDS(slot, aiDose);
+        
+        var predHtml = '<div class="double-pred-container">';
+        predHtml += '<div class="dp-title">Prediksi GDS '+SLOT_LABELS[nextSlot]+' (Esok)</div>';
+        predHtml += '<div class="dp-grid">';
+        
+        // Prediksi Standar
+        predHtml += '<div class="dp-item">';
+        predHtml += '<div class="dp-label">Standar ('+standardDose+'u)</div>';
+        predHtml += '<div class="dp-val">'+(predStd?predStd.value:'-')+'</div>';
+        predHtml += '<div class="dp-impact">Basis: Rata-rata</div>';
+        predHtml += '</div>';
+        
+        // Prediksi AI
+        predHtml += '<div class="dp-item" style="border-color:var(--ai-border);background:var(--ai-dim)">';
+        predHtml += '<div class="dp-label" style="color:var(--ai)">AI Saran ('+aiDose+'u)</div>';
+        predHtml += '<div class="dp-val" style="color:var(--ai)">'+(predAi?predAi.value:'-')+'</div>';
+        predHtml += '<div class="dp-impact">Dampak penyesuaian</div>';
+        predHtml += '</div>';
+        
+        predHtml += '</div></div>';
+        document.getElementById('calcDoublePred').innerHTML = predHtml;
+    } else {
+        document.getElementById('calcDoublePred').innerHTML = '';
+    }
+
     document.getElementById('inputStep1').style.display='none';
     document.getElementById('inputStep2').style.display='flex';
     
@@ -1079,9 +1290,6 @@ function showDoseCalculation(slot, gdsVal){
     doseInput.focus();
 }
 
-/**
- * Submit data untuk slot gds-insulin (dengan dosis)
- */
 async function handleFinalSubmit(){
     var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());
     var manualDose = parseInt(document.getElementById('doseInput').value);
@@ -1132,37 +1340,8 @@ async function handleFinalSubmit(){
         if(noteVal) doseInfoHtml += '<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+noteVal+'"</div>';
         doseInfoHtml += '</div>';
 
-        var aiPanelHtml='';
-        if(ai&&ai.hasData){
-            var confPct=ai.confidence==='high'?85:ai.confidence==='medium'?55:25;
-            var confLabel=ai.confidence==='high'?'Tinggi':ai.confidence==='medium'?'Sedang':'Rendah';
-            var trendIcon='',trendCls='',trendText='';
-            if(ai.trend==='improving'){trendIcon='fa-arrow-trend-down';trendCls='improving';trendText='Tren membaik';if(ai.trendSlope)trendText+=' (~'+Math.round(Math.abs(ai.trendSlope))+' mg/dL/hari)';}
-            else if(ai.trend==='worsening'){trendIcon='fa-arrow-trend-up';trendCls='worsening';trendText='Tren memburuk';if(ai.trendSlope)trendText+=' (~'+Math.round(ai.trendSlope)+' mg/dL/hari)';}
-            else if(ai.isVolatile){trendIcon='fa-wave-square';trendCls='volatile';trendText='Fluktuatif (SD='+ai.stdDev+')';}
-            else{trendIcon='fa-minus';trendCls='stable';trendText='Stabil (avg: '+ai.trendAvg+')';}
-            var reasonsHtml='';
-            ai.reasons.forEach(function(r){reasonsHtml+='<div class="ai-reason"><i class="fa-solid fa-circle"></i><span>'+r+'</span></div>';});
-            var diffVal=ai.aiAdjustment;
-            var diffStr=diffVal>0?'+'+diffVal:diffVal===0?'0 (sesuai)':String(diffVal);
-            var diffIcon=diffVal>0?'fa-arrow-up':diffVal<0?'fa-arrow-down':'fa-equals';
-            aiPanelHtml='<div class="ai-panel">'+
-                '<div class="ai-panel-head">'+
-                    '<span class="ai-badge"><i class="fa-solid fa-brain"></i>AI Saran</span>'+
-                    '<div class="ai-confidence '+ai.confidence+'">'+
-                        '<span>'+confLabel+'</span>'+
-                        '<div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:'+confPct+'%"></div></div>'+
-                    '</div>'+
-                '</div>'+
-                '<div class="ai-trend-row"><div class="ai-trend-icon '+trendCls+'"><i class="fa-solid '+trendIcon+'"></i></div><span class="ai-trend-text">'+trendText+'</span></div>'+
-                '<div class="ai-reasons">'+reasonsHtml+'</div>'+
-                '<div class="ai-diff-row"><i class="fa-solid '+diffIcon+'"></i><span>Saran penyesuaian dari dosis standar</span><span class="ai-diff-val">'+diffStr+' unit</span></div>'+
-                '<div style="margin-top:8px;font-size:9px;color:var(--muted);opacity:.7;text-align:center">Berdasarkan '+ai.dataPoints+' GDS & '+ai.dosePairs+' data dosis — saran referensi, bukan dosis yang digunakan</div>'+
-            '</div>';
-        }else{
-            aiPanelHtml='<div class="ai-panel"><div class="ai-panel-head"><span class="ai-badge"><i class="fa-solid fa-brain"></i>AI</span></div><div class="ai-no-data">Belum cukup data history untuk saran AI. Minimal 2 data GDS + 1 data dosis pada slot ini diperlukan.</div></div>';
-        }
-        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+aiPanelHtml+'</div>';
+        // Hasil Akhir: Ringkasan tanpa panel AI detail (karena sudah tampil saat calculate)
+        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+'</div>';
     }
 
     resultCard.classList.add('show');
@@ -1179,9 +1358,6 @@ async function handleFinalSubmit(){
     }else showToast('Gagal menyimpan','error');
 }
 
-/**
- * Konfirmasi Levemir — dosis tetap 8 unit
- */
 async function handleLevemir(){
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot==='levemir';})){showToast('Levemir sudah tercatat hari ini','error');return;}
     
@@ -1193,7 +1369,6 @@ async function handleLevemir(){
         state.data.unshift(entry);
         updateProgress();
         
-        // Tampilkan result card untuk Levemir
         resultCard.innerHTML='<div class="result-top"><div class="result-top-icon good" style="background:var(--levemir-dim);color:var(--levemir)"><i class="fa-solid fa-syringe"></i></div><div class="result-top-text"><div class="rt-label">Levemir</div><div class="rt-value good" style="color:var(--levemir)">'+LEVEMIR_DOSE+' <small style="font-size:12px;font-weight:400;color:var(--muted)">unit</small><span class="rt-tag good">Tercatat</span></div></div></div><div class="result-body"><div style="text-align:center;padding:8px 0;font-size:12px;color:var(--fg2)"><i class="fa-solid fa-circle-check" style="color:var(--levemir);margin-right:6px"></i>Penyuntikan Levemir sudah dikonfirmasi</div></div>';
         resultCard.classList.add('show');
         
