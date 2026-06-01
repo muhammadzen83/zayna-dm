@@ -755,43 +755,141 @@ function evaluateLastDose(slot){
     if(last.gds<100)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
     return{effective:null,reason:'Pola belum jelas dari data tersedia'};
 }
-function aiSuggest(slot,standardDose,currentGds){
-    var history=getSlotHistory(slot,14);
-    var gdsValues=history.map(function(e){return e.gds;});
-    var trend=analyzeTrend(gdsValues);
-    var lastEval=evaluateLastDose(slot);
-    var dosePairs=getDoseGdsPairs(slot,14);
-    var dataPoints=gdsValues.length;
-    var reasons=[];
-    var aiAdjustment=0;
-    var confidence='low';
-    if(dataPoints>=3){
-        if(trend.direction==='improving'&&trend.strength>1.5){aiAdjustment-=1;reasons.push('<strong>Tren membaik</strong> — GDS turun ~'+Math.round(Math.abs(trend.slope))+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan kurangi -1 unit');}
-        else if(trend.direction==='worsening'&&trend.strength>1.5){aiAdjustment+=1;reasons.push('<strong>Tren memburuk</strong> — GDS naik ~'+Math.round(trend.slope)+' mg/dL/hari dalam '+dataPoints+' hari, pertimbangkan tambah +1 unit');}
-        else if(trend.direction==='stable'){reasons.push('<strong>Tren stabil</strong> — rata-rata '+trend.avg+' mg/dL dalam '+dataPoints+' hari, dosis standar sudah sesuai');}
-        else{reasons.push('<strong>Tren '+trend.direction+'</strong> lemah, pengaruh minimal');}
-        if(trend.isVolatile){reasons.push('<strong>Fluktuasi tinggi</strong> (SD='+trend.stdDev+') — perubahan dibatasi untuk menghindari overshoot');}
+function aiSuggest(slot, standardDose, currentGds){
+    var history = getSlotHistory(slot, 7);
+    var pairs = getDoseGdsPairs(slot, 7);
+
+    var gdsValues = history.map(e => e.gds);
+    var trend = analyzeTrend(gdsValues);
+
+    var ISF = 30;
+    var TARGET = 150;
+
+    var reasons = [];
+    var confidence = 'low';
+
+    // ======================
+    // 1. PREDIKSI TANPA INTERVENSI
+    // ======================
+    var predictedGds = currentGds;
+    if(gdsValues.length >= 2){
+        predictedGds = currentGds + trend.slope;
+        reasons.push(
+            `<strong>Prediksi tanpa insulin</strong>: ~${Math.round(predictedGds)} mg/dL`
+        );
     }
-    if(lastEval.effective===true&&dosePairs.length>=2){
-        var lastDose=dosePairs[dosePairs.length-1].dose;
-        if(lastDose<standardDose+aiAdjustment){aiAdjustment-=1;reasons.push('<strong>Dosis '+lastDose+'u terbukti efektif</strong> — pertimbangkan lebih rendah dari standar');}
-        else{reasons.push(lastEval.reason+' — dosis standar sudah sesuai');}
-    }else if(lastEval.effective===false&&dosePairs.length>=2){
-        var lastDose2=dosePairs[dosePairs.length-1].dose;
-        if(lastDose2>=standardDose){aiAdjustment+=1;reasons.push('<strong>'+lastEval.reason+'</strong> — pertimbangkan naikkan dari standar');}
-        else{reasons.push(lastEval.reason+' — dosis sudah lebih rendah dari standar');}
-    }else if(lastEval.effective===null){reasons.push(lastEval.reason);}
-    if(trend.isVolatile&&dataPoints>=3){
-        var expectedChange=Math.abs(aiAdjustment);
-        if(expectedChange>2){aiAdjustment=aiAdjustment>0?2:-2;reasons.push('Perubahan dibatasi maks ±2 unit karena volatilitas tinggi');}
+
+    // ======================
+    // 2. ANALISIS RESPONSE HISTORI
+    // ======================
+    var responseFactor = ISF; // default
+
+    if(pairs.length >= 3){
+        let deltas = [];
+        for(let i=1; i<pairs.length; i++){
+            let drop = pairs[i-1].gds - pairs[i].gds;
+            let dose = pairs[i-1].dose;
+            if(dose > 0){
+                deltas.push(drop / dose);
+            }
+        }
+
+        if(deltas.length){
+            let avg = deltas.reduce((a,b)=>a+b,0)/deltas.length;
+            responseFactor = Math.max(15, Math.min(60, avg)); // limit klinis
+            reasons.push(
+                `<strong>Sensitivitas insulin personal</strong>: ~${Math.round(responseFactor)} mg/dL/unit`
+            );
+        }
     }
-    if(dataPoints>=5&&dosePairs.length>=3)confidence='high';
-    else if(dataPoints>=3&&dosePairs.length>=2)confidence='medium';
-    else confidence='low';
-    var aiDose=standardDose+aiAdjustment;
-    aiDose=Math.max(0,Math.min(20,aiDose));
-    return{standardDose:standardDose,aiAdjustment:aiAdjustment,aiDose:aiDose,trend:trend.direction,trendSlope:trend.slope,trendAvg:trend.avg,isVolatile:trend.isVolatile||false,stdDev:trend.stdDev,confidence:confidence,dataPoints:dataPoints,dosePairs:dosePairs.length,lastEval:lastEval,reasons:reasons,hasData:dataPoints>=2&&dosePairs.length>=1};
+
+    // ======================
+    // 3. HITUNG KOREKSI
+    // ======================
+    var delta = predictedGds - TARGET;
+    var adjustment = 0;
+
+    if(delta > 20){
+        adjustment = Math.ceil(delta / responseFactor);
+        reasons.push(
+            `Butuh turunkan ~${Math.round(delta)} → +${adjustment} unit`
+        );
+    }
+    else if(delta < -20){
+        adjustment = Math.floor(delta / responseFactor);
+        reasons.push(
+            `Risiko terlalu rendah → ${adjustment} unit`
+        );
+    }
+    else{
+        reasons.push('Sudah dekat target');
+    }
+
+    // ======================
+    // 4. CEK HISTORY EFEKTIVITAS
+    // ======================
+    if(pairs.length >= 2){
+        let last = pairs[pairs.length-1];
+        
+        if(last.gds < 100){
+            adjustment -= 1;
+            reasons.push('Dosis sebelumnya menyebabkan GDS rendah → kurangi');
+        }
+
+        if(last.gds > 220 && last.dose >= standardDose){
+            adjustment += 1;
+            reasons.push('Dosis sebelumnya belum cukup → tambah');
+        }
+    }
+
+    // ======================
+    // 5. SAFETY GUARD
+    // ======================
+    if(trend.isVolatile){
+        adjustment = Math.max(-2, Math.min(2, adjustment));
+        reasons.push('Fluktuasi tinggi → dibatasi ±2 unit');
+    }
+
+    if(predictedGds < 110){
+        adjustment = Math.min(adjustment, 0);
+        reasons.push('Proteksi hipoglikemi (tidak boleh tambah dosis)');
+    }
+
+    var aiDose = standardDose + adjustment;
+    aiDose = Math.max(0, Math.min(20, aiDose));
+
+    // ======================
+    // 6. ESTIMASI HASIL AKHIR
+    // ======================
+    var estimatedNext = Math.round(
+        predictedGds - (adjustment * responseFactor)
+    );
+
+    reasons.push(
+        `<strong>Estimasi GDS setelah insulin</strong>: ~${estimatedNext} mg/dL`
+    );
+
+    // ======================
+    // CONFIDENCE
+    // ======================
+    if(gdsValues.length >= 5 && pairs.length >= 3) confidence = 'high';
+    else if(gdsValues.length >= 3) confidence = 'medium';
+
+    return {
+        standardDose,
+        aiDose,
+        aiAdjustment: adjustment,
+        predictedGds: Math.round(predictedGds),
+        estimatedNext,
+        responseFactor: Math.round(responseFactor),
+        trend: trend.direction,
+        trendSlope: trend.slope,
+        confidence,
+        reasons,
+        hasData: gdsValues.length >= 2
+    };
 }
+
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
     var insights=[];
