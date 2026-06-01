@@ -1376,9 +1376,9 @@ async function handleFinalSubmit(){
         cancelDoseEdit();
         try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
     }else{
-        showToast('Gagal menyimpan','error');
-        saveBtn.disabled = false;
-        cancelBtn.disabled = false;
+        showToast('Gagal menyimpan ke server. Silakan coba lagi.','error');
+        document.getElementById('saveBtn').disabled = false;
+        document.getElementById('cancelBtn').disabled = false;
     }
 }
 
