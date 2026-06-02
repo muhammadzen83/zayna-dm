@@ -993,22 +993,29 @@ function renderAiInsights(){
 
     // Urutkan berdasarkan waktu (terbaru)
     allEntries.sort(function(a, b){
-        // Ambil string tanggal yang sudah dinormalisasi
+        // 1. Normalisasi Tanggal
         var dateStrA = normalizeDate(a.date);
         var dateStrB = normalizeDate(b.date);
         
-        // Jika tanggal kosong/null, anggap sebagai tahun 1970 (Zaman Batu) agar jatuh ke paling bawah
+        // 2. Cek Tanggal Hari Ini (untuk prioritas)
+        var todayKey = getTodayKey();
+        var isTodayA = (dateStrA === todayKey);
+        var isTodayB = (dateStrB === todayKey);
+    
+        // Jika salah satu Hari Ini, prioritaskan Hari Ini di atas segalanya
+        if (isTodayA && !isTodayB) return -1; // A naik ke atas
+        if (!isTodayA && isTodayB) return 1;  // B naik ke atas
+    
+        // 3. Jika sama-sama Hari Ini atau sama-sama Bukan, urutkan berdasarkan Jam
         var strA = (dateStrA) ? (dateStrA + 'T' + (a.time || '00:00')) : '1970-01-01T00:00';
         var strB = (dateStrB) ? (dateStrB + 'T' + (b.time || '00:00')) : '1970-01-01T00:00';
-
+    
         var da = new Date(strA);
         var db = new Date(strB);
-
-        // Cek apakah tanggal valid (bukan NaN/Invalid Date)
+    
         var timeA = isNaN(da.getTime()) ? 0 : da.getTime();
         var timeB = isNaN(db.getTime()) ? 0 : db.getTime();
-
-        // Urutkan Descending (Terbaru di atas)
+    
         return timeB - timeA; 
     });
 
