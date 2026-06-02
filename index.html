@@ -980,10 +980,13 @@ function generateAiPanelHtml(ai){
 function renderAiInsights(){
     var el=document.getElementById('aiInsights');if(!el)return;
     
-    // 1. Cari entri TERAKHIR yang punya GDS (bukan hanya insulin)
-    // Filter: e.gds != null
+    // 1. Filter Data (Sama seperti sebelumnya)
     var allEntries = state.data.filter(function(e) { 
-        return e.gds != null; 
+        // Tampilkan jika ada GDS
+        if (e.gds != null) return true;
+        // Tampilkan jika ada dosis (Insulin/Levemir)
+        if (e.dose != null && e.dose > 0) return true;
+        return false; 
     });
 
     if(allEntries.length === 0) {
@@ -991,68 +994,64 @@ function renderAiInsights(){
         return;
     }
 
-    // Urutkan berdasarkan waktu (terbaru)
+    // 2. Urutkan Data (FIX PADDING JAM)
     allEntries.sort(function(a, b){
-        // 1. Normalisasi Tanggal
         var dateStrA = normalizeDate(a.date);
         var dateStrB = normalizeDate(b.date);
         
-        // 2. Cek Tanggal Hari Ini (untuk prioritas)
-        var todayKey = getTodayKey();
-        var isTodayA = (dateStrA === todayKey);
-        var isTodayB = (dateStrB === todayKey);
-    
-        // Jika salah satu Hari Ini, prioritaskan Hari Ini di atas segalanya
-        if (isTodayA && !isTodayB) return -1; // A naik ke atas
-        if (!isTodayA && isTodayB) return 1;  // B naik ke atas
-    
-        // 3. Jika sama-sama Hari Ini atau sama-sama Bukan, urutkan berdasarkan Jam
-        var strA = (dateStrA) ? (dateStrA + 'T' + (a.time || '00:00')) : '1970-01-01T00:00';
-        var strB = (dateStrB) ? (dateStrB + 'T' + (b.time || '00:00')) : '1970-01-01T00:00';
-    
+        // --- PERBAIKAN UTAMA: Padding Jam agar 2 digit (06:02 bukan 6:02) ---
+        var timeA = a.time || '00:00';
+        var timeB = b.time || '00:00';
+        
+        // Pecah jam dan menit, lalu padStart(2, '0')
+        var partsA = timeA.split(':');
+        var paddedA = (partsA[0]||'0').padStart(2,'0') + ':' + (partsA[1]||'0').padStart(2,'0');
+        
+        var partsB = timeB.split(':');
+        var paddedB = (partsB[0]||'0').padStart(2,'0') + ':' + (partsB[1]||'0').padStart(2,'0');
+        
+        // Bangun string tanggal yang valid ISO (YYYY-MM-DDTHH:mm)
+        var strA = (dateStrA) ? (dateStrA + 'T' + paddedA) : '1970-01-01T00:00';
+        var strB = (dateStrB) ? (dateStrB + 'T' + paddedB) : '1970-01-01T00:00';
+
         var da = new Date(strA);
         var db = new Date(strB);
-    
-        var timeA = isNaN(da.getTime()) ? 0 : da.getTime();
-        var timeB = isNaN(db.getTime()) ? 0 : db.getTime();
-    
-        return timeB - timeA; 
+
+        // Cek validitas tanggal
+        var timeA_val = isNaN(da.getTime()) ? 0 : da.getTime();
+        var timeB_val = isNaN(db.getTime()) ? 0 : db.getTime();
+
+        // Urutkan Descending (Terbaru di atas)
+        return timeB_val - timeA_val; 
     });
 
     var lastEntry = allEntries[0];
     var slotConfig = SLOTS.find(function(s){ return s.slot === lastEntry.slot; });
     
-    // Jika config tidak ditemukan (seharusnya tidak terjadi), return
-    if(!slotConfig) return;
+    if(!slotConfig) return; // Jika slot tidak ditemukan (error data)
 
     var nextSlot = getNextSlot(lastEntry.slot);
 
-    // 2. Render HTML
+    // 3. Render HTML (Sama seperti sebelumnya)
     var html = '<div class="pred-card">';
     
-    // Header Judul
     html += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-chart-line"></i> Analisis & Prediksi</span></div>';
     
-    // Info Data Terakhir
     html += '<div class="last-data-info">';
-    html += '<div class="ldi-item"><span>GDS Terakhir</span><strong>'+lastEntry.gds+' mg/dL</strong></div>';
+    html += '<div class="ldi-item"><span>GDS Terakhir</span><strong>'+(lastEntry.gds ? lastEntry.gds : '-')+' mg/dL</strong></div>';
     html += '<div class="ldi-item"><span>Waktu</span><strong>'+(lastEntry.time?lastEntry.time.slice(0,5):'-')+'</strong></div>';
     html += '<div class="ldi-item"><span>Slot</span><strong>'+SLOT_LABELS[lastEntry.slot]+'</strong></div>';
-    // Dosis: Hanya tampilkan jika ada (Sarapan, Siang, Malam, Levemir)
     if(lastEntry.dose != null && lastEntry.dose > 0) {
         html += '<div class="ldi-item"><span>Dosis</span><strong>'+lastEntry.dose+' unit</strong></div>';
     }
     html += '</div>';
 
-    // Judul Prediksi
     if(nextSlot) {
         html += '<div style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0;">Prediksi GDS '+SLOT_LABELS[nextSlot]+'</div>';
         
         html += '<div class="double-pred-container" style="margin-top:0; background:transparent; border:none; padding:0;">';
 
         if (slotConfig.type === 'gds-insulin') {
-            // KASUS: SLOT INSULIN (Sarapan, Siang, Malam)
-            // Hitung ulang logika Standar dan AI
             var stdDose = calcStandardDose(lastEntry.gds, lastEntry.slot);
             var aiData = aiSuggest(lastEntry.slot, stdDose, lastEntry.gds);
             var aiDose = aiData.aiDose;
@@ -1061,50 +1060,36 @@ function renderAiInsights(){
             var predAi = predictNextGDS(lastEntry.slot, aiDose);
 
             html += '<div class="dp-grid">';
-            
-            // Kolom Standar
             html += '<div class="dp-item">';
             html += '<div class="dp-label"><i class="fa-solid fa-calculator" style="color:var(--accent);margin-right:4px"></i> Logika Standar</div>';
             html += '<div class="dp-val">'+(predStd?predStd.value:'-')+'</div>';
             html += '<div class="dp-impact">Berdasarkan Dosis '+stdDose+'u</div>';
             html += '</div>';
             
-            // Kolom AI
             html += '<div class="dp-item" style="border-color:var(--ai-border);background:var(--ai-dim)">';
             html += '<div class="dp-label" style="color:var(--ai)"><i class="fa-solid fa-brain" style="margin-right:4px"></i> Saran AI</div>';
             html += '<div class="dp-val" style="color:var(--ai)">'+(predAi?predAi.value:'-')+'</div>';
             html += '<div class="dp-impact">Berdasarkan Dosis '+aiDose+'u</div>';
             html += '</div>';
-            
             html += '</div>';
 
         } else {
-            // KASUS: SLOT GDS ONLY (Dini Hari)
-            // Tidak ada insulin, jadi tidak ada perbandingan Standar vs AI dosis.
-            // Hanya tampilkan prediksi rata-rata historis.
-            
             var predResult = predictNextGDS(lastEntry.slot, null);
-            
-            // Ubah grid menjadi 1 kolom untuk tampilan yang lebih rapi
             html += '<div class="dp-grid" style="grid-template-columns: 1fr;">';
-            
             html += '<div class="dp-item">';
             html += '<div class="dp-label"><i class="fa-solid fa-clock" style="color:var(--accent);margin-right:4px"></i> Estimasi</div>';
             html += '<div class="dp-val">'+(predResult?predResult.value:'-')+'</div>';
             html += '<div class="dp-impact">Berdasarkan Rata-rata Historis</div>';
             html += '</div>';
-            
             html += '</div>';
         }
         
-        html += '</div>'; // end double-pred-container
+        html += '</div>';
     } else {
-        // Tidak ada slot berikutnya (misal error config)
         html += '<div style="font-size:10px;color:var(--muted);text-align:center;padding:10px;">Tidak ada slot berikutnya untuk diprediksi.</div>';
     }
     
-    html += '</div>'; // end pred-card
-
+    html += '</div>';
     el.innerHTML = html;
 }
 
