@@ -776,7 +776,7 @@ function fmtLabel(dateStr,timeStr){var nd=normalizeDate(dateStr);if(!nd)return t
 function showToast(msg,type){type=type||'success';var c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast '+type;t.innerHTML='<i class="fa-solid '+(type==='success'?'fa-circle-check':'fa-circle-xmark')+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.remove();},3000);}
 async function fetchData(){
   try{
-    var r=await fetch(API_URL+'?action=data',{redirect:'follow'});
+    var r=await fetch(API_URL+'?action=data&t='+Date.now(),{redirect:'follow'});
     if(!r.ok){console.error('Fetch NOT OK:', r.status);return[];}
     var d=await r.json();
     if(!Array.isArray(d)){console.error('Data bukan array:', d);return[];}
@@ -993,9 +993,23 @@ function renderAiInsights(){
 
     // Urutkan berdasarkan waktu (terbaru)
     allEntries.sort(function(a, b){
-        var da = new Date(normalizeDate(a.date) + 'T' + (a.time || '00:00'));
-        var db = new Date(normalizeDate(b.date) + 'T' + (b.time || '00:00'));
-        return db - da;
+        // Ambil string tanggal yang sudah dinormalisasi
+        var dateStrA = normalizeDate(a.date);
+        var dateStrB = normalizeDate(b.date);
+        
+        // Jika tanggal kosong/null, anggap sebagai tahun 1970 (Zaman Batu) agar jatuh ke paling bawah
+        var strA = (dateStrA) ? (dateStrA + 'T' + (a.time || '00:00')) : '1970-01-01T00:00';
+        var strB = (dateStrB) ? (dateStrB + 'T' + (b.time || '00:00')) : '1970-01-01T00:00';
+
+        var da = new Date(strA);
+        var db = new Date(strB);
+
+        // Cek apakah tanggal valid (bukan NaN/Invalid Date)
+        var timeA = isNaN(da.getTime()) ? 0 : da.getTime();
+        var timeB = isNaN(db.getTime()) ? 0 : db.getTime();
+
+        // Urutkan Descending (Terbaru di atas)
+        return timeB - timeA; 
     });
 
     var lastEntry = allEntries[0];
