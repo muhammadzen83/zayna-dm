@@ -370,10 +370,10 @@
         .data-table .cell-dose-unit{font-size:9px;font-weight:400;opacity:.6}
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
 
-        /* DOSE INPUT STYLES */
+        /* REFINED DOSE INPUT STYLES */
         #inputStep2 {
             display: flex;
-            flex-direction: column,
+            flex-direction: column;
             gap: 16px;
             animation: fadeIn 0.3s ease-out;
         }
@@ -381,38 +381,29 @@
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Desktop Responsive Layout for Step 2 */
         @media (min-width: 640px) {
             #inputStep2 {
                 flex-direction: row;
                 align-items: stretch;
+                gap: 20px; /* More gap on desktop */
             }
             .dose-selector-group {
-                flex: 2;
+                flex: 2; /* Left side (Cards) takes more space */
                 display: flex;
                 flex-direction: column;
             }
             .dose-manual-group {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                background: var(--bg2);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 16px;
-                min-width: 280px;
+                flex: 1; /* Right side (Input) takes less space */
+                min-width: 240px; /* Reasonable width for right column */
             }
         }
+
         .dose-options-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-        }
-        @media (min-width: 640px) {
-            .dose-options-container {
-                height: 100%;
-                align-content: center;
-            }
         }
         .dose-opt-card {
             padding: 16px;
@@ -460,25 +451,33 @@
         }
         .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); opacity: 1; transform: scale(1); }
         .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; opacity: 1; transform: scale(1); }
+        
+        /* --- IMPROVED MANUAL GROUP STYLES --- */
+        .dose-manual-group {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px; /* Compact padding */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            min-width: 0; /* Prevents overflow flex issues */
+        }
         .dose-input-wrapper {
-            display: flex,
-            flex-direction: column,
-            gap: 12px,
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             width: 100%;
         }
         .dose-action-row {
-            display: flex,
-            gap: 8px,
-            align-items: center;
-        }
-        @media (min-width: 640px) {
-            .dose-action-row {
-                margin-top: 4px;
-            }
+            display: flex;
+            gap: 10px;
+            align-items: stretch; /* Buttons same height as input */
         }
         #doseInput {
-            flex: 1;
-            padding: 14px;
+            flex: 1; /* Input takes remaining space */
+            padding: 10px 14px; /* Reduced padding */
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: var(--card);
@@ -497,7 +496,7 @@
         }
         #noteInput {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-radius: var(--radius-xs);
             border: 1px dashed var(--warning-border);
             background: rgba(255,181,71,.04);
@@ -507,27 +506,44 @@
             outline: none;
             transition: all .2s;
             display: none;
+            margin-top: 4px;
         }
         #noteInput:focus {
             background: rgba(255,181,71,.08);
             border-style: solid;
         }
+        
+        /* Compact Action Buttons (Vertical Stack) */
         .action-btns {
-            display: flex,
+            display: flex;
+            flex-direction: column; /* Stack vertically */
             gap: 8px;
+            width: 44px; /* Fixed narrow width for button column */
+            flex-shrink: 0;
         }
         .action-btns .submit-btn {
-            flex: 1;
-            width: auto,
-            height: 52px,
-            font-size: 18px;
+            flex: unset;
+            width: 100%;
+            height: 44px; /* Square buttons */
+            font-size: 16px;
+            padding: 0;
+            border-radius: 8px;
         }
+        /* Save Button Style (Default is Gradient Green) */
+        .action-btns .submit-btn:first-child {
+            flex-grow: 1; /* Make Save button slightly taller if needed, or equal */
+        }
+        /* Cancel Button Style */
         .action-btns .submit-btn:last-child {
-            background: linear-gradient(135deg,var(--danger),#dc2626);
-            box-shadow: 0 4px 20px rgba(220,38,38,.2);
+            background: var(--card);
+            color: var(--danger);
+            border: 1px solid var(--border);
+            box-shadow: none;
         }
         .action-btns .submit-btn:last-child:hover {
-            box-shadow: 0 6px 28px rgba(220,38,38,.3);
+            background: var(--danger-dim);
+            border-color: var(--danger-border);
+            color: var(--danger);
         }
 
         @media(max-width:540px){
@@ -555,6 +571,9 @@
             .scoreboard{padding:0 12px}
             .dose-options-container { gap: 10px; }
             .doc-val { font-size: 28px; }
+            /* Mobile specific tweaks for dose input */
+            .dose-manual-group { width: 100%; }
+            #doseInput { font-size: 24px; }
         }
         @media(max-width:340px){
             .hdr-actions{gap:3px}
@@ -645,12 +664,12 @@
                         <div class="dose-input-wrapper">
                             <div class="dose-action-row">
                                 <input type="number" id="doseInput" placeholder="Unit" min="0" max="99">
+                                <div class="action-btns">
+                                    <button class="submit-btn" id="saveBtn" title="Simpan"><i class="fa-solid fa-check"></i></button>
+                                    <button class="submit-btn" id="cancelBtn" title="Batal"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
                             </div>
                             <input type="text" id="noteInput" placeholder="Wajib isi alasan perubahan dosis..." autocomplete="off">
-                            <div class="action-btns">
-                                <button class="submit-btn" id="saveBtn"><i class="fa-solid fa-check"></i></button>
-                                <button class="submit-btn" id="cancelBtn"><i class="fa-solid fa-xmark"></i></button>
-                            </div>
                         </div>
                     </div>
                 </div>
