@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.3)</title>
+    <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.3 - Manual Config)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -106,6 +106,7 @@
         .sec-title .ic-input{background:rgba(168,85,247,.08);color:#A855F7}
         .sec-title .ic-history{background:var(--warning-dim);color:var(--warning)}
         .sec-title .ic-ai{background:var(--ai-dim);color:var(--ai)}
+        .sec-title .ic-settings{background:var(--warning-dim);color:var(--warning)}
         .sec-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;display:flex;align-items:center;gap:4px;transition:opacity .2s}
         .sec-link:hover{opacity:.7}
         .filter-bar{display:flex;gap:5px;flex-wrap:wrap;padding:0 20px 10px}
@@ -387,16 +388,16 @@
             #inputStep2 {
                 flex-direction: row;
                 align-items: stretch;
-                gap: 20px; /* More gap on desktop */
+                gap: 20px;
             }
             .dose-selector-group {
-                flex: 2; /* Left side (Cards) takes more space */
+                flex: 2;
                 display: flex;
                 flex-direction: column;
             }
             .dose-manual-group {
-                flex: 1; /* Right side (Input) takes less space */
-                min-width: 240px; /* Reasonable width for right column */
+                flex: 1;
+                min-width: 240px;
             }
         }
 
@@ -457,12 +458,12 @@
             background: var(--bg2);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 12px; /* Compact padding */
+            padding: 12px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             flex: 1;
-            min-width: 0; /* Prevents overflow flex issues */
+            min-width: 0;
         }
         .dose-input-wrapper {
             display: flex;
@@ -473,11 +474,11 @@
         .dose-action-row {
             display: flex;
             gap: 10px;
-            align-items: stretch; /* Buttons same height as input */
+            align-items: stretch;
         }
         #doseInput {
-            flex: 1; /* Input takes remaining space */
-            padding: 10px 14px; /* Reduced padding */
+            flex: 1;
+            padding: 10px 14px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: var(--card);
@@ -516,24 +517,22 @@
         /* Compact Action Buttons (Vertical Stack) */
         .action-btns {
             display: flex;
-            flex-direction: column; /* Stack vertically */
+            flex-direction: column;
             gap: 8px;
-            width: 44px; /* Fixed narrow width for button column */
+            width: 44px;
             flex-shrink: 0;
         }
         .action-btns .submit-btn {
             flex: unset;
             width: 100%;
-            height: 44px; /* Square buttons */
+            height: 44px;
             font-size: 16px;
             padding: 0;
             border-radius: 8px;
         }
-        /* Save Button Style (Default is Gradient Green) */
         .action-btns .submit-btn:first-child {
-            flex-grow: 1; /* Make Save button slightly taller if needed, or equal */
+            flex-grow: 1;
         }
-        /* Cancel Button Style */
         .action-btns .submit-btn:last-child {
             background: var(--card);
             color: var(--danger);
@@ -545,6 +544,98 @@
             border-color: var(--danger-border);
             color: var(--danger);
         }
+
+        /* SETTINGS PAGE STYLES */
+        .settings-form-group {
+            background: var(--bg2);
+            padding: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .settings-label {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .settings-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .settings-input-wrapper span {
+            font-size: 10px;
+            color: var(--fg2);
+            font-weight: 500;
+        }
+        .settings-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+            transition: all .2s;
+        }
+        .settings-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+        .settings-thresholds {
+            display: grid;
+            gap: 12px;
+        }
+        .settings-note {
+            font-size: 11px;
+            color: var(--warning);
+            background: var(--warning-dim);
+            padding: 10px;
+            border-radius: var(--radius-xs);
+            border: 1px dashed var(--warning-border);
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        .btn-full {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: var(--bg);
+            box-shadow: 0 4px 12px rgba(0,245,200,0.2);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,245,200,0.3); }
+        .btn-secondary {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+        .btn-secondary:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
 
         @media(max-width:540px){
             .shell{max-width:100%}
@@ -571,9 +662,9 @@
             .scoreboard{padding:0 12px}
             .dose-options-container { gap: 10px; }
             .doc-val { font-size: 28px; }
-            /* Mobile specific tweaks for dose input */
             .dose-manual-group { width: 100%; }
             #doseInput { font-size: 24px; }
+            .settings-grid { grid-template-columns: 1fr 1fr; }
         }
         @media(max-width:340px){
             .hdr-actions{gap:3px}
@@ -611,6 +702,7 @@
                 <div><h1>Diabetes Monitor</h1><p><i class="fa-solid fa-heart-pulse" style="margin-right:3px;font-size:10px;color:var(--danger)"></i>Zayna Kamila</p></div>
             </div>
             <div class="hdr-actions">
+                <button class="hdr-btn" id="settingsBtn" title="Pengaturan"><i class="fa-solid fa-gear"></i></button>
                 <button class="hdr-btn" id="themeToggle" title="Ganti Tema"><i class="fa-solid fa-sun"></i></button>
                 <button class="hdr-btn active" data-page="homePage" title="Home"><i class="fa-solid fa-house"></i></button>
                 <button class="hdr-btn" data-page="gdsPage" title="Grafik GDS"><i class="fa-solid fa-chart-line"></i></button>
@@ -674,7 +766,7 @@
                     </div>
                 </div>
             
-                <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir 8 unit</button>
+                <button class="levemir-btn" id="levemirBtn"><i class="fa-solid fa-syringe"></i>Konfirmasi Levemir <span id="levemirBtnLabel">8</span> unit</button>
                 <div class="input-disabled-note" id="dupNote" style="display:none"><i class="fa-solid fa-circle-info"></i><span id="dupNoteText"></span></div>
             </div>
             <div class="result-card" id="resultCard"></div>
@@ -746,10 +838,93 @@
                 </div>
             </div>
         </div>
+
+        <!-- SETTINGS (NEW) -->
+        <div class="page" id="settingsPage">
+            <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Pengaturan Medis</span></div>
+            <div style="padding:0 20px 14px">
+                
+                <!-- Default Doses -->
+                <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-flask ic-settings"></i> Dosis Default</div></div>
+                <div class="settings-form-group">
+                    <label class="settings-label">Dosis Awal Insulin (Unit)</label>
+                    <div class="settings-grid">
+                        <div class="settings-input-wrapper">
+                            <span>Sarapan</span>
+                            <input type="number" class="settings-input" id="setDoseSarapan" min="0" max="50">
+                        </div>
+                        <div class="settings-input-wrapper">
+                            <span>Siang</span>
+                            <input type="number" class="settings-input" id="setDoseSiang" min="0" max="50">
+                        </div>
+                        <div class="settings-input-wrapper">
+                            <span>Malam</span>
+                            <input type="number" class="settings-input" id="setDoseMalam" min="0" max="50">
+                        </div>
+                    </div>
+                    
+                    <div class="divider" style="margin: 12px 0;"></div>
+
+                    <label class="settings-label">Dosis Levemir (Basal)</label>
+                    <div class="settings-input-wrapper">
+                        <input type="number" class="settings-input" id="setDoseLevemir" min="0" max="50">
+                    </div>
+                </div>
+
+                <!-- Thresholds -->
+                <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-sliders ic-settings"></i> Batas GDS (mg/dL)</div></div>
+                <div class="settings-form-group">
+                    <div class="settings-thresholds">
+                        <div class="settings-input-wrapper">
+                            <span>Batas untuk Tambah <strong>+2 Unit</strong> (Jika GDS > ...)</span>
+                            <input type="number" class="settings-input" id="setThreshPlus2" min="0" max="500">
+                        </div>
+                        <div class="settings-input-wrapper">
+                            <span>Batas untuk Tambah <strong>+1 Unit</strong> (Jika GDS > ...)</span>
+                            <input type="number" class="settings-input" id="setThreshPlus1" min="0" max="500">
+                        </div>
+                        <div class="settings-input-wrapper">
+                            <span>Batas untuk Kurang <strong>-1 Unit</strong> (Jika GDS < ...)</span>
+                            <input type="number" class="settings-input" id="setThreshMinus1" min="0" max="500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-note">
+                    <i class="fa-solid fa-circle-info"></i> Pengaturan ini disimpan di browser/perangkat ini. Jika digunakan oleh orang lain, gunakan tombol "Reset" di bawah untuk kembali ke standar medis awal.
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button class="btn-full btn-primary" onclick="saveSettings()"><i class="fa-solid fa-save"></i> Simpan Perubahan</button>
+                    <button class="btn-full btn-secondary" onclick="resetSettings()"><i class="fa-solid fa-rotate-left"></i> Reset ke Awal</button>
+                </div>
+
+            </div>
+        </div>
     </div>
 
 <script>
+// --- CONFIG & STATE ---
 var state={data:[],gdsChart:null,doseChart:null,selectedSlot:'',currentPage:'homePage'};
+
+// DEFAULT SETTINGS (Fallback)
+var DEFAULT_SETTINGS = {
+    defaults: {
+        sarapan: 4,
+        siang: 6,
+        malam: 6,
+        levemir: 8
+    },
+    thresholds: {
+        plus2: 300,
+        plus1: 200,
+        minus1: 100
+    }
+};
+
+// Current Active Settings (Loaded from LocalStorage or Default)
+var currentSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+
 var SLOTS=[
     {slot:'dini-hari',label:'Dini Hari',icon:'fa-moon',type:'gds-only'},
     {slot:'sarapan',label:'Sarapan',icon:'fa-sun',type:'gds-insulin'},
@@ -757,25 +932,139 @@ var SLOTS=[
     {slot:'malam',label:'Malam',icon:'fa-cloud-moon',type:'gds-insulin'},
     {slot:'levemir',label:'Levemir',icon:'fa-syringe',type:'levemir'}
 ];
-var DEFAULT_DOSES={sarapan:4,siang:6,malam:6},LEVEMIR_DOSE=8;
+
+// Removed old hardcoded variables, will use currentSettings directly now
 var gdsSlot='all',gdsPeriod='today',dosePeriod='today',doseSlot='all',historyPeriod='today';
 var gdsChartInit=false,doseChartInit=false;
 var SLOT_LABELS={'dini-hari':'Dini Hari','sarapan':'Sarapan','siang':'Siang','malam':'Malam','levemir':'Levemir'};
+
 try{Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#060D1B');}catch(e){}
+
+// --- SETTINGS LOGIC ---
+
+function loadSettings() {
+    var saved = localStorage.getItem('zayna_dm_settings');
+    if (saved) {
+        try {
+            var parsed = JSON.parse(saved);
+            // Merge with defaults to ensure structure exists even if saved data is old/incomplete
+            currentSettings.defaults = {...DEFAULT_SETTINGS.defaults, ...parsed.defaults};
+            currentSettings.thresholds = {...DEFAULT_SETTINGS.thresholds, ...parsed.thresholds};
+        } catch(e) {
+            console.error("Error loading settings", e);
+            currentSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        }
+    } else {
+        currentSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    }
+    populateSettingsUI();
+    updateLevemirButtonLabel();
+}
+
+function populateSettingsUI() {
+    document.getElementById('setDoseSarapan').value = currentSettings.defaults.sarapan;
+    document.getElementById('setDoseSiang').value = currentSettings.defaults.siang;
+    document.getElementById('setDoseMalam').value = currentSettings.defaults.malam;
+    document.getElementById('setDoseLevemir').value = currentSettings.defaults.levemir;
+
+    document.getElementById('setThreshPlus2').value = currentSettings.thresholds.plus2;
+    document.getElementById('setThreshPlus1').value = currentSettings.thresholds.plus1;
+    document.getElementById('setThreshMinus1').value = currentSettings.thresholds.minus1;
+}
+
+function saveSettings() {
+    var newSettings = {
+        defaults: {
+            sarapan: parseInt(document.getElementById('setDoseSarapan').value) || 0,
+            siang: parseInt(document.getElementById('setDoseSiang').value) || 0,
+            malam: parseInt(document.getElementById('setDoseMalam').value) || 0,
+            levemir: parseInt(document.getElementById('setDoseLevemir').value) || 0
+        },
+        thresholds: {
+            plus2: parseInt(document.getElementById('setThreshPlus2').value) || 300,
+            plus1: parseInt(document.getElementById('setThreshPlus1').value) || 200,
+            minus1: parseInt(document.getElementById('setThreshMinus1').value) || 100
+        }
+    };
+
+    // Simple validation
+    if(newSettings.thresholds.plus1 >= newSettings.thresholds.plus2) {
+        showToast('Batas +1 harus lebih kecil dari Batas +2', 'error');
+        return;
+    }
+
+    currentSettings = newSettings;
+    localStorage.setItem('zayna_dm_settings', JSON.stringify(currentSettings));
+    
+    showToast('Pengaturan disimpan', 'success');
+    updateLevemirButtonLabel();
+    
+    // If we are on home page, update any visible logic if necessary
+    if(state.currentPage === 'homePage') {
+        // Re-render if needed
+    }
+}
+
+function resetSettings() {
+    if(confirm("Apakah Anda yakin ingin mengembalikan semua pengaturan ke nilai standar awal?")) {
+        currentSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        localStorage.removeItem('zayna_dm_settings');
+        populateSettingsUI();
+        updateLevemirButtonLabel();
+        showToast('Pengaturan di-reset ke standar', 'success');
+    }
+}
+
+function updateLevemirButtonLabel() {
+    var el = document.getElementById('levemirBtnLabel');
+    if(el) el.textContent = currentSettings.defaults.levemir;
+}
+
+// --- CORE LOGIC UPDATES ---
+
+// Updated to use dynamic settings
+function calcStandardDose(gds, slot){
+    var d = currentSettings.defaults[slot];
+    if(typeof d==='undefined') return 0;
+
+    // Use dynamic thresholds
+    if(gds > currentSettings.thresholds.plus2) d+=2;
+    else if(gds > currentSettings.thresholds.plus1) d+=1;
+    else if(gds < currentSettings.thresholds.minus1) d-=1;
+    
+    return Math.max(0,d);
+}
+
+function getStandardReason(gds){
+    // Use dynamic thresholds in reason text
+    if(gds > currentSettings.thresholds.plus2) return 'Hiperglikemi berat (>'+currentSettings.thresholds.plus2+'), tambah +2 unit dari default';
+    if(gds > currentSettings.thresholds.plus1) return 'Hiperglikemi (>'+currentSettings.thresholds.plus1+'), tambah +1 unit dari default';
+    if(gds < currentSettings.thresholds.minus1) return 'GDS rendah (<'+currentSettings.thresholds.minus1+'), kurangi -1 unit dari default';
+    return 'GDS Normal/Target (sesuai aturan dosis), dosis sesuai default';
+}
+
+// --- NAVIGATION & UTILS ---
 
 function showPage(pageId){
     document.querySelectorAll('.page').forEach(function(p){p.style.display='none';p.classList.remove('active');});
     var page=document.getElementById(pageId);if(!page)return;
     page.style.display='block';page.classList.add('active');state.currentPage=pageId;
+    
+    // Header Button States
     document.querySelectorAll('.hdr-btn[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===pageId);});
+    document.getElementById('settingsBtn').classList.toggle('active', pageId === 'settingsPage');
+
     if(pageId==='gdsPage'){if(!gdsChartInit){initGdsChart();gdsChartInit=true;}else state.gdsChart.resize();renderGdsChart();renderGdsTable();}
     if(pageId==='dosePage'){if(!doseChartInit){initDoseChart();doseChartInit=true;}else state.doseChart.resize();renderDoseChart();renderDoseTable();}
     if(pageId==='historyPage')renderHistory();
     if(pageId==='dietPage')renderDiet();
     if(pageId==='homePage'){updateProgress();renderAiInsights();}
+    
     window.scrollTo({top:0,behavior:'smooth'});
 }
+
 document.querySelectorAll('.hdr-btn[data-page]').forEach(function(btn){btn.addEventListener('click',function(){showPage(this.dataset.page);});});
+document.getElementById('settingsBtn').addEventListener('click', function() { showPage('settingsPage'); });
 
 function normalizeDate(r){if(!r||r==='')return '';if(/^\d{4}-\d{2}-\d{2}$/.test(String(r)))return String(r);var d=new Date(r);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');var p=String(r).split(/[\/\-\.]/);if(p.length===3){var a=parseInt(p[0]),b=parseInt(p[1]),c=parseInt(p[2]);if(c>100)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');else if(a>100)return a+'-'+String(b).padStart(2,'0')+'-'+String(c).padStart(2,'0');}return String(r);}
 function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -812,20 +1101,6 @@ async function submitData(entry){
 }
 function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=cutoff.toISOString().slice(0,10);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
-function calcStandardDose(gds,slot){
-    var d=DEFAULT_DOSES[slot];
-    if(typeof d==='undefined') return 0;
-    if(gds > 300) d+=2;
-    else if(gds > 200) d+=1;
-    else if(gds < 100) d-=1;
-    return Math.max(0,d);
-}
-function getStandardReason(gds){
-    if(gds > 300) return 'Hiperglikemi berat (>300), tambah +2 unit dari default';
-    if(gds > 200) return 'Hiperglikemi (>200), tambah +1 unit dari default';
-    if(gds < 100) return 'GDS rendah (<100), kurangi -1 unit dari default';
-    return 'GDS Normal/Target (sesuai aturan dosis), dosis sesuai default';
-}
 function getSlotHistory(slot,maxDays){
     maxDays=maxDays||14;
     var cutoff=new Date();cutoff.setDate(cutoff.getDate()-maxDays);var cutStr=cutoff.toISOString().slice(0,10);
@@ -1001,9 +1276,7 @@ function renderAiInsights(){
     
     // 1. Filter Data (Sama seperti sebelumnya)
     var allEntries = state.data.filter(function(e) { 
-        // Tampilkan jika ada GDS
         if (e.gds != null) return true;
-        // Tampilkan jika ada dosis (Insulin/Levemir)
         if (e.dose != null && e.dose > 0) return true;
         return false; 
     });
@@ -1018,40 +1291,35 @@ function renderAiInsights(){
         var dateStrA = normalizeDate(a.date);
         var dateStrB = normalizeDate(b.date);
         
-        // --- PERBAIKAN UTAMA: Padding Jam agar 2 digit (06:02 bukan 6:02) ---
         var timeA = a.time || '00:00';
         var timeB = b.time || '00:00';
         
-        // Pecah jam dan menit, lalu padStart(2, '0')
         var partsA = timeA.split(':');
         var paddedA = (partsA[0]||'0').padStart(2,'0') + ':' + (partsA[1]||'0').padStart(2,'0');
         
         var partsB = timeB.split(':');
         var paddedB = (partsB[0]||'0').padStart(2,'0') + ':' + (partsB[1]||'0').padStart(2,'0');
         
-        // Bangun string tanggal yang valid ISO (YYYY-MM-DDTHH:mm)
         var strA = (dateStrA) ? (dateStrA + 'T' + paddedA) : '1970-01-01T00:00';
         var strB = (dateStrB) ? (dateStrB + 'T' + paddedB) : '1970-01-01T00:00';
 
         var da = new Date(strA);
         var db = new Date(strB);
 
-        // Cek validitas tanggal
         var timeA_val = isNaN(da.getTime()) ? 0 : da.getTime();
         var timeB_val = isNaN(db.getTime()) ? 0 : db.getTime();
 
-        // Urutkan Descending (Terbaru di atas)
         return timeB_val - timeA_val; 
     });
 
     var lastEntry = allEntries[0];
     var slotConfig = SLOTS.find(function(s){ return s.slot === lastEntry.slot; });
     
-    if(!slotConfig) return; // Jika slot tidak ditemukan (error data)
+    if(!slotConfig) return; 
 
     var nextSlot = getNextSlot(lastEntry.slot);
 
-    // 3. Render HTML (Sama seperti sebelumnya)
+    // 3. Render HTML
     var html = '<div class="pred-card">';
     
     html += '<div class="pred-header"><span class="pred-title"><i class="fa-solid fa-chart-line"></i> Analisis & Prediksi</span></div>';
@@ -1440,15 +1708,18 @@ async function handleFinalSubmit(){
 async function handleLevemir(){
     if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot==='levemir';})){showToast('Levemir sudah tercatat hari ini','error');return;}
     
-    var entry={date:getTodayKey(),time:getTimeStr(),slot:'levemir',gds:null,dose:LEVEMIR_DOSE,doseType:'levemir',category:'good',aiGenerated:false};
+    // Use Dynamic Levemir Dose
+    var levemirDose = currentSettings.defaults.levemir;
+    
+    var entry={date:getTodayKey(),time:getTimeStr(),slot:'levemir',gds:null,dose:levemirDose,doseType:'levemir',category:'good',aiGenerated:false};
     
     var ok=await submitData(entry);
     if(ok){
-        showToast('Levemir '+LEVEMIR_DOSE+' unit tercatat');
+        showToast('Levemir '+levemirDose+' unit tercatat');
         state.data.unshift(entry);
         updateProgress();
         
-        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon good" style="background:var(--levemir-dim);color:var(--levemir)"><i class="fa-solid fa-syringe"></i></div><div class="result-top-text"><div class="rt-label">Levemir</div><div class="rt-value good" style="color:var(--levemir)">'+LEVEMIR_DOSE+' <small style="font-size:12px;font-weight:400;color:var(--muted)">unit</small><span class="rt-tag good">Tercatat</span></div></div></div><div class="result-body"><div style="text-align:center;padding:8px 0;font-size:12px;color:var(--fg2)"><i class="fa-solid fa-circle-check" style="color:var(--levemir);margin-right:6px"></i>Penyuntikan Levemir sudah dikonfirmasi</div></div>';
+        resultCard.innerHTML='<div class="result-top"><div class="result-top-icon good" style="background:var(--levemir-dim);color:var(--levemir)"><i class="fa-solid fa-syringe"></i></div><div class="result-top-text"><div class="rt-label">Levemir</div><div class="rt-value good" style="color:var(--levemir)">'+levemirDose+' <small style="font-size:12px;font-weight:400;color:var(--muted)">unit</small><span class="rt-tag good">Tercatat</span></div></div></div><div class="result-body"><div style="text-align:center;padding:8px 0;font-size:12px;color:var(--fg2)"><i class="fa-solid fa-circle-check" style="color:var(--levemir);margin-right:6px"></i>Penyuntikan Levemir sudah dikonfirmasi</div></div>';
         resultCard.classList.add('show');
         
         state.selectedSlot='';
@@ -1560,7 +1831,20 @@ themeToggleBtn.addEventListener('click', function() {
     applyTheme(newTheme);
 });
 
-async function init(){var savedTheme = localStorage.getItem('theme') || 'dark';applyTheme(savedTheme);state.data=await fetchData();updateProgress();renderAiInsights();updateCountdown();if(autoSlot)selectSlot(autoSlot);setInterval(updateCountdown,1000);}
+async function init(){
+    // Load settings first
+    loadSettings();
+    
+    var savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    
+    state.data=await fetchData();
+    updateProgress();
+    renderAiInsights();
+    updateCountdown();
+    if(autoSlot)selectSlot(autoSlot);
+    setInterval(updateCountdown,1000);
+}
 init();
 </script>
 </body>
