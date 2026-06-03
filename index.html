@@ -191,69 +191,15 @@
         .ai-insights{padding:0 20px 14px;display:flex;flex-direction:column;gap:12px}
         
         /* PREDICTION CARD STYLE */
-        .pred-card {
-            padding: 16px;
-            border-radius: var(--radius);
-            background: var(--card);
-            border: 1px solid var(--ai-border);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .pred-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: linear-gradient(180deg, var(--ai), var(--ai2));
-        }
-        .pred-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 4px;
-        }
-        .pred-title {
-            font-size: 12px; font-weight: 700; color: var(--ai); text-transform: uppercase; letter-spacing: 0.5px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .last-data-info {
-            font-size: 11px;
-            color: var(--fg2);
-            background: var(--bg2);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .ldi-item span {
-            color: var(--muted);
-            font-size: 9px;
-            text-transform: uppercase;
-            display: block;
-            text-align: center;
-        }
-        .ldi-item strong {
-            color: var(--fg);
-            font-size: 13px;
-        }
-        .pred-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-        }
-        .pred-item {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .pred-card { padding: 16px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--ai-border); position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+        .pred-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--ai), var(--ai2)); }
+        .pred-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .pred-title { font-size: 12px; font-weight: 700; color: var(--ai); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .last-data-info { font-size: 11px; color: var(--fg2); background: var(--bg2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .ldi-item span { color: var(--muted); font-size: 9px; text-transform: uppercase; display: block; text-align: center; }
+        .ldi-item strong { color: var(--fg); font-size: 13px; }
+        .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        .pred-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
         .pred-item-label { font-size: 10px; color: var(--muted); font-weight: 600; display:flex; align-items:center; gap:4px; }
         .pred-arrow { color: var(--ai); font-size: 8px; }
         .pred-item-val { font-size: 20px; font-weight: 700; color: var(--fg); display: flex; align-items: baseline; gap: 4px; }
@@ -264,13 +210,7 @@
         .pred-trend.stable { color: var(--ai); }
 
         /* DOUBLE PREDICTION STYLE (Calc Step) */
-        .double-pred-container {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            background: rgba(0,245,200,0.04);
-            border: 1px dashed var(--accent-border);
-        }
+        .double-pred-container { margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); background: rgba(0,245,200,0.04); border: 1px dashed var(--accent-border); }
         .dp-title { font-size: 10px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center;}
         .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .dp-item { text-align: center; padding: 8px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); }
@@ -345,66 +285,16 @@
         .data-table .row-total{font-weight:700!important;color:var(--fg)!important}
 
         /* REFINED DOSE INPUT STYLES */
-        #inputStep2 {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        #inputStep2 { display: flex; flex-direction: column; gap: 16px; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Desktop Responsive Layout for Step 2 */
-        @media (min-width: 640px) {
-            #inputStep2 {
-                flex-direction: row;
-                align-items: stretch;
-                gap: 20px;
-            }
-            .dose-selector-group {
-                flex: 2;
-                display: flex;
-                flex-direction: column;
-            }
-            .dose-manual-group {
-                flex: 1;
-                min-width: 240px;
-            }
-        }
-
-        .dose-options-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .dose-opt-card {
-            padding: 16px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--card);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-            justify-content: center;
-        }
-        .dose-opt-card:hover {
-            transform: translateY(-3px);
-            background: var(--card-hover);
-            border-color: var(--border2);
-        }
-        .dose-opt-card.selected {
-            border-width: 2px;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        }
+        @media(min-width:640px){ #inputStep2{flex-direction:row;align-items:stretch;gap:20px} .dose-selector-group{flex:2;display:flex;flex-direction:column} .dose-manual-group{flex:1;min-width:240px} }
+        
+        .dose-options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dose-opt-card { padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; height: 100%; justify-content: center; }
+        .dose-opt-card:hover { transform: translateY(-3px); background: var(--card-hover); border-color: var(--border2); }
+        .dose-opt-card.selected { border-width: 2px; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
         .dose-opt-card.std-opt { border-color: rgba(0,245,200,0.1); }
         .dose-opt-card.std-opt.selected { background: var(--accent-dim); border-color: var(--accent); box-shadow: 0 0 20px rgba(0,245,200,0.15); }
         .dose-opt-card.std-opt .doc-label { color: var(--accent); }
@@ -417,197 +307,40 @@
         .doc-val { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
         .doc-unit { font-size: 12px; color: var(--muted); margin-left: 2px; font-weight: 400; }
         .doc-sub { font-size: 10px; color: var(--muted); margin-top: auto; opacity: 0.8; padding-top: 8px; }
-        .doc-check {
-            position: absolute; top: 10px; right: 10px; font-size: 12px;
-            width: 24px; height: 24px; border-radius: 50%;
-            display: flex; align-items: center; justify-content:center;
-            opacity: 0; transform: scale(0.5); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .doc-check { position: absolute; top: 10px; right: 10px; font-size: 12px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .std-opt.selected .doc-check { background: var(--accent); color: var(--bg); opacity: 1; transform: scale(1); }
         .ai-opt.selected .doc-check { background: linear-gradient(135deg,var(--ai),var(--ai2)); color: #fff; opacity: 1; transform: scale(1); }
         
-        /* --- IMPROVED MANUAL GROUP STYLES --- */
-        .dose-manual-group {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            flex: 1;
-            min-width: 0;
-        }
-        .dose-input-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-        }
-        .dose-action-row {
-            display: flex;
-            gap: 10px;
-            align-items: stretch;
-        }
-        #doseInput {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--fg);
-            font-family: inherit;
-            font-size: 20px;
-            font-weight: 700;
-            text-align: center;
-            outline: none;
-            transition: all .2s;
-            min-width: 0;
-        }
-        #doseInput:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-        #noteInput {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: var(--radius-xs);
-            border: 1px dashed var(--warning-border);
-            background: rgba(255,181,71,.04);
-            color: var(--fg);
-            font-family: inherit;
-            font-size: 12px;
-            outline: none;
-            transition: all .2s;
-            display: none;
-            margin-top: 4px;
-        }
-        #noteInput:focus {
-            background: rgba(255,181,71,.08);
-            border-style: solid;
-        }
+        /* --- IMPROVED MANUAL GROUP STYLES --- */  
+        .dose-manual-group { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }  
+        .dose-input-wrapper { display: flex; flex-direction: column; gap: 10px; width: 100%; }  
+        .dose-action-row { display: flex; gap: 10px; align-items: stretch; }  
+        #doseInput { flex: 1; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); color: var(--fg); font-family: inherit; font-size: 20px; font-weight: 700; text-align: center; outline: none; transition: all .2s; min-width: 0; }  
+        #doseInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }  
+        #noteInput { width: 100%; padding: 8px 12px; border-radius: var(--radius-xs); border: 1px dashed var(--warning-border); background: rgba(255,181,71,.04); color: var(--fg); font-family: inherit; font-size: 12px; outline: none; transition: all .2s; display: none; margin-top: 4px; }  
+        #noteInput:focus { background: rgba(255,181,71,.08); border-style: solid; }  
         
-        /* Compact Action Buttons (Vertical Stack) */
-        .action-btns {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 44px;
-            flex-shrink: 0;
-        }
-        .action-btns .submit-btn {
-            flex: unset;
-            width: 100%;
-            height: 44px;
-            font-size: 16px;
-            padding: 0;
-            border-radius: 8px;
-        }
-        .action-btns .submit-btn:first-child {
-            flex-grow: 1;
-        }
-        .action-btns .submit-btn:last-child {
-            background: var(--card);
-            color: var(--danger);
-            border: 1px solid var(--border);
-            box-shadow: none;
-        }
-        .action-btns .submit-btn:last-child:hover {
-            background: var(--danger-dim);
-            border-color: var(--danger-border);
-            color: var(--danger);
-        }
-
-        /* SETTINGS PAGE STYLES */
-        .settings-form-group {
-            background: var(--bg2);
-            padding: 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            margin-bottom: 16px;
-        }
-        .settings-label {
-            display: block;
-            font-size: 11px;
-            color: var(--muted);
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 12px;
-        }
-        .settings-input-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .settings-input-wrapper span {
-            font-size: 10px;
-            color: var(--fg2);
-            font-weight: 500;
-        }
-        .settings-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--fg);
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            outline: none;
-            transition: all .2s;
-        }
-        .settings-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-        .settings-thresholds {
-            display: grid;
-            gap: 12px;
-        }
-        .settings-note {
-            font-size: 11px;
-            color: var(--warning);
-            background: var(--warning-dim);
-            padding: 10px;
-            border-radius: var(--radius-xs);
-            border: 1px dashed var(--warning-border);
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-        .btn-full {
-            width: 100%;
-            padding: 12px;
-            border-radius: var(--radius);
-            border: none;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: var(--bg);
-            box-shadow: 0 4px 12px rgba(0,245,200,0.2);
-        }
+        /* Compact Action Buttons (Vertical Stack) */  
+        .action-btns { display: flex; flex-direction: column; gap: 8px; width: 44px; flex-shrink: 0; }  
+        .action-btns .submit-btn { flex: unset; width: 100%; height: 44px; font-size: 16px; padding: 0; border-radius: 8px; }  
+        .action-btns .submit-btn:first-child { flex-grow: 1; }  
+        .action-btns .submit-btn:last-child { background: var(--card); color: var(--danger); border: 1px solid var(--border); box-shadow: none; }  
+        .action-btns .submit-btn:last-child:hover { background: var(--danger-dim); border-color: var(--danger-border); color: var(--danger); }  
+        
+        /* SETTINGS PAGE STYLES */  
+        .settings-form-group { background: var(--bg2); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 16px; }  
+        .settings-label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }  
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; }  
+        .settings-input-wrapper { display: flex; flex-direction: column; gap: 6px; }  
+        .settings-input-wrapper span { font-size: 10px; color: var(--fg2); font-weight: 500; }  
+        .settings-input { width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); color: var(--fg); font-family: inherit; font-size: 14px; font-weight: 600; text-align: center; outline: none; transition: all .2s; }  
+        .settings-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }  
+        .settings-thresholds { display: grid; gap: 12px; }  
+        .settings-note { font-size: 11px; color: var(--warning); background: var(--warning-dim); padding: 10px; border-radius: var(--radius-xs); border: 1px dashed var(--warning-border); margin-top: 10px; line-height: 1.4; }  
+        .btn-full { width: 100%; padding: 12px; border-radius: var(--radius); border: none; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }  
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--bg); box-shadow: 0 4px 12px rgba(0,245,200,0.2); }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,245,200,0.3); }
-        .btn-secondary {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--muted);
-        }
+        .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
         .btn-secondary:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
 
         /* RESTORED CSS FOR DIET ITEMS (Previously used by History, now Diet) */
@@ -619,58 +352,11 @@
         .hp-item-sub{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
         .hp-item-sub i{font-size:9px}
 
-        @media(max-width:540px){
-            .shell{max-width:100%}
-            .slot-btns{grid-template-columns:repeat(2,1fr)}
-            .hdr{padding:14px 12px 10px;gap:8px}
-            .info-bar{margin:0 12px 6px;padding:8px 10px}
-            .progress-strip{padding:8px 12px 6px}
-            .stats-grid{padding:4px 12px 8px;gap:6px}
-            .sec-head{padding:12px 12px 6px}
-            .input-section{padding:0 12px 10px}
-            .filter-bar{padding:0 12px 8px}
-            .chart-section{padding:0 12px 10px}
-            .ai-insights{padding:0 12px 10px}
-            .divider{margin:0 12px}
-            .result-card{margin:0 12px 10px}
-            .hdr-btn{width:34px;height:34px;font-size:13px}
-            .brand-icon{width:38px;height:38px;font-size:16px}
-            .brand h1{font-size:14px}
-            .brand p{font-size:10px}
-            .p-slot .p-label{display:none}
-            #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)}
-            .dose-dual{grid-template-columns:1fr}
-            .scoreboard{padding:0 12px}
-            .dose-options-container { gap: 10px; }
-            .doc-val { font-size: 28px; }
-            .dose-manual-group { width: 100%; }
-            #doseInput { font-size: 24px; }
-            .settings-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media(max-width:340px){
-            .hdr-actions{gap:3px}
-            .hdr-btn{width:30px;height:30px;font-size:11px;border-radius:8px}
-            .brand{gap:8px}
-            .brand h1{font-size:13px}
-            .p-slot .p-time{font-size:10px}
-            .p-slot .p-icon{font-size:12px}
-            .stat-info .stat-val{font-size:18px}
-            .fb{padding:5px 8px;font-size:10px}
-        }
-        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-        @media (min-width: 768px) {
-            .shell {max-width: 720px; padding: 0 20px 32px;}
-            .chart-wrap canvas {max-height: 400px;}
-            .stats-grid {grid-template-columns: repeat(4, 1fr);}
-            #gdsStats, #doseStats {grid-template-columns: repeat(4, 1fr);}
-            .p-slot .p-label {display: block !important;}
-            .dose-options-container { gap: 16px; }
-            .pred-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @media (min-width: 1024px) {
-            .shell {max-width: 800px;}
-            .chart-wrap canvas {max-height: 450px;}
-        }
+        @media(max-width:540px){ .shell{max-width:100%} .slot-btns{grid-template-columns:repeat(2,1fr)} .hdr{padding:14px 12px 10px;gap:8px} .info-bar{margin:0 12px 6px;padding:8px 10px} .progress-strip{padding:8px 12px 6px} .stats-grid{padding:4px 12px 8px;gap:6px} .sec-head{padding:12px 12px 6px} .input-section{padding:0 12px 10px} .filter-bar{padding:0 12px 8px} .chart-section{padding:0 12px 10px} .ai-insights{padding:0 12px 10px} .divider{margin:0 12px} .result-card{margin:0 12px 10px} .hdr-btn{width:34px;height:34px;font-size:13px} .brand-icon{width:38px;height:38px;font-size:16px} .brand h1{font-size:14px} .brand p{font-size:10px} .p-slot .p-label{display:none} #gdsStats, #doseStats{grid-template-columns:repeat(2,1fr)} .dose-dual{grid-template-columns:1fr} .scoreboard{padding:0 12px} .dose-options-container{gap:10px} .doc-val{font-size:28px} .dose-manual-group{width:100%} #doseInput{font-size:24px} .settings-grid{grid-template-columns:1fr 1fr} }
+        @media(max-width:340px){ .hdr-actions{gap:3px} .hdr-btn{width:30px;height:30px;font-size:11px;border-radius:8px} .brand{gap:8px} .brand h1{font-size:13px} .p-slot .p-time{font-size:10px} .p-slot .p-icon{font-size:12px} .stat-info .stat-val{font-size:18px} .fb{padding:5px 8px;font-size:10px} }
+        @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important} }
+        @media(min-width:768px){ .shell{max-width:720px;padding:0 20px 32px} .chart-wrap canvas{max-height:400px} .stats-grid{grid-template-columns:repeat(4,1fr)} #gdsStats, #doseStats{grid-template-columns:repeat(4,1fr)} .p-slot .p-label{display:block!important} .dose-options-container{gap:16px} .pred-grid{grid-template-columns:repeat(4,1fr)} }
+        @media(min-width:1024px){ .shell{max-width:800px} .chart-wrap canvas{max-height:450px} }
     </style>
 </head>
 <body>
