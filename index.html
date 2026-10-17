@@ -757,7 +757,7 @@ async function fetchData(){
 async function submitData(entry){if(isSubmitting)return false;isSubmitting=true;try{return await _submitData(entry);}finally{isSubmitting=false;}}
 async function _submitData(entry){
   try{
-    var url = API_URL + action=submit&payload=' + encodeURIComponent(JSON.stringify(entry)) + '&initData=' + encodeURIComponent(getInit());
+    var url = API_URL + '?action=submit&payload=' + encodeURIComponent(JSON.stringify(entry)) + '&initData=' + encodeURIComponent(getInit());
     var r=await fetch(url, {redirect:'follow'});
     var d=await r.json();
     return d.status==='ok';
