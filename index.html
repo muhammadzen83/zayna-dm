@@ -6,8 +6,7 @@
     <title>Diabetes Monitor — Zayna Kamila (AI Logic v3.5 - Diet Added)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>var API_URL='https://script.google.com/macros/s/AKfycbyeOWHCOE6agAdSh--AoTAZDh2xViaq0RLAMdVZSSANjUuhnteu7x-eL0Nayujk8yCf3Q/exec';</script>
     <style>
@@ -531,7 +530,7 @@
                             <input type="number" class="settings-input" id="setThreshPlus1" min="0" max="500">
                         </div>
                         <div class="settings-input-wrapper">
-                            <span>Batas untuk Kurang <strong>-1 Unit</strong> (Jika GDS < ...)</span>
+                            <span>Batas untuk Kurang <strong>-1 Unit</strong> (Jika GDS &lt; ...)</span>
                             <input type="number" class="settings-input" id="setThreshMinus1" min="0" max="500">
                         </div>
                     </div>
@@ -749,13 +748,14 @@ function showToast(msg,type){type=type||'success';var c=document.getElementById(
 async function fetchData(){
   try{
     var r=await fetch(API_URL+'?action=data&t='+Date.now()+'&initData='+encodeURIComponent(getInit()),{redirect:'follow'});
-    if(!r.ok){console.error('Fetch NOT OK:', r.status);return[];}
+    if(!r.ok){console.error('Fetch NOT OK:', r.status);return null;}
     var d=await r.json();
-    if(!Array.isArray(d)){console.error('Data bukan array:', d);return[];}
+    if(!Array.isArray(d)){console.error('Data bukan array:', d);return null;}
     return d;
-  }catch(e){console.error('Fetch crash:', e);return[];}
+  }catch(e){console.error('Fetch crash:', e);return null;}
 }
-async function submitData(entry){
+async function submitData(entry){if(isSubmitting)return false;isSubmitting=true;try{return await _submitData(entry);}finally{isSubmitting=false;}}
+async function _submitData(entry){
   try{
     var url = API_URL + action=submit&payload=' + encodeURIComponent(JSON.stringify(entry)) + '&initData=' + encodeURIComponent(getInit());
     var r=await fetch(url, {redirect:'follow'});
@@ -763,11 +763,11 @@ async function submitData(entry){
     return d.status==='ok';
   }catch(e){console.error('Submit crash:', e);return false;}
 }
-function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=cutoff.toISOString().slice(0,10);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
+function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=localKey(cutoff);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
 function getSlotHistory(slot,maxDays){
     maxDays=maxDays||14;
-    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-maxDays);var cutStr=cutoff.toISOString().slice(0,10);
+    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-maxDays);var cutStr=localKey(cutoff);
     var entries=state.data.filter(function(e){return e.slot===slot&&e.gds!=null&&normalizeDate(e.date)>=cutStr;});
     entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});
     return entries;
@@ -789,7 +789,7 @@ function analyzeTrend(values){
 }
 function getDoseGdsPairs(slot,maxDays){
     maxDays=maxDays||14;
-    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-maxDays);var cutStr=cutoff.toISOString().slice(0,10);
+    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-maxDays);var cutStr=localKey(cutoff);
     var entries=state.data.filter(function(e){return e.slot===slot&&e.gds!=null&&e.dose!=null&&normalizeDate(e.date)>=cutStr;});
     entries.sort(function(a,b){return new Date(normalizeDate(a.date))-new Date(normalizeDate(b.date));});
     return entries.map(function(e){return{dose:e.dose,gds:e.gds,date:e.date};});
@@ -798,14 +798,14 @@ function evaluateLastDose(slot){
     var pairs=getDoseGdsPairs(slot,7);
     if(pairs.length<2)return{effective:null,reason:'Data kurang untuk evaluasi'};
     var last=pairs[pairs.length-1],prev=pairs[pairs.length-2];
-    var gdsInRange=last.gds>=100&&last.gds<=200; 
+    var gdsInRange=last.gds>=70&&last.gds<=180; 
     var improved=last.gds<prev.gds;
     var worsened=last.gds>prev.gds+15;
     if(gdsInRange&&improved)return{effective:true,reason:'Dosis '+last.dose+'u berhasil menurunkan GDS ke '+last.gds+' (dari '+prev.gds+')'};
     if(gdsInRange)return{effective:true,reason:'Dosis '+last.dose+'u menjaga GDS di '+last.gds+', dalam rentang target'};
     if(worsened)return{effective:false,reason:'Dosis '+last.dose+'u belum cukup, GDS naik dari '+prev.gds+' ke '+last.gds};
-    if(last.gds>200)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
-    if(last.gds<100)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
+    if(last.gds>180)return{effective:false,reason:'Dosis '+last.dose+'u belum optimal, GDS masih '+last.gds};
+    if(last.gds<70)return{effective:false,reason:'Dosis '+last.dose+'u terlalu besar, GDS turun ke '+last.gds+' (risiko hipo)'};
     return{effective:null,reason:'Pola belum jelas dari data tersedia'};
 }
 function aiSuggest(slot,standardDose,currentGds){
@@ -841,6 +841,10 @@ function aiSuggest(slot,standardDose,currentGds){
     if(dataPoints>=5&&dosePairs.length>=3)confidence='high';
     else if(dataPoints>=3&&dosePairs.length>=2)confidence='medium';
     else confidence='low';
+    if(confidence==='low'&&aiAdjustment!==0){aiAdjustment=0;reasons.push('Data belum cukup — saran AI mengikuti dosis standar');}
+    if(currentGds<100&&aiAdjustment>0){aiAdjustment=0;reasons.push('<strong>GDS saat ini rendah</strong> — dosis tidak dinaikkan');}
+    if(currentGds<70)aiAdjustment=Math.min(aiAdjustment,0);
+    aiAdjustment=Math.max(-2,Math.min(2,aiAdjustment));
     var aiDose=standardDose+aiAdjustment;
     aiDose=Math.max(0,Math.min(20,aiDose));
     return{standardDose:standardDose,aiAdjustment:aiAdjustment,aiDose:aiDose,trend:trend.direction,trendSlope:trend.slope,trendAvg:trend.avg,isVolatile:trend.isVolatile||false,stdDev:trend.stdDev,confidence:confidence,dataPoints:dataPoints,dosePairs:dosePairs.length,lastEval:lastEval,reasons:reasons,hasData:dataPoints>=2&&dosePairs.length>=1};
@@ -928,7 +932,7 @@ function renderAiInsights(){
     
     var allEntries = state.data.filter(function(e) { 
         if (e.gds != null) return true;
-        if (e.dose != null && e.dose > 0) return true;
+        if (e.dose != null && e.dose > 0 && e.slot !== 'levemir') return true;;
         return false; 
     });
 
@@ -1148,7 +1152,7 @@ function selectDoseOption(val, type, standardDose, aiData) {
 
 function handleCalcOrSubmit(){
     var slot=state.selectedSlot, gdsVal=parseInt(gdsInput.value.trim());
-    if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0)return;
+    if(!slot||slot==='levemir'||isNaN(gdsVal))return;if(gdsVal<20||gdsVal>600){showToast('GDS harus 20–600 mg/dL','error');return;}
     
     var sObj=SLOTS.find(function(s){return s.slot===slot;});
     
@@ -1199,7 +1203,7 @@ function showDoseCalculation(slot, gdsVal){
         var predAi = predictNextGDS(slot, aiDose);
         
         var predHtml = '<div class="double-pred-container">';
-        predHtml += '<div class="dp-title">Prediksi GDS '+SLOT_LABELS[nextSlot]+' (Esok)</div>';
+        predHtml += '<div class="dp-title">Prediksi GDS '+SLOT_LABELS[nextSlot]+' (estimasi kasar)</div>';
         predHtml += '<div class="dp-grid">';
         
         predHtml += '<div class="dp-item">';
@@ -1237,7 +1241,7 @@ function showDoseCalculation(slot, gdsVal){
     doseInput.focus();
 }
 
-async function handleFinalSubmit(){var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());var manualDose=parseInt(document.getElementById('doseInput').value);var noteVal=document.getElementById('noteInput').value.trim();if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||isNaN(manualDose))return;var calculatedDose=parseInt(document.getElementById('doseInput').dataset.calc);if(manualDose!==calculatedDose&&noteVal===''){showToast('Mohon isi alasan perubahan dosis','error');document.getElementById('noteInput').focus();return;}if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);var standardDose=calculatedDose;var ai=null;if(s.type==='gds-insulin'){ai=aiSuggest(slot,standardDose,gdsVal);}var finalDose=manualDose;var entry={date:getTodayKey(),time:getTimeStr(),slot:slot,gds:gdsVal,dose:finalDose,doseType:s.type==='gds-insulin'?'rapid':null,category:cat.cls,aiGenerated:false,standardDose:standardDose,note:noteVal};if(s.type==='gds-insulin'){var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';var nh='';if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';var doseInfoHtml='<div style="text-align:center; margin-bottom:10px; padding:10px; background:rgba(0,245,200,0.1); border-radius:8px; border:1px solid var(--accent-border);">';doseInfoHtml+='<div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Dosis Tersimpan</div>';doseInfoHtml+='<div style="font-size:24px; font-weight:700; color:var(--accent)">'+finalDose+' <span style="font-size:14px; color:var(--muted)">unit</span></div>';if(noteVal)doseInfoHtml+='<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+noteVal+'"</div>';doseInfoHtml+='</div>';resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+'</div>';}resultCard.classList.add('show');var ok=await submitData(entry);if(ok){showToast('Tersimpan: '+finalDose+' unit');state.data.unshift(entry);updateProgress();renderAiInsights();gdsInput.value='';state.selectedSlot='';document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});cancelDoseEdit();try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}}else showToast('Gagal menyimpan','error');}  
+async function handleFinalSubmit(){var slot=state.selectedSlot,gdsVal=parseInt(gdsInput.value.trim());var manualDose=parseInt(document.getElementById('doseInput').value);var noteVal=document.getElementById('noteInput').value.trim();if(!slot||slot==='levemir'||isNaN(gdsVal)||gdsVal<0||  isNaN(manualDose))return;if(manualDose<0||manualDose>30){showToast('Dosis tidak valid (0–30 unit)','error');return;}if(gdsVal<70&&manualDose>0&&!confirm('GDS '+gdsVal+' (hipoglikemi). Yakin tetap menyuntik insulin?'))return;if(Math.abs(manualDose-parseInt(document.getElementById('doseInput').dataset.calc))>3&&!confirm('Dosis berbeda >3 unit dari standar. Lanjutkan?'))return;var calculatedDose=parseInt(document.getElementById('doseInput').dataset.calc);if(manualDose!==calculatedDose&&noteVal===''){showToast('Mohon isi alasan perubahan dosis','error');document.getElementById('noteInput').focus();return;}if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot===slot;})){showToast('Data sudah tercatat hari ini','error');return;}var s=SLOTS.find(function(s){return s.slot===slot;}),cat=getCat(gdsVal);var standardDose=calculatedDose;var ai=null;if(s.type==='gds-insulin'){ai=aiSuggest(slot,standardDose,gdsVal);}var finalDose=manualDose;var entry={date:getTodayKey(),time:getTimeStr(),slot:slot,gds:gdsVal,dose:finalDose,doseType:s.type==='gds-insulin'?'rapid':null,category:cat.cls,aiGenerated:false,standardDose:standardDose,note:noteVal};if(s.type==='gds-insulin'){var catIcon=cat.cls==='good'?'fa-circle-check':cat.cls==='warn'?'fa-circle-exclamation':'fa-triangle-exclamation';var nh='';if(gdsVal>250)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hiperglikemi berat! Segera konsultasi.</div>';else if(gdsVal<70)nh='<div class="result-note danger-note"><i class="fa-solid fa-triangle-exclamation"></i>Hipoglikemi terdeteksi!</div>';var doseInfoHtml='<div style="text-align:center; margin-bottom:10px; padding:10px; background:rgba(0,245,200,0.1); border-radius:8px; border:1px solid var(--accent-border);">';doseInfoHtml+='<div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Dosis Tersimpan</div>';doseInfoHtml+='<div style="font-size:24px; font-weight:700; color:var(--accent)">'+finalDose+' <span style="font-size:14px; color:var(--muted)">unit</span></div>';if(noteVal)doseInfoHtml+='<div style="font-size:9px; color:var(--fg2); margin-top:4px; font-style:italic">"'+esc(noteVal)+'"</div>';doseInfoHtml+='</div>';resultCard.innerHTML='<div class="result-top"><div class="result-top-icon '+cat.cls+'"><i class="fa-solid '+catIcon+'"></i></div><div class="result-top-text"><div class="rt-label">GDS '+s.label+'</div><div class="rt-value '+cat.cls+'">'+gdsVal+' <small style="font-size:12px;font-weight:400;color:var(--muted)">mg/dL</small><span class="rt-tag '+cat.cls+'">'+cat.label+'</span></div></div></div><div class="result-body">'+doseInfoHtml+nh+'</div>';}var ok=await submitData(entry);if(ok){resultCard.classList.add('show');showToast('Tersimpan: '+finalDose+' unit');state.data.unshift(entry);updateProgress();renderAiInsights();gdsInput.value='';state.selectedSlot='';document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});cancelDoseEdit();try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}}else showToast('Gagal menyimpan','error');}  
 async function handleLevemir(){if(state.data.some(function(e){return normalizeDate(e.date)===getTodayKey()&&e.slot==='levemir';})){showToast('Levemir sudah tercatat hari ini','error');return;}var levemirDose=currentSettings.defaults.levemir;var entry={date:getTodayKey(),time:getTimeStr(),slot:'levemir',gds:null,dose:levemirDose,doseType:'levemir',category:'good',aiGenerated:false};var ok=await submitData(entry);if(ok){showToast('Levemir '+levemirDose+' unit tercatat');state.data.unshift(entry);updateProgress();resultCard.innerHTML='<div class="result-top"><div class="result-top-icon good" style="background:var(--levemir-dim);color:var(--levemir)"><i class="fa-solid fa-syringe"></i></div><div class="result-top-text"><div class="rt-label">Levemir</div><div class="rt-value good" style="color:var(--levemir)">'+levemirDose+' <small style="font-size:12px;font-weight:400;color:var(--muted)">unit</small><span class="rt-tag good">Tercatat</span></div></div></div><div class="result-body"><div style="text-align:center;padding:8px 0;font-size:12px;color:var(--fg2)"><i class="fa-solid fa-circle-check" style="color:var(--levemir);margin-right:6px"></i>Penyuntikan Levemir sudah dikonfirmasi</div></div>';resultCard.classList.add('show');state.selectedSlot='';document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('active');});document.querySelectorAll('.p-slot').forEach(function(el){el.classList.remove('active-slot');});levemirBtn.style.display='none';try{Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}}else showToast('Gagal menyimpan','error');}
 function initGdsChart(){var ctx=document.getElementById('gdsCanvas').getContext('2d');state.gdsChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'GDS',data:[],borderWidth:2.5,tension:.35,fill:false,borderColor:'#00E5A0',pointBackgroundColor:'#00E5A0',pointBorderColor:'#00E5A0',pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#142540',titleColor:'#EDF0F5',bodyColor:'#C8D0DC',borderColor:'#1C3258',borderWidth:1,cornerRadius:10,padding:12,titleFont:{family:'Space Grotesk',weight:'600'},bodyFont:{family:'Space Grotesk'}}},scales:{x:{grid:{display:false,drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:10},maxRotation:45}},y:{grid:{display:false,drawBorder:false},ticks:{color:'#5E7490',font:{family:'Space Grotesk',size:11}},beginAtZero:false}}}});}
 function renderGdsChart(){if(!state.gdsChart)return;var entries=filterByPeriod(state.data.filter(function(e){return e.gds!=null && e.gds > 0;}),gdsPeriod);if(gdsSlot!=='all')entries=entries.filter(function(e){return e.slot===gdsSlot;});entries.sort(function(a,b){var da=new Date(normalizeDate(a.date)+'T'+(a.time||'00:00')),db=new Date(normalizeDate(b.date)+'T'+(b.time||'00:00'));return da-db;});var labels=entries.map(function(e){return fmtLabel(e.date,e.time);}),vals=entries.map(function(e){return e.gds;}),colors=entries.map(function(e){return ptColor(e.gds);});state.gdsChart.data.labels=labels;state.gdsChart.data.datasets[0].data=vals;state.gdsChart.data.datasets[0].pointBackgroundColor=colors;state.gdsChart.data.datasets[0].pointBorderColor=colors;state.gdsChart.data.datasets[0].pointRadius=5;state.gdsChart.data.datasets[0].pointHoverRadius=7;state.gdsChart.update();var stats=calcStats(vals);var statsEl=document.getElementById('gdsStats');if(statsEl){if(!vals.length){statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">-</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">0</div><div class="dl">Data</div></div>';return;}statsEl.innerHTML='<div class="dose-stat total-stat"><div class="dv">'+stats.min+'</div><div class="dl">Min</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.max+'</div><div class="dl">Max</div></div><div class="dose-stat total-stat"><div class="dv">'+stats.avg+'</div><div class="dl">Avg</div></div><div class="dose-stat total-stat"><div class="dv">'+vals.length+'</div><div class="dl">Data</div></div>';}}
@@ -1279,7 +1283,7 @@ function renderDoseTable(){var wrap=document.getElementById('doseTableWrap');if(
             nHtml += '<td><div style="font-weight:600; color:var(--fg2)">'+displayDate+'</div><div style="font-size:9px; color:var(--muted)">'+displayTime+'</div></td>';
             nHtml += '<td>'+slotName+'</td>';
             nHtml += '<td><span class="cell-val '+doseColorClass+'">'+e.dose+'<span class="cell-dose-unit"> u</span></span></td>';
-            nHtml += '<td style="text-align:left; padding-left:14px; font-style:italic; color:var(--fg); line-height:1.3;">'+e.note+'</td>';
+            nHtml += '<td style="text-align:left; padding-left:14px; font-style:italic; color:var(--fg); line-height:1.3;">'+esc(e.note)+'</td>';
             nHtml += '</tr>';
         });
         nHtml += '</tbody></table>';
@@ -1295,8 +1299,8 @@ document.getElementById('doseSlotFilters').addEventListener('click',function(e){
 var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{hour:6,minute:0,slot:'sarapan',label:'GDS + Insulin'},{hour:9,minute:0,slot:'snack-pagi',label:'Snack Pagi',autoDone:true},{hour:12,minute:0,slot:'siang',label:'GDS + Insulin'},{hour:15,minute:0,slot:'snack-siang',label:'Snack Siang',autoDone:true},{hour:18,minute:0,slot:'malam',label:'GDS + Insulin'},{hour:20,minute:0,slot:'levemir',label:'Suntik Levemir'},{hour:21,minute:0,slot:'snack-malam',label:'Snack Malam',autoDone:true}];
 function updateCountdown(){var now=new Date(),nowT=now.getHours()*60+now.getMinutes(),today=getTodayKey();var todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var done={};SCHEDULES_CK.forEach(function(s){done[s.slot]=todayData.some(function(e){return e.slot===s.slot;});if(s.autoDone&&!done[s.slot]){var sT2=s.hour*60+s.minute;if(nowT>=sT2)done[s.slot]=true;}});var next=null;for(var i=0;i<SCHEDULES_CK.length;i++){var s=SCHEDULES_CK[i];if(done[s.slot])continue;var sT=s.hour*60+s.minute;if(sT>nowT){if(!next||sT<next.total)next={hour:s.hour,minute:s.minute,label:s.label,total:sT,tomorrow:false};}else if(!next){next={hour:s.hour,minute:s.minute,label:s.label,total:sT+1440,tomorrow:true};}}if(!next){var f=SCHEDULES_CK[0];next={hour:f.hour,minute:f.minute,label:f.label,total:f.hour*60+f.minute+1440,tomorrow:true};}var diff=next.total-nowT,h=Math.floor(diff/60),m=diff%60;document.getElementById('nrLabel').textContent=(next.tomorrow?'Besok ':'')+String(next.hour).padStart(2,'0')+':'+String(next.minute).padStart(2,'0')+' '+next.label.split('+')[0].trim();document.getElementById('nrCountdown').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');SCHEDULES_CK.forEach(function(s){var sT=s.hour*60+s.minute;if(!done[s.slot]&&Math.abs(nowT-sT)<=15){var el=document.querySelector('.p-slot[data-slot="'+s.slot+'"]');if(el&&!el.classList.contains('active-slot'))el.classList.add('active-slot');}});}
 
-var lastLength=0;
-setInterval(async function(){var newData=await fetchData();if(newData.length!==lastLength){lastLength=newData.length;state.data=newData;if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else{updateProgress();renderAiInsights();}updateCountdown();}},5000);
+var lastSig='';
+setInterval(async function(){if(document.hidden)return;var newData=await fetchData();if(newData&&JSON.stringify(newData)!==lastSig){lastSig=JSON.stringify(newData);state.data=newData;if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else{updateProgress();renderAiInsights();}updateCountdown();}},5000);
 
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
 
@@ -1384,7 +1388,7 @@ async function init(){
     var savedTheme = localStorage.getItem('theme') || 'dark';
     applyTheme(savedTheme);
     
-    state.data=await fetchData();
+    state.data=(await fetchData())||[];
     updateProgress();
     renderAiInsights();
     updateCountdown();
