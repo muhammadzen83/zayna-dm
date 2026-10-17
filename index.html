@@ -1451,7 +1451,7 @@ async function submitCorrection(){
         if (ago >= 0 && ago < CORR_MIN_GAP_H*60 && !confirm('Insulin cepat terakhir ' + fmtAgo(ago) + ' (' + last.dose + ' u). Insulin sebelumnya mungkin masih bekerja. Lanjutkan koreksi?')) return;
     }
     var cat = getCat(g);
-    var entry = {date:getTodayKey(), time:getTimeStr(), slot:'koreksi', gds:g, dose:d, doseType:'correction', category:cat.cls, aiGenerated:false, standardDose:null, note:note || 'Koreksi GDS tinggi'};
+    var entry = {date:getTodayKey(), time:getTimeStr(), slot:'koreksi', gds:g, dose:d, doseType:'rapid', category:cat.cls, aiGenerated:false, standardDose:null, note:note || 'Koreksi GDS tinggi'};
     var ok = await submitData(entry);
     if (ok){
         showToast('Koreksi tersimpan: ' + d + ' unit (GDS ' + g + ')');
