@@ -729,6 +729,9 @@ document.querySelectorAll('.hdr-btn[data-page]').forEach(function(btn){btn.addEv
 
 function normalizeDate(r){if(!r||r==='')return '';if(/^\d{4}-\d{2}-\d{2}$/.test(String(r)))return String(r);var d=new Date(r);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');var p=String(r).split(/[\/\-\.]/);if(p.length===3){var a=parseInt(p[0]),b=parseInt(p[1]),c=parseInt(p[2]);if(c>100)return c+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');else if(a>100)return a+'-'+String(b).padStart(2,'0')+'-'+String(c).padStart(2,'0');}return String(r);}
 function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function getInit(){try{return Telegram.WebApp.initData||'';}catch(e){return '';}}
+function localKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function getTimeStr(){var now = new Date();return String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');}
 function getCat(gds){
     if(gds<70) return {label:'Hipoglikemi',cls:'danger'};
@@ -745,7 +748,7 @@ function fmtLabel(dateStr,timeStr){var nd=normalizeDate(dateStr);if(!nd)return t
 function showToast(msg,type){type=type||'success';var c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast '+type;t.innerHTML='<i class="fa-solid '+(type==='success'?'fa-circle-check':'fa-circle-xmark')+'"></i><span>'+msg+'</span>';c.appendChild(t);setTimeout(function(){t.remove();},3000);}
 async function fetchData(){
   try{
-    var r=await fetch(API_URL+'?action=data&t='+Date.now(),{redirect:'follow'});
+    var r=await fetch(API_URL+'?action=data&t='+Date.now()+'&initData='+encodeURIComponent(getInit()),{redirect:'follow'});
     if(!r.ok){console.error('Fetch NOT OK:', r.status);return[];}
     var d=await r.json();
     if(!Array.isArray(d)){console.error('Data bukan array:', d);return[];}
@@ -754,7 +757,7 @@ async function fetchData(){
 }
 async function submitData(entry){
   try{
-    var url = API_URL + '?action=submit&payload=' + encodeURIComponent(JSON.stringify(entry));
+    var url = API_URL + action=submit&payload=' + encodeURIComponent(JSON.stringify(entry)) + '&initData=' + encodeURIComponent(getInit());
     var r=await fetch(url, {redirect:'follow'});
     var d=await r.json();
     return d.status==='ok';
