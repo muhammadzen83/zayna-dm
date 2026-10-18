@@ -389,6 +389,7 @@
         <!-- HOME -->
         <div class="page active" id="homePage">
             <div class="info-bar bot"><i class="fa-brands fa-telegram"></i><span>Reminder via Telegram Bot — selalu tepat waktu</span></div>
+            <div class="info-bar" id="queueBanner" style="display:none;background:var(--warning-dim);border:1px solid var(--warning-border);color:var(--warning)"><i class="fa-solid fa-cloud-arrow-up"></i><span id="queueBannerText"></span></div>
             <div class="info-bar reminder" id="nextReminder"><i class="fa-solid fa-bell"></i><span class="nr-label">Berikutnya:</span><span class="nr-value" id="nrLabel">—</span><span class="nr-countdown" id="nrCountdown">—:—</span></div>
             <div class="progress-strip"><div class="progress-slots" id="progressSlots">
                 <div class="p-slot" data-slot="dini-hari"><div class="p-icon"><i class="fa-solid fa-moon"></i></div><div class="p-time">02:00</div><div class="p-label">GDS</div></div>
@@ -402,7 +403,7 @@
                 <div class="stat-card neutral"><div class="stat-icon"><i class="fa-solid fa-list-check"></i></div><div class="stat-info"><div class="stat-val" id="statTotal">5</div><div class="stat-label">Total Jadwal</div></div></div>
             </div>
             <div class="divider"></div>
-            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-syringe ic-input"></i>Input Pengukuran</div></div>
+            <div class="sec-head"><div class="sec-title"><i class="fa-solid fa-syringe ic-input"></i>Input Pengukuran</div><div class="sec-link" onclick="showPage('historyPage')"><i class="fa-solid fa-clock-rotate-left"></i>Riwayat</div></div>
             <div class="input-section">
                 <div class="slot-btns" id="slotBtns">
                     <button class="slot-btn" data-slot="dini-hari"><i class="fa-solid fa-moon"></i><span>02:00 GDS</span></button>
@@ -572,6 +573,15 @@
             </div>
         </div>
 
+        <!-- HISTORY -->
+        <div class="page" id="historyPage">
+            <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Riwayat &amp; Koreksi Data</span></div>
+            <div style="padding:0 20px 14px">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:10px">40 data terakhir. Perubahan dan penghapusan tercatat dan diberitahukan ke Telegram.</div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+        
         <!-- DIET -->
         <div class="page" id="dietPage">
             <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Panduan Diet Hari Ini</span></div>
@@ -742,7 +752,7 @@ function showPage(pageId){
     
     if(pageId==='gdsPage'){if(!gdsChartInit){initGdsChart();gdsChartInit=true;}else state.gdsChart.resize();renderGdsChart();renderGdsTable();}
     if(pageId==='dosePage'){if(!doseChartInit){initDoseChart();doseChartInit=true;}else state.doseChart.resize();renderDoseChart();renderDoseTable();}
-    if(pageId==='dietPage')renderDiet();
+    if(pageId==='dietPage')renderDiet();if(pageId==='historyPage')renderHistory();
     if(pageId==='homePage'){updateProgress();renderAiInsights();}
     
     window.scrollTo({top:0,behavior:'smooth'});
@@ -778,14 +788,32 @@ async function fetchData(){
     return d;
   }catch(e){console.error('Fetch crash:', e);return null;}
 }
-async function submitData(entry){if(isSubmitting)return false;isSubmitting=true;try{return await _submitData(entry);}finally{isSubmitting=false;}}
-async function _submitData(entry){
+async function apiCall(action, payload){
   try{
-    var url = API_URL + '?action=submit&payload=' + encodeURIComponent(JSON.stringify(entry)) + '&initData=' + encodeURIComponent(getInit());
-    var r=await fetch(url, {redirect:'follow'});
-    var d=await r.json();
-    return d.status==='ok';
-  }catch(e){console.error('Submit crash:', e);return false;}
+    var url = API_URL + '?action=' + action + '&payload=' + encodeURIComponent(JSON.stringify(payload)) + '&initData=' + encodeURIComponent(getInit());
+    var r = await fetch(url, {redirect:'follow'});
+    var d = await r.json();
+    if (d.status === 'ok') return true;
+    if (d.message === 'Tidak diizinkan') return 'auth';
+    return d.message || false;
+  }catch(e){ return 'net'; }
+}
+async function _submitData(entry){
+  var r = await apiCall('submit', entry);
+  return (r === true || r === 'net' || r === 'auth') ? r : false;
+}
+async function submitData(entry){
+  if (isSubmitting) return false;
+  isSubmitting = true;
+  try{
+    var r = await _submitData(entry);
+    if (r === 'net' || r === 'auth'){
+        var q = qGet(); q.push(entry); qSet(q);
+        showToast(r === 'auth' ? 'Sesi habis. Buka ulang aplikasi dari bot. Data disimpan di perangkat.' : 'Offline. Data disimpan di perangkat dan dikirim otomatis.', 'error');
+        return 'queued';
+    }
+    return r;
+  } finally { isSubmitting = false; }
 }
 function filterByPeriod(entries,period){if(period==='today'){var t=getTodayKey();return entries.filter(function(e){return normalizeDate(e.date)===t;});}var days=period==='7'?7:30;if(period==='all')return entries;var cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);var cutStr=localKey(cutoff);return entries.filter(function(e){return normalizeDate(e.date)>=cutStr;});}
 function calcStats(arr){if(!arr.length)return{min:0,max:0,avg:0};var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr),av=Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length);return{min:mn,max:mx,avg:av};}
@@ -1325,7 +1353,7 @@ var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{
 function updateCountdown(){var now=new Date(),nowT=now.getHours()*60+now.getMinutes(),today=getTodayKey();var todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var done={};SCHEDULES_CK.forEach(function(s){done[s.slot]=todayData.some(function(e){return e.slot===s.slot;});if(s.autoDone&&!done[s.slot]){var sT2=s.hour*60+s.minute;if(nowT>=sT2)done[s.slot]=true;}});var next=null;for(var i=0;i<SCHEDULES_CK.length;i++){var s=SCHEDULES_CK[i];if(done[s.slot])continue;var sT=s.hour*60+s.minute;if(sT>nowT){if(!next||sT<next.total)next={hour:s.hour,minute:s.minute,label:s.label,total:sT,tomorrow:false};}else if(!next){next={hour:s.hour,minute:s.minute,label:s.label,total:sT+1440,tomorrow:true};}}if(!next){var f=SCHEDULES_CK[0];next={hour:f.hour,minute:f.minute,label:f.label,total:f.hour*60+f.minute+1440,tomorrow:true};}var diff=next.total-nowT,h=Math.floor(diff/60),m=diff%60;document.getElementById('nrLabel').textContent=(next.tomorrow?'Besok ':'')+String(next.hour).padStart(2,'0')+':'+String(next.minute).padStart(2,'0')+' '+next.label.split('+')[0].trim();document.getElementById('nrCountdown').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');SCHEDULES_CK.forEach(function(s){var sT=s.hour*60+s.minute;if(!done[s.slot]&&Math.abs(nowT-sT)<=15){var el=document.querySelector('.p-slot[data-slot="'+s.slot+'"]');if(el&&!el.classList.contains('active-slot'))el.classList.add('active-slot');}});}
 
 var lastSig='';
-setInterval(async function(){if(document.hidden)return;var newData=await fetchData();if(newData&&JSON.stringify(newData)!==lastSig){lastSig=JSON.stringify(newData);state.data=newData;if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else{updateProgress();renderAiInsights();}updateCountdown();}},5000);
+setInterval(async function(){if(document.hidden)return;var newData=await fetchData();if(newData&&JSON.stringify(newData)!==lastSig){lastSig=JSON.stringify(newData);state.data=newData.concat(qGet());if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else if(state.currentPage==='historyPage')renderHistory();else{updateProgress();renderAiInsights();}updateCountdown();}},5000);
 
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
 
@@ -1467,6 +1495,98 @@ corrDose.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !corr
 corrSaveBtn.addEventListener('click', submitCorrection);
 setInterval(renderCorrInfo, 30000);
 
+    // --- ANTREAN OFFLINE ---
+function qGet(){ try{ return JSON.parse(localStorage.getItem('zayna_queue') || '[]'); }catch(e){ return []; } }
+function qSet(a){ try{ localStorage.setItem('zayna_queue', JSON.stringify(a)); }catch(e){} renderQueueBanner(); }
+function renderQueueBanner(){
+    var b = document.getElementById('queueBanner'); if (!b) return;
+    var n = qGet().length;
+    b.style.display = n ? 'flex' : 'none';
+    var s = document.getElementById('queueBannerText'); if (s) s.textContent = n + ' data menunggu dikirim (offline)';
+}
+async function flushQueue(){
+    if (isSubmitting) return;
+    var q = qGet(); if (!q.length) return;
+    isSubmitting = true;
+    var rest = [];
+    try{
+        for (var i = 0; i < q.length; i++){
+            var r = await _submitData(q[i]);
+            if (r === 'net' || r === 'auth'){ rest = q.slice(i); break; }
+            // true = terkirim, false = ditolak server (mis. duplikat) -> buang dari antrean
+        }
+    } finally { isSubmitting = false; }
+    qSet(rest);
+}
+window.addEventListener('online', flushQueue);
+setInterval(flushQueue, 15000);
+
+// --- RIWAYAT: EDIT & HAPUS ---
+var editingKey = null;
+function entryKey(e){ return normalizeDate(e.date) + '|' + String(e.time||'').slice(0,5) + '|' + e.slot; }
+function findEntry(key){ return state.data.find(function(e){ return entryKey(e) === key; }); }
+function afterDataChange(){ renderHistory(); updateProgress(); renderAiInsights(); }
+function renderHistory(){
+    var list = document.getElementById('historyList'); if (!list) return;
+    var rows = state.data.slice().sort(function(a,b){
+        return (normalizeDate(b.date) + String(b.time||'')).localeCompare(normalizeDate(a.date) + String(a.time||''));
+    }).slice(0, 40);
+    if (!rows.length){ list.innerHTML = '<div class="empty-box"><i class="fa-solid fa-clock-rotate-left"></i><p>Belum ada riwayat</p></div>'; return; }
+    var h = '';
+    rows.forEach(function(e){
+        var k = entryKey(e), ke = esc(k), editing = (editingKey === k);
+        var hasG = e.slot !== 'levemir', hasD = e.slot !== 'dini-hari';
+        var sub = fmtLabel(e.date, String(e.time||'').slice(0,5));
+        if (e.gds != null) sub += ' &bull; GDS ' + esc(e.gds);
+        if (e.dose != null) sub += ' &bull; ' + esc(e.dose) + ' u';
+        h += '<div class="hp-item" style="flex-wrap:wrap"><div class="hp-item-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fa-solid fa-droplet"></i></div>' +
+            '<div class="hp-item-info"><div class="hp-item-title">' + esc(SLOT_LABELS[e.slot] || e.slot) + '</div><div class="hp-item-sub">' + sub + '</div>' +
+            (e.note ? '<div style="font-size:10px;color:var(--fg2);margin-top:3px;font-style:italic">' + esc(e.note) + '</div>' : '') + '</div>' +
+            '<button class="hdr-btn" data-act="edit" data-key="' + ke + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="hdr-btn" data-act="del" data-key="' + ke + '" title="Hapus"><i class="fa-solid fa-trash"></i></button>';
+        if (editing){
+            h += '<div style="width:100%;margin-top:8px"><div style="display:flex;gap:8px">' +
+                (hasG ? '<input type="number" class="gds-input" id="histG" placeholder="GDS" value="' + esc(e.gds==null?'':e.gds) + '">' : '') +
+                (hasD ? '<input type="number" class="gds-input" id="histD" placeholder="Dosis (u)" value="' + esc(e.dose==null?'':e.dose) + '">' : '') +
+                '</div><input type="text" class="gds-input" id="histNote" style="margin-top:8px;width:100%;font-size:12px" placeholder="Catatan" maxlength="200" value="' + esc(e.note||'') + '">' +
+                '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-full btn-primary" data-act="save" data-key="' + ke + '">Simpan</button>' +
+                '<button class="btn-full btn-secondary" data-act="cancel" data-key="' + ke + '">Batal</button></div></div>';
+        }
+        h += '</div>';
+    });
+    list.innerHTML = h;
+}
+document.getElementById('historyList').addEventListener('click', async function(ev){
+    var b = ev.target.closest('[data-act]'); if (!b) return;
+    var act = b.dataset.act, key = b.dataset.key, e = findEntry(key);
+    if (act === 'edit'){ editingKey = key; renderHistory(); return; }
+    if (act === 'cancel'){ editingKey = null; renderHistory(); return; }
+    if (!e) return;
+    var ref = {date: normalizeDate(e.date), time: String(e.time).slice(0,5), slot: e.slot};
+    if (act === 'del'){
+        if (!confirm('Hapus data ' + (SLOT_LABELS[e.slot] || e.slot) + ' ' + fmtLabel(e.date, String(e.time).slice(0,5)) + '?')) return;
+        var r = await apiCall('delete', ref);
+        if (r === true){ state.data = state.data.filter(function(x){ return x !== e; }); afterDataChange(); showToast('Data dihapus'); }
+        else showToast((typeof r === 'string' && r !== 'net' && r !== 'auth') ? r : 'Gagal. Cek koneksi atau buka ulang aplikasi', 'error');
+    }
+    if (act === 'save'){
+        var gEl = document.getElementById('histG'), dEl = document.getElementById('histD'), nEl = document.getElementById('histNote');
+        var gv = (gEl && gEl.value !== '') ? parseInt(gEl.value,10) : null;
+        var dv = (dEl && dEl.value !== '') ? parseInt(dEl.value,10) : null;
+        if (gv != null && (isNaN(gv) || gv < 20 || gv > 600)){ showToast('GDS harus 20–600 mg/dL','error'); return; }
+        if (dv != null && (isNaN(dv) || dv < 0 || dv > 30)){ showToast('Dosis harus 0–30 unit','error'); return; }
+        if (e.slot === 'koreksi' && (gv == null || dv == null || dv < 1 || gv < 70)){ showToast('Koreksi butuh GDS minimal 70 dan dosis minimal 1 unit','error'); return; }
+        var note = nEl ? nEl.value.trim() : '';
+        var r2 = await apiCall('edit', {date:ref.date, time:ref.time, slot:ref.slot, gds:gv, dose:dv, note:note});
+        if (r2 === true){
+            if (gv != null){ e.gds = gv; e.category = getCat(gv).cls; }
+            if (dv != null) e.dose = dv;
+            e.note = note; editingKey = null; afterDataChange(); showToast('Data diperbarui');
+        } else showToast((typeof r2 === 'string' && r2 !== 'net' && r2 !== 'auth') ? r2 : 'Gagal. Cek koneksi atau buka ulang aplikasi', 'error');
+    }
+});
+renderQueueBanner();
+    
 async function init(){
     // Load settings first
     loadSettings();
