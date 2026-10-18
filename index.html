@@ -562,7 +562,7 @@
                 </div>
 
                 <div class="settings-note">
-                    <i class="fa-solid fa-circle-info"></i> Pengaturan ini disimpan di browser/perangkat ini. Jika digunakan oleh orang lain, gunakan tombol "Reset" di bawah untuk kembali ke standar medis awal.
+                    <i class="fa-solid fa-circle-info"></i> Pengaturan disimpan di server dan berlaku di semua perangkat. Setiap perubahan diberitahukan ke Telegram.
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:16px;">
@@ -586,6 +586,12 @@
         <div class="page" id="dietPage">
             <div class="page-title-bar"><div class="ptb-back" onclick="showPage('homePage')"><i class="fa-solid fa-arrow-left"></i></div><span class="ptb-text">Panduan Diet Hari Ini</span></div>
             <div style="padding:0 20px 14px">
+                <div style="padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--warning-border);margin-bottom:12px">
+                    <div style="font-size:12px;font-weight:700;margin-bottom:8px"><i class="fa-solid fa-calculator" style="color:var(--warning);margin-right:6px"></i>Kalkulator Tambahan KH</div>
+                    <input type="number" class="gds-input" id="carbInput" placeholder="Tambahan karbohidrat (gram)" inputmode="decimal" min="0" style="width:100%">
+                    <div id="carbResult" style="font-size:12px;margin-top:8px;color:var(--fg2);line-height:1.5"></div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4">Aturan panduan diet: +1 unit tiap 20 g KH tambahan. Hanya perhitungan, tidak tersimpan. Tanyakan ke dokter apakah dibulatkan ke bawah atau ke atas.</div>
+                </div>
                 <div id="dietList"></div>
                 <div style="margin-top:12px;padding:12px;border-radius:var(--radius-sm);background:var(--warning-dim);border:1px solid var(--warning-border);font-size:11px;color:var(--warning);line-height:1.5">
                     <strong><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>PERHATIAN:</strong><br>
@@ -692,6 +698,7 @@ function saveSettings() {
 
     currentSettings = newSettings;
     localStorage.setItem('zayna_dm_settings', JSON.stringify(currentSettings));
+    apiCall('savesettings', currentSettings).then(function(r){ if (r !== true) showToast((typeof r === 'string' && r !== 'net' && r !== 'auth') ? r : 'Tersimpan di perangkat ini, belum ke server', 'error'); });
     
     showToast('Pengaturan disimpan', 'success');
     updateLevemirButtonLabel();
@@ -705,7 +712,7 @@ function saveSettings() {
 function resetSettings() {
     if(confirm("Apakah Anda yakin ingin mengembalikan semua pengaturan ke nilai standar awal?")) {
         currentSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-        localStorage.removeItem('zayna_dm_settings');
+        localStorage.removeItem('zayna_dm_settings'); apiCall('savesettings', currentSettings);
         populateSettingsUI();
         updateLevemirButtonLabel();
         showToast('Pengaturan di-reset ke standar', 'success');
@@ -1353,7 +1360,7 @@ var SCHEDULES_CK=[{hour:2,minute:0,slot:'dini-hari',label:'Cek GDS Dini Hari'},{
 function updateCountdown(){var now=new Date(),nowT=now.getHours()*60+now.getMinutes(),today=getTodayKey();var todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var done={};SCHEDULES_CK.forEach(function(s){done[s.slot]=todayData.some(function(e){return e.slot===s.slot;});if(s.autoDone&&!done[s.slot]){var sT2=s.hour*60+s.minute;if(nowT>=sT2)done[s.slot]=true;}});var next=null;for(var i=0;i<SCHEDULES_CK.length;i++){var s=SCHEDULES_CK[i];if(done[s.slot])continue;var sT=s.hour*60+s.minute;if(sT>nowT){if(!next||sT<next.total)next={hour:s.hour,minute:s.minute,label:s.label,total:sT,tomorrow:false};}else if(!next){next={hour:s.hour,minute:s.minute,label:s.label,total:sT+1440,tomorrow:true};}}if(!next){var f=SCHEDULES_CK[0];next={hour:f.hour,minute:f.minute,label:f.label,total:f.hour*60+f.minute+1440,tomorrow:true};}var diff=next.total-nowT,h=Math.floor(diff/60),m=diff%60;document.getElementById('nrLabel').textContent=(next.tomorrow?'Besok ':'')+String(next.hour).padStart(2,'0')+':'+String(next.minute).padStart(2,'0')+' '+next.label.split('+')[0].trim();document.getElementById('nrCountdown').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');SCHEDULES_CK.forEach(function(s){var sT=s.hour*60+s.minute;if(!done[s.slot]&&Math.abs(nowT-sT)<=15){var el=document.querySelector('.p-slot[data-slot="'+s.slot+'"]');if(el&&!el.classList.contains('active-slot'))el.classList.add('active-slot');}});}
 
 var lastSig='';
-setInterval(async function(){if(document.hidden)return;var newData=await fetchData();if(newData&&JSON.stringify(newData)!==lastSig){lastSig=JSON.stringify(newData);state.data=newData.concat(qGet());if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else if(state.currentPage==='historyPage')renderHistory();else{updateProgress();renderAiInsights();}updateCountdown();}},5000);
+setInterval(async function(){if(document.hidden)return;var newData=await fetchData();if(newData&&JSON.stringify(newData)!==lastSig){lastSig=JSON.stringify(newData);state.data=newData.concat(qGet());if(state.currentPage==='gdsPage'){renderGdsChart();renderGdsTable();}else if(state.currentPage==='dosePage'){renderDoseChart();renderDoseTable();}else if(state.currentPage==='dietPage')renderDiet();else if(state.currentPage==='historyPage')renderHistory();else{updateProgress();renderAiInsights();}updateCountdown();}},20000);
 
 var params=new URLSearchParams(window.location.search);var autoSlot=params.get('slot');
 
@@ -1432,7 +1439,7 @@ var DIET_UI=[
     {slot:'makan-sore',time:'18:00',label:'Makan Sore',icon:'fa-plate-wheat',color:'var(--warning)',bg:'var(--warning-dim)',target:'KH 56g | Protein 23g',menu:'Nasi 100 gram, Lauk hewani 50 gram, Tempe 50 gram, Sayur 75 gram (tanpa tepung)'},
     {slot:'snack-malam',time:'21:00',label:'Snack Malam',icon:'fa-moon',color:'var(--accent)',bg:'var(--accent-dim)',target:'KH 23g | Protein 9g',menu:'Susu isocal 200 ml (42 gram)'}
 ];
-function renderDiet(){var list=document.getElementById('dietList');if(!list)return;var today=getTodayKey(),todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var html='';DIET_UI.forEach(function(d){var isDone=todayData.some(function(e){return e.slot===d.slot;});html+='<div class="hp-item" style="flex-wrap:wrap;'+(isDone?'opacity:0.4;pointer-events:none;':'')+'"><div class="hp-item-icon" style="background:'+d.bg+';color:'+d.color+'"><i class="fa-solid '+d.icon+'"></i></div><div class="hp-item-info" style="flex:1;min-width:120px"><div class="hp-item-title" style="display:flex;align-items:center;gap:6px">'+d.label+(isDone?' <i class="fa-solid fa-circle-check" style="font-size:11px;color:var(--accent)"></i>':'')+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+d.time+' &bull; '+d.target+'</div><div style="font-size:11px;color:var(--fg2);margin-top:4px;line-height:1.4">'+d.menu+'</div></div></div>';});list.innerHTML=html;}
+function renderDietOld(){var list=document.getElementById('dietList');if(!list)return;var today=getTodayKey(),todayData=state.data.filter(function(e){return normalizeDate(e.date)===today;});var html='';DIET_UI.forEach(function(d){var isDone=todayData.some(function(e){return e.slot===d.slot;});html+='<div class="hp-item" style="flex-wrap:wrap;'+(isDone?'opacity:0.4;pointer-events:none;':'')+'"><div class="hp-item-icon" style="background:'+d.bg+';color:'+d.color+'"><i class="fa-solid '+d.icon+'"></i></div><div class="hp-item-info" style="flex:1;min-width:120px"><div class="hp-item-title" style="display:flex;align-items:center;gap:6px">'+d.label+(isDone?' <i class="fa-solid fa-circle-check" style="font-size:11px;color:var(--accent)"></i>':'')+'</div><div class="hp-item-sub"><i class="fa-regular fa-clock"></i>'+d.time+' &bull; '+d.target+'</div><div style="font-size:11px;color:var(--fg2);margin-top:4px;line-height:1.4">'+d.menu+'</div></div></div>';});list.innerHTML=html;}
 
 // --- KOREKSI GDS TINGGI ---
 var CORR_MIN_GAP_H = 3; // peringatan jika insulin cepat terakhir kurang dari 3 jam
@@ -1528,7 +1535,7 @@ function findEntry(key){ return state.data.find(function(e){ return entryKey(e) 
 function afterDataChange(){ renderHistory(); updateProgress(); renderAiInsights(); }
 function renderHistory(){
     var list = document.getElementById('historyList'); if (!list) return;
-    var rows = state.data.slice().sort(function(a,b){
+    var rows = state.data.filter(function(e){ return !MEAL_SLOT_SET[e.slot]; }).sort(function(a,b){
         return (normalizeDate(b.date) + String(b.time||'')).localeCompare(normalizeDate(a.date) + String(a.time||''));
     }).slice(0, 40);
     if (!rows.length){ list.innerHTML = '<div class="empty-box"><i class="fa-solid fa-clock-rotate-left"></i><p>Belum ada riwayat</p></div>'; return; }
@@ -1539,6 +1546,7 @@ function renderHistory(){
         var sub = fmtLabel(e.date, String(e.time||'').slice(0,5));
         if (e.gds != null) sub += ' &bull; GDS ' + esc(e.gds);
         if (e.dose != null) sub += ' &bull; ' + esc(e.dose) + ' u';
+        if (e.by) sub += ' &bull; ' + esc(e.by);
         h += '<div class="hp-item" style="flex-wrap:wrap"><div class="hp-item-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fa-solid fa-droplet"></i></div>' +
             '<div class="hp-item-info"><div class="hp-item-title">' + esc(SLOT_LABELS[e.slot] || e.slot) + '</div><div class="hp-item-sub">' + sub + '</div>' +
             (e.note ? '<div style="font-size:10px;color:var(--fg2);margin-top:3px;font-style:italic">' + esc(e.note) + '</div>' : '') + '</div>' +
@@ -1586,10 +1594,59 @@ document.getElementById('historyList').addEventListener('click', async function(
     }
 });
 renderQueueBanner();
+
+// --- PENGATURAN DARI SERVER ---
+async function pullSettings(){
+    try{
+        var r = await fetch(API_URL + '?action=getsettings&initData=' + encodeURIComponent(getInit()), {redirect:'follow'});
+        var d = await r.json();
+        if (d.status === 'ok' && d.settings){
+            currentSettings.defaults = {...DEFAULT_SETTINGS.defaults, ...d.settings.defaults};
+            currentSettings.thresholds = {...DEFAULT_SETTINGS.thresholds, ...d.settings.thresholds};
+            try{ localStorage.setItem('zayna_dm_settings', JSON.stringify(currentSettings)); }catch(e){}
+            populateSettingsUI(); updateLevemirButtonLabel();
+        }
+    }catch(e){}
+}
+
+// --- CHECKLIST MAKAN ---
+var MEAL_SLOT_SET = {'makan-pagi':1,'snack-pagi':1,'makan-siang':1,'snack-siang':1,'makan-sore':1,'snack-malam':1};
+function renderDiet(){
+    var list = document.getElementById('dietList'); if (!list) return;
+    var today = getTodayKey(), done = {};
+    state.data.forEach(function(e){ if (normalizeDate(e.date) === today && MEAL_SLOT_SET[e.slot]) done[e.slot] = String(e.time||'').slice(0,5); });
+    var html = '';
+    DIET_UI.forEach(function(d){
+        var t = done[d.slot];
+        html += '<div class="hp-item" style="flex-wrap:wrap"><div class="hp-item-icon" style="background:' + d.bg + ';color:' + d.color + '"><i class="fa-solid ' + d.icon + '"></i></div>' +
+            '<div class="hp-item-info" style="flex:1;min-width:120px"><div class="hp-item-title">' + d.label + (t ? ' <i class="fa-solid fa-circle-check" style="font-size:11px;color:var(--accent)"></i>' : '') + '</div>' +
+            '<div class="hp-item-sub"><i class="fa-regular fa-clock"></i>' + d.time + ' &bull; ' + d.target + '</div>' +
+            '<div style="font-size:11px;color:var(--fg2);margin-top:4px;line-height:1.4">' + d.menu + '</div></div>' +
+            (t ? '<div style="font-size:11px;color:var(--accent);font-weight:600">Selesai ' + t + '</div>'
+               : '<button class="fb active" data-meal="' + d.slot + '"><i class="fa-solid fa-check"></i>Sudah makan</button>') + '</div>';
+    });
+    list.innerHTML = html;
+}
+document.getElementById('dietList').addEventListener('click', async function(ev){
+    var b = ev.target.closest('[data-meal]'); if (!b) return;
+    var entry = {date:getTodayKey(), time:getTimeStr(), slot:b.dataset.meal, gds:null, dose:null, doseType:null, category:'good', aiGenerated:false, standardDose:null, note:null};
+    var ok = await submitData(entry);
+    if (ok){ state.data.unshift(entry); renderDiet(); showToast('Tercatat: sudah makan'); }
+    else showToast('Gagal menyimpan', 'error');
+});
+
+// --- KALKULATOR TAMBAHAN KH ---
+var CARB_G_PER_UNIT = 20;
+document.getElementById('carbInput').addEventListener('input', function(){
+    var g = parseFloat(this.value), el = document.getElementById('carbResult');
+    if (isNaN(g) || g <= 0){ el.innerHTML = ''; return; }
+    var exact = g / CARB_G_PER_UNIT, fl = Math.floor(exact);
+    el.innerHTML = 'Hitungan: <strong>' + exact.toFixed(1).replace('.', ',') + ' unit</strong> &rarr; dibulatkan ke bawah: <strong>' + fl + ' unit</strong>' + (fl === 0 ? ' (belum mencapai ' + CARB_G_PER_UNIT + ' g)' : '');
+});
     
 async function init(){
     // Load settings first
-    loadSettings();
+    loadSettings();pullSettings();
     
     var savedTheme = localStorage.getItem('theme') || 'dark';
     applyTheme(savedTheme);
